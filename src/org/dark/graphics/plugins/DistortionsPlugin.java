@@ -13,7 +13,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.input.InputEventAPI;
-import data.hullmods.TEM_LatticeShield;
+import data.scripts.hullmods.TEM_LatticeShield;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;

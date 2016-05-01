@@ -7,5 +7,5 @@
     "description": "An arcane tome of black magic and sorcery.",
     "gameVersion": "0.7.2a",
 	"jars":["jars/Graphics.jar"],
-	"modPlugin":"org.dark.shaders.ShaderModPlugin",
+	"modPlugin":"org.dark.shaders.ShaderModPlugin"
 }

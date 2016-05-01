@@ -15,12 +15,12 @@
         "GLib_DistortionsPlugin":"org.dark.graphics.plugins.DistortionsPlugin",
         "GLib_LightInjector":"org.dark.graphics.plugins.LightInjector",
         "GLib_InsigniaPlugin":"org.dark.graphics.plugins.InsigniaPlugin",
-        "GLib_MissileSelfDestruct":"org.dark.graphics.plugins.MissileSelfDestruct",
+        "GLib_MissileSelfDestruct":"org.dark.graphics.plugins.MissileSelfDestruct"
 	},
 
     "graphics":{
         "icons":{
-            "glib_insignia":"graphics/glib/icons/insignia/glib_insignaSheet.png",
-        },
-    },
+            "glib_insignia":"graphics/glib/icons/insignia/glib_insignaSheet.png"
+        }
+    }
 }

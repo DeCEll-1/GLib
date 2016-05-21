@@ -1,3 +1,6 @@
+1.0.2 (May 21, 2016)
+- General compatibility update
+
 1.0.1 (April 22, 2016)
 - Added sun/hyperspace lighting from SS+
 

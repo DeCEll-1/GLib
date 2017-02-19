@@ -220,7 +220,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     if (shockwaveEnabled && !ship.isFighter()) {
                         RippleDistortion ripple = new RippleDistortion(shipLoc, shipVel);
                         ripple.setSize(shipRadius * 4.5f);
-                        ripple.setIntensity(shipRadius * LIGHT_INTENSITY.get(shipHullSize));
+                        ripple.setIntensity(shipRadius);
                         ripple.setFrameRate(60f / RIPPLE_LENGTH.get(shipHullSize));
                         ripple.fadeInSize(RIPPLE_LENGTH.get(shipHullSize) * 1.5f);
                         ripple.fadeOutIntensity(RIPPLE_LENGTH.get(shipHullSize));

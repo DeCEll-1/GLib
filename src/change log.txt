@@ -1,5 +1,6 @@
 1.0.4 (Unreleased)
 - Adjusted ripple intensity for ship deaths
+- Disable bloom automatically on Intel IGPs
 
 1.0.3 (January 8, 2017)
 - Nvidia post processing bug is fixed

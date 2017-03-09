@@ -205,7 +205,9 @@ public class LightShader implements ShaderAPI {
             return;
         }
 
-        if (!GLContext.getCapabilities().OpenGL30) {
+        String vendor = GL11.glGetString(GL11.GL_VENDOR);
+        if (!GLContext.getCapabilities().OpenGL30 || vendor.contains("Intel")) {
+            Global.getLogger(LightShader.class).log(Level.WARN, "Bloom is not supported; disabling");
             bloomEnabled = false;
         }
 

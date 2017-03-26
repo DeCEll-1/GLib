@@ -1,4 +1,4 @@
-1.0.4 (Unreleased)
+1.0.4 (March 26, 2017)
 - Adjusted ripple intensity for ship deaths
 - Disable bloom automatically on Intel IGPs
 

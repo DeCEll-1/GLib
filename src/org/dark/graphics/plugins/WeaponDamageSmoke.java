@@ -48,7 +48,8 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(WeaponDamageSmoke.class).log(Level.ERROR, "Failed to load performance settings: " + e.getMessage());
+            Global.getLogger(WeaponDamageSmoke.class).log(Level.ERROR, "Failed to load performance settings: " +
+                                                          e.getMessage());
             enabled = false;
         }
     }
@@ -86,7 +87,8 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
                     continue;
                 }
 
-                if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), (ship.getCollisionRadius() + 20f) * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), (ship.getCollisionRadius() + 20f) *
+                                                      OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
                     String style = ship.getHullStyleId();
                     Color smokeColor = SMOKE_COLORS.get(style);
                     if (smokeColor == null) {
@@ -101,11 +103,15 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
 
                             Vector2f location = MathUtils.getRandomPointInCircle(null, 5f);
 
-                            Color color = ShipColors.colorJitter(ShipColors.colorBlend(smokeColor, SMOKE1_MOD, 0.9f), 10f);
-                            Color color2 = ShipColors.colorJitter(ShipColors.colorBlend(smokeColor, SMOKE2_MOD, 0.9f), 30f);
+                            Color color = ShipColors.colorJitter(ShipColors.colorBlend(smokeColor, SMOKE1_MOD, 0.9f),
+                                                                 10f);
+                            Color color2 = ShipColors.colorJitter(ShipColors.colorBlend(smokeColor, SMOKE2_MOD, 0.9f),
+                                                                  30f);
 
-                            engine.addSmokeParticle(weapon.getLocation(), location, 40f * smokeSize * smokeSizeValue, 0.1f, 4f, color);
-                            engine.addSmokeParticle(weapon.getLocation(), location, 20f * smokeSize * smokeSizeValue, 0.1f, 3f, color2);
+                            engine.addSmokeParticle(weapon.getLocation(), location, 40f * smokeSize * smokeSizeValue,
+                                                    0.1f, 4f, color);
+                            engine.addSmokeParticle(weapon.getLocation(), location, 20f * smokeSize * smokeSizeValue,
+                                                    0.1f, 3f, color2);
                         }
                     }
                 }

@@ -134,7 +134,8 @@ public class StandardLight implements LightAPI {
      * <p>
      * @since Beta 1.07
      */
-    public StandardLight(Vector2f location, Vector2f velocity, Vector2f offset, CombatEntityAPI attach, float intensity, float size) {
+    public StandardLight(Vector2f location, Vector2f velocity, Vector2f offset, CombatEntityAPI attach, float intensity,
+                         float size) {
         for (int i = 0; i < 4; i++) {
             damageFrames.add(false);
         }
@@ -153,7 +154,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Constructs a point light, attached to a beam endpoint. Note that the light begins with an initial size and intensity of 0.
+     * Constructs a point light, attached to a beam endpoint. Note that the light begins with an initial size and
+     * intensity of 0.
      * <p>
      * @param location  The desired location for the light.
      * @param velocity  The desired velocity for the light.
@@ -190,7 +192,8 @@ public class StandardLight implements LightAPI {
      * <p>
      * @since Beta 1.07
      */
-    public StandardLight(Vector2f location, Vector2f velocity, BeamAPI beamLink, boolean linkToEnd, float intensity, float size) {
+    public StandardLight(Vector2f location, Vector2f velocity, BeamAPI beamLink, boolean linkToEnd, float intensity,
+                         float size) {
         for (int i = 0; i < 4; i++) {
             damageFrames.add(false);
         }
@@ -219,7 +222,8 @@ public class StandardLight implements LightAPI {
      * <p>
      * @since Beta 1.02
      */
-    public StandardLight(Vector2f location, Vector2f location2, Vector2f velocity, Vector2f velocity2, BeamAPI beamAttach) {
+    public StandardLight(Vector2f location, Vector2f location2, Vector2f velocity, Vector2f velocity2,
+                         BeamAPI beamAttach) {
         for (int i = 0; i < 4; i++) {
             damageFrames.add(false);
         }
@@ -248,7 +252,8 @@ public class StandardLight implements LightAPI {
      * <p>
      * @since Beta 1.07
      */
-    public StandardLight(Vector2f location, Vector2f location2, Vector2f velocity, Vector2f velocity2, BeamAPI beamAttach, float intensity, float size) {
+    public StandardLight(Vector2f location, Vector2f location2, Vector2f velocity, Vector2f velocity2,
+                         BeamAPI beamAttach, float intensity, float size) {
         for (int i = 0; i < 4; i++) {
             damageFrames.add(false);
         }
@@ -461,9 +466,11 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Fades the light out over a period of time. Giving a negative or zero value will cause the light to instantly disappear.
+     * Fades the light out over a period of time. Giving a negative or zero value will cause the light to instantly
+     * disappear.
      * <p>
-     * @param seconds The period of time desired for the light to fade out over. A negative or zero value will cause the light to instantly disappear.
+     * @param seconds The period of time desired for the light to fade out over. A negative or zero value will cause the
+     *                light to instantly disappear.
      */
     public void fadeOut(float seconds) {
         if (seconds <= 0f) {
@@ -521,7 +528,8 @@ public class StandardLight implements LightAPI {
     /**
      * Sets the time the light takes to fade out if it is automatically flagged to fade out by the lighting system.
      * <p>
-     * @param autoFadeOutTime The time desired for the light to take to fade out if it is automatically flagged to fade out by the lighting system.
+     * @param autoFadeOutTime The time desired for the light to take to fade out if it is automatically flagged to fade
+     *                        out by the lighting system.
      */
     public void setAutoFadeOutTime(float autoFadeOutTime) {
         this.autoFadeOutTime = autoFadeOutTime;
@@ -539,7 +547,8 @@ public class StandardLight implements LightAPI {
     /**
      * Gets the location that the light is attached to, if it is attached to a beam's origin or endpoint.
      * <p>
-     * @return The origin or endpoint of a beam that the light is attached to. Returns null if there is no such attachment.
+     * @return The origin or endpoint of a beam that the light is attached to. Returns null if there is no such
+     *         attachment.
      */
     public BeamAPI getBeamLink() {
         return beamLink;
@@ -569,7 +578,8 @@ public class StandardLight implements LightAPI {
     /**
      * Sets the light to a particular color.
      * <p>
-     * @param color The color to set the light to, given by an object whose xyz components correspond to rgb. Uses values between 0.0 and 1.0.
+     * @param color The color to set the light to, given by an object whose xyz components correspond to rgb. Uses
+     *              values between 0.0 and 1.0.
      */
     public void setColor(Vector3f color) {
         this.color.x = color.x;
@@ -627,8 +637,8 @@ public class StandardLight implements LightAPI {
     /**
      * Gets the light's intensity.
      * <p>
-     * @return The light's intensity, in terms of lumens at the center of the light. This value is modulated by the brightness of the beam it is attached to, if
-     *         any.
+     * @return The light's intensity, in terms of lumens at the center of the light. This value is modulated by the
+     *         brightness of the beam it is attached to, if any.
      */
     @Override
     public float getIntensity() {
@@ -644,8 +654,9 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Sets the light's intensity. A value of 1 will increase the luminosity of the pixel at the center of the light by 1 times the pixel's current luminosity
-     * (e.g. a luminosity of 0.5 will become 1.0). This formula may change if materials are added in the future.
+     * Sets the light's intensity. A value of 1 will increase the luminosity of the pixel at the center of the light by
+     * 1 times the pixel's current luminosity (e.g. a luminosity of 0.5 will become 1.0). This formula may change if
+     * materials are added in the future.
      * <p>
      * @param intensity The desired intensity of the light.
      */
@@ -654,8 +665,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Gives the light a lifetime timer. If the timer runs out, the light will fade or disappear, depending on parameters. Lights last forever by default.
-     * Lifetime will only decrement when the light is not fading.
+     * Gives the light a lifetime timer. If the timer runs out, the light will fade or disappear, depending on
+     * parameters. Lights last forever by default. Lifetime will only decrement when the light is not fading.
      * <p>
      * @param lifetime The desired lifetime for the light.
      */
@@ -717,7 +728,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Sets the secondary endpoint of the light. Only used for line-type lights. Has no effect if the light is attached to something.
+     * Sets the secondary endpoint of the light. Only used for line-type lights. Has no effect if the light is attached
+     * to something.
      * <p>
      * @param location The secondary endpoint of the light.
      */
@@ -735,8 +747,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Sets the attachment offset of the light. Note that this will offset both location vectors. Has no effect if the light is not attached to something. Does
-     * not work with beam attachments.
+     * Sets the attachment offset of the light. Note that this will offset both location vectors. Has no effect if the
+     * light is not attached to something. Does not work with beam attachments.
      * <p>
      * @param offset The attachment offset to give the light, before attachment rotation.
      */
@@ -798,7 +810,8 @@ public class StandardLight implements LightAPI {
     /**
      * Gets the light's type.
      * <p>
-     * @return The light's current type. Type 0: point light (default). Type 1: line light. Type 2: cone light. Type 3: directional light.
+     * @return The light's current type. Type 0: point light (default). Type 1: line light. Type 2: cone light. Type 3:
+     *         directional light.
      */
     @Override
     public int getType() {
@@ -808,7 +821,8 @@ public class StandardLight implements LightAPI {
     /**
      * Sets the light's type.
      * <p>
-     * @param type The type of light to set it to. Type 0: point light (default). Type 1: line light. Type 2: cone light. Type 3: directional light.
+     * @param type The type of light to set it to. Type 0: point light (default). Type 1: line light. Type 2: cone
+     *             light. Type 3: directional light.
      */
     public void setType(int type) {
         this.type = type;
@@ -843,7 +857,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Gets the current velocity of the secondary endpoint of the light. Only used for line-type lights. Returns zero if the light is attached to anything.
+     * Gets the current velocity of the secondary endpoint of the light. Only used for line-type lights. Returns zero if
+     * the light is attached to anything.
      * <p>
      * @return The current velocity of the light's secondary endpoint.
      * <p>
@@ -858,7 +873,8 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Sets the velocity for the secondary endpoint of the light. Only used for line-type lights. Has no effect if the light is attached to something.
+     * Sets the velocity for the secondary endpoint of the light. Only used for line-type lights. Has no effect if the
+     * light is attached to something.
      * <p>
      * @param velocity The velocity to apply to the secondary endpoint of the light.
      * <p>
@@ -902,9 +918,9 @@ public class StandardLight implements LightAPI {
     }
 
     /**
-     * Makes the light permanent. This sets the lifetime of the light to -1 and sets the internal failsafe lifetime to -1 as well, making it truly permanent
-     * until
-     * destroyed or otherwise made mortal. By default, lights disappear after one minute to avoid "light leaks".
+     * Makes the light permanent. This sets the lifetime of the light to -1 and sets the internal failsafe lifetime to
+     * -1 as well, making it truly permanent until destroyed or otherwise made mortal. By default, lights disappear
+     * after one minute to avoid "light leaks".
      * <p>
      * @since Alpha 1.62
      */
@@ -988,5 +1004,4 @@ public class StandardLight implements LightAPI {
             arcEnd += 360f;
         }
     }
-
 }

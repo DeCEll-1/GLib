@@ -10,7 +10,6 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Level;
-import org.dark.graphics.util.Twig;
 import org.dark.shaders.util.ShaderLib;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +29,8 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load performance settings: " + e.getMessage());
+            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load performance settings: " +
+                                                            e.getMessage());
             enabled = false;
         }
     }
@@ -67,11 +67,13 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                 }
 
                 if (ship.getFluxTracker().isOverloaded()) {
-                    if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius() * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                    if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius() *
+                                                          OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
                         int arcs = 1;
                         if (ship.getHullSize() == ShipAPI.HullSize.FIGHTER) {
                             arcs = 0;
-                        } else if (ship.getHullSize() == ShipAPI.HullSize.FRIGATE || ship.getHullSize() == ShipAPI.HullSize.DEFAULT) {
+                        } else if (ship.getHullSize() == ShipAPI.HullSize.FRIGATE || ship.getHullSize() ==
+                                ShipAPI.HullSize.DEFAULT) {
                             arcs = 1;
                         } else if (ship.getHullSize() == ShipAPI.HullSize.DESTROYER) {
                             arcs = 1;
@@ -81,14 +83,15 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                             arcs = 3;
                         }
 
-                        ShipAPI empTarget = Twig.empTargetTwig(ship);
+                        ShipAPI empTarget = ship;
                         for (int a = 0; a < arcs; a++) {
                             Vector2f point = new Vector2f(ship.getLocation());
 
                             point.x += (ship.getCollisionRadius() / 3f) * (((float) Math.random() * 2f) - 1);
                             point.y += (ship.getCollisionRadius() / 3f) * (((float) Math.random() * 2f) - 1);
 
-                            engine.spawnEmpArc(ship, point, empTarget, empTarget, DamageType.OTHER, 0f, 0f, ship.getCollisionRadius(), null, 12f,
+                            engine.spawnEmpArc(ship, point, empTarget, empTarget, DamageType.OTHER, 0f, 0f,
+                                               ship.getCollisionRadius(), null, 12f,
                                                ship.getVentFringeColor(), ship.getVentCoreColor());
                         }
                     }

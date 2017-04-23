@@ -2,6 +2,7 @@ package org.dark.shaders.light;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BeamAPI;
+import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.CombatAsteroidAPI;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Level;
+import org.dark.graphics.util.Tessellate;
 import org.dark.shaders.ShaderModPlugin;
 import org.dark.shaders.util.ShaderAPI;
 import org.dark.shaders.util.ShaderLib;
@@ -40,6 +42,9 @@ import org.dark.shaders.util.TextureData.TextureDataType;
 import org.dark.shaders.util.TextureEntry;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.lazylib.CollisionUtils;
+import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.ARBTextureRg;
@@ -91,9 +96,9 @@ public class LightShader implements ShaderAPI {
     private static final Vector2f tempVec = new Vector2f();
 
     /**
-     * Adds a light to the rendering list. If it is a StandardLight, it will be processed automatically. Lights defined via csv will be created automatically
-     * through the course of gameplay; ignore this method if the data in the csv is sufficient. This function will do nothing if the light shader is not
-     * enabled.
+     * Adds a light to the rendering list. If it is a StandardLight, it will be processed automatically. Lights defined
+     * via csv will be created automatically through the course of gameplay; ignore this method if the data in the csv
+     * is sufficient. This function will do nothing if the light shader is not enabled.
      * <p>
      * Does not check for duplicates.
      * <p>
@@ -117,7 +122,8 @@ public class LightShader implements ShaderAPI {
     }
 
     /**
-     * Forcibly removes a light from the rendering list. This function will do nothing if the light shader is not enabled.
+     * Forcibly removes a light from the rendering list. This function will do nothing if the light shader is not
+     * enabled.
      * <p>
      * @param light The light to remove.
      * <p>
@@ -223,7 +229,9 @@ public class LightShader implements ShaderAPI {
                 vertShader = Global.getSettings().loadText("data/shaders/lights/2dtangent.vert");
                 fragShader = Global.getSettings().loadText("data/shaders/lights/2dtangent.frag");
             } catch (IOException ex) {
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Normal transform shader loading error!  Normals disabled!" + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR,
+                                                        "Normal transform shader loading error!  Normals disabled!" +
+                                                        ex.getMessage());
                 normalEnabled = false;
             }
         }
@@ -232,7 +240,8 @@ public class LightShader implements ShaderAPI {
             programAux = ShaderLib.loadShader(vertShader, fragShader);
 
             if (programAux == 0) {
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Normal transform shader compile error!  Normals disabled!");
+                Global.getLogger(LightShader.class).log(Level.ERROR,
+                                                        "Normal transform shader compile error!  Normals disabled!");
                 normalEnabled = false;
             }
         }
@@ -246,7 +255,8 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/lights/lights.frag");
             }
         } catch (IOException ex) {
-            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!" + ex.getMessage());
+            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!" +
+                                                    ex.getMessage());
             enabled = false;
             return;
         }
@@ -275,7 +285,8 @@ public class LightShader implements ShaderAPI {
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!" + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!" +
+                                                        ex.getMessage());
             }
 
             programBloom1 = ShaderLib.loadShader(vertShader, fragShader);
@@ -300,7 +311,8 @@ public class LightShader implements ShaderAPI {
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!" + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!" +
+                                                        ex.getMessage());
             }
 
             programBloom2 = ShaderLib.loadShader(vertShader, fragShader);
@@ -315,7 +327,8 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom3.frag");
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!" + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!" +
+                                                        ex.getMessage());
             }
 
             programBloom3 = ShaderLib.loadShader(vertShader, fragShader);
@@ -329,15 +342,18 @@ public class LightShader implements ShaderAPI {
         lightTex = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, lightTex);
         if (ShaderLib.useBufferCore()) {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT, (ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
+                              (ByteBuffer) null);
         } else {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT, (ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
+                              (ByteBuffer) null);
         }
 
         if (normalEnabled) {
             normalTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth(),
+                              ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
                               GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
@@ -351,23 +367,31 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
-                normalBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, normalTex, 0);
+                normalBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, normalTex,
+                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                                                           0);
             } else if (ShaderLib.useBufferARB()) {
-                normalBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, normalTex, 0);
+                normalBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, normalTex,
+                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                                                           0);
             } else {
-                normalBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, normalTex, 0);
+                normalBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, normalTex,
+                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                                                           0);
             }
 
             if (normalBufferId == 0) {
                 normalEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Normals framebuffer object error!  Normals disabled!");
+                Global.getLogger(LightShader.class).log(Level.ERROR,
+                                                        "Normals framebuffer object error!  Normals disabled!");
             }
         }
 
         if (bloomEnabled) {
             hdrTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB16, ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB16, ShaderLib.getInternalWidth(),
+                              ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
                               GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
@@ -381,17 +405,22 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
-                hdrBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex, 0);
+                hdrBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex,
+                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else if (ShaderLib.useBufferARB()) {
-                hdrBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex, 0);
+                hdrBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex,
+                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
-                hdrBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex, 0);
+                hdrBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex,
+                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             hdrTex2 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex2);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1), ShaderLib.
-                              getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
+                              ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                              ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
+                              GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -404,17 +433,28 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
-                hdrBuffer2Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex2, 0);
+                hdrBuffer2Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex2,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
-                hdrBuffer2Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex2, 0);
+                hdrBuffer2Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex2,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             } else {
-                hdrBuffer2Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex2, 0);
+                hdrBuffer2Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex2,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             }
 
             hdrTex3 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex3);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1), ShaderLib.
-                              getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
+                              ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                              ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
+                              GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -427,11 +467,20 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
-                hdrBuffer3Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex3, 0);
+                hdrBuffer3Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex3,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
-                hdrBuffer3Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex3, 0);
+                hdrBuffer3Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex3,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             } else {
-                hdrBuffer3Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex3, 0);
+                hdrBuffer3Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex3,
+                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                                                         ShaderLib.getInternalHeight() /
+                                                         (int) Math.pow(2, bloomMips - 1), 0);
             }
 
             if (hdrBufferId == 0 || hdrBuffer2Id == 0 || hdrBuffer3Id == 0) {
@@ -480,7 +529,8 @@ public class LightShader implements ShaderAPI {
             indexBloom1[2] = GL20.glGetUniformLocation(programBloom1, "hdr");
             indexBloom1[3] = GL20.glGetUniformLocation(programBloom1, "scale");
             GL20.glUniform1i(indexBloom1[0], 0);
-            GL20.glUniform2f(indexBloom1[1], (ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1)), ShaderLib.getVisibleU());
+            GL20.glUniform2f(indexBloom1[1], (ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1)),
+                             ShaderLib.getVisibleU());
             GL20.glUniform1f(indexBloom1[2], 16f);
             GL20.glUniform1f(indexBloom1[3], bloomScale);
             GL20.glUseProgram(programBloom2);
@@ -489,7 +539,8 @@ public class LightShader implements ShaderAPI {
             indexBloom2[2] = GL20.glGetUniformLocation(programBloom2, "intensity");
             indexBloom2[3] = GL20.glGetUniformLocation(programBloom2, "scale");
             GL20.glUniform1i(indexBloom2[0], 0);
-            GL20.glUniform2f(indexBloom2[1], ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), ShaderLib.getVisibleV());
+            GL20.glUniform2f(indexBloom2[1], ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1),
+                             ShaderLib.getVisibleV());
             GL20.glUniform1f(indexBloom2[2], bloomIntensity);
             GL20.glUniform1f(indexBloom2[3], bloomScale);
             GL20.glUseProgram(programBloom3);
@@ -707,11 +758,14 @@ public class LightShader implements ShaderAPI {
                 if (data.hasStandard) {
                     if ((float) Math.random() <= data.chance) {
                         final StandardLight light;
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
-                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity * fighterLightMultiplier, data.standardSize *
+                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
+                                data.fighterDim) {
+                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity *
+                                                      fighterLightMultiplier, data.standardSize *
                                                       fighterLightMultiplier);
                         } else {
-                            light = new StandardLight(ZERO, ZERO, new Vector2f(-data.standardOffset, 0f), proj, data.standardIntensity, data.standardSize);
+                            light = new StandardLight(ZERO, ZERO, new Vector2f(-data.standardOffset, 0f), proj,
+                                                      data.standardIntensity, data.standardSize);
                         }
                         light.setColor(data.standardColor);
                         light.setAutoFadeOutTime(data.standardFadeout);
@@ -737,7 +791,8 @@ public class LightShader implements ShaderAPI {
                         } else {
                             light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
                         }
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
+                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
+                                data.fighterDim) {
                             light.setIntensity(data.flashIntensity * fighterLightMultiplier);
                             light.setSize(data.flashSize * fighterLightMultiplier);
                         } else {
@@ -760,7 +815,8 @@ public class LightShader implements ShaderAPI {
             final DamagingProjectileAPI proj = entry.getKey();
 
             if (!entry.getValue()) {
-                if (proj.isFading() || (!engine.isEntityInPlay(proj) && !proj.didDamage()) || (proj instanceof MissileAPI && ((MissileAPI) proj).isFizzling())) {
+                if (proj.isFading() || (!engine.isEntityInPlay(proj) && !proj.didDamage()) ||
+                        (proj instanceof MissileAPI && ((MissileAPI) proj).isFizzling())) {
                     entry.setValue(true);
 
                     for (LightAPI light : lights) {
@@ -821,7 +877,8 @@ public class LightShader implements ShaderAPI {
                     if (data.hasHit) {
                         if (((float) Math.random() <= data.chance || hadAttachment) && proj.getDamageTarget() != null) {
                             final StandardLight light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
-                            if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
+                            if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
+                                    data.fighterDim) {
                                 light.setIntensity(data.hitIntensity * fighterLightMultiplier * currentFactor);
                                 light.setSize(data.hitSize * fighterLightMultiplier * currentFactor);
                             } else {
@@ -869,7 +926,8 @@ public class LightShader implements ShaderAPI {
                     // Attached light
                     if (data.hasStandard) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, ZERO, ZERO, beam);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
+                                data.fighterDim) {
                             light.setIntensity(data.standardIntensity * fighterLightMultiplier);
                             light.setSize(data.standardSize * fighterLightMultiplier);
                         } else {
@@ -885,7 +943,8 @@ public class LightShader implements ShaderAPI {
                     // Flash light
                     if (data.hasFlash) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, false);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
+                                data.fighterDim) {
                             light.setIntensity(data.flashIntensity * fighterLightMultiplier);
                             light.setSize(data.flashSize * fighterLightMultiplier);
                         } else {
@@ -901,7 +960,8 @@ public class LightShader implements ShaderAPI {
                     // Hit light
                     if (data.hasHit) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, true);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
+                                data.fighterDim) {
                             light.setIntensity(data.hitIntensity * fighterLightMultiplier);
                             light.setSize(data.hitSize * fighterLightMultiplier);
                         } else {
@@ -995,7 +1055,8 @@ public class LightShader implements ShaderAPI {
             }
 
             if (type == 0) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
+                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                               light.getLocation()));
                 size = ShaderLib.unitsToUV(size);
                 final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
                 final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
@@ -1055,8 +1116,10 @@ public class LightShader implements ShaderAPI {
                 bufferPut[10] = height;
                 dataBufferPre.put(bufferPut);
             } else if (type == 1) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
-                final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation2()));
+                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                               light.getLocation()));
+                final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                               light.getLocation2()));
                 size = ShaderLib.unitsToUV(size);
                 final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
                 final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
@@ -1116,7 +1179,8 @@ public class LightShader implements ShaderAPI {
                 bufferPut[10] = height;
                 dataBufferPre.put(bufferPut);
             } else if (type == 2) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
+                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                               light.getLocation()));
                 final float anglesx = (float) Math.toRadians(light.getArcStart());
                 final float anglesy = (float) Math.toRadians(light.getArcEnd());
                 size = ShaderLib.unitsToUV(size);
@@ -1501,13 +1565,15 @@ public class LightShader implements ShaderAPI {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, normalBufferId);
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() *
+                               Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
-        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(), viewport.getLLY() + viewport.getVisibleHeight(),
+        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
+                     viewport.getLLY() + viewport.getVisibleHeight(),
                      -2000,
                      2000);
 
@@ -1540,7 +1606,8 @@ public class LightShader implements ShaderAPI {
             }
 
             final boolean hasNormal;
-            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP, ObjectType.ASTEROID, 0);
+            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP,
+                                                                  ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             float depth = 1f;
             if (entry != null) {
@@ -1608,9 +1675,11 @@ public class LightShader implements ShaderAPI {
             }
 
             boolean hasNormal;
-            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.NORMAL_MAP, ObjectType.SHIP, 0);
+            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.NORMAL_MAP,
+                                                            ObjectType.SHIP, 0);
             if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.NORMAL_MAP, ObjectType.SHIP, 0);
+                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.NORMAL_MAP,
+                                                   ObjectType.SHIP, 0);
             }
             SpriteAPI sprite;
             float depth = 1f;
@@ -1665,99 +1734,156 @@ public class LightShader implements ShaderAPI {
                 }
             }
 
-            sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+            BoundsAPI bounds = ship.getVisualBounds();
+            if (bounds != null) {
+                bounds.update(ship.getLocation(), ship.getFacing());
+
+                GL11.glEnable(GL11.GL_STENCIL_TEST);
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glColorMask(false, false, false, false);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 16, 0xFF); // Set stencil to 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+                GL11.glStencilMask(0xFF); // Write to stencil buffer
+                GL11.glClearStencil(0);
+                GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
+
+                Tessellate.render(bounds, 1f, 1f, 1f);
+
+                GL11.glColorMask(true, true, true, true);
+                GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+                GL11.glStencilMask(0x00); // Don't write anything to stencil buffer
+
+                sprite.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+
+                GL11.glDisable(GL11.GL_STENCIL_TEST);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // Pass test always
+            } else {
+                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+            }
+
+            final Vector2f renderOffset = VectorUtils.rotate(ship.getRenderOffset(), ship.getFacing(), new Vector2f());
 
             final List<WeaponAPI> weapons = ship.getAllWeapons();
             final List<WeaponSlotAPI> emptySlots = ship.getHullSpec().getAllWeaponSlotsCopy();
             final int weaponSize = weapons.size();
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
-                emptySlots.remove(weapon.getSlot());
+                if (!emptySlots.remove(weapon.getSlot())) {
+                    for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
+                        final WeaponSlotAPI slot = iter.next();
+                        final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
+                                                                   new Vector2f());
+                        final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                        if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
+                            iter.remove();
+                            break;
+                        }
+                    }
+                }
             }
-            final int slotSize = emptySlots.size();
-            for (int j = 0; j < slotSize; j++) {
-                final WeaponSlotAPI slot = emptySlots.get(j);
-                if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() || (slot.getWeaponType() == WeaponType.LAUNCH_BAY)) {
-                    continue;
-                }
-                switch (slot.getSlotSize()) {
-                    default:
-                    case SMALL:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallTurretCover();
-                        }
-                        break;
-                    case MEDIUM:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumTurretCover();
-                        }
-                        break;
-                    case LARGE:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeTurretCover();
-                        }
-                        break;
-                }
-                if (originalSprite == null || originalSprite.getTextureId() == 0) {
-                    continue;
-                }
-                final Vector2f slotLocation = slot.computePosition(ship);
 
-                if (entry != null) {
-                    sprite = entry.sprite;
-                    sprite.setAngle(originalSprite.getAngle());
-                    sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
-                    sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                    sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
-                    depth = entry.magnitude;
-                    hasNormal = true;
-                } else {
-                    sprite = originalSprite;
-                    hasNormal = false;
-                }
+            if (bounds == null) {
+                final int slotSize = emptySlots.size();
+                for (int j = 0; j < slotSize; j++) {
+                    final WeaponSlotAPI slot = emptySlots.get(j);
+                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() ||
+                            (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule() ||
+                            slot.isBuiltIn()) {
+                        continue;
+                    }
+                    final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
+                    switch (slot.getSlotSize()) {
+                        default:
+                        case SMALL:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallTurretCover();
+                            }
+                            break;
+                        case MEDIUM:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumTurretCover();
+                            }
+                            break;
+                        case LARGE:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeTurretCover();
+                            }
+                            break;
+                    }
+                    if (originalSprite == null || originalSprite.getTextureId() == 0) {
+                        continue;
+                    }
 
-                uniformAngle = originalSprite.getAngle();
-                uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
-                    lastAngle = uniformAngle;
-                    lastFlatness = uniformFlatness;
-                    GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
-                }
+                    if (entry != null) {
+                        sprite = entry.sprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                        sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
+                        sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
+                        sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        depth = entry.magnitude;
+                        hasNormal = true;
+                    } else {
+                        sprite = originalSprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                        hasNormal = false;
+                    }
 
-                sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+                    uniformAngle = originalSprite.getAngle();
+                    uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                    if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                        lastAngle = uniformAngle;
+                        lastFlatness = uniformFlatness;
+                        GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                    }
+
+                    sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+                }
             }
 
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
                 if (!weapon.getSlot().isHidden()) {
-                    final Vector2f weaponLocation = weapon.getLocation();
+                    final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
 
                     if (weapon.getUnderSpriteAPI() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_UNDER, 0);
                             }
                         }
                         originalSprite = weapon.getUnderSpriteAPI();
@@ -1788,17 +1914,21 @@ public class LightShader implements ShaderAPI {
                     if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -1821,23 +1951,28 @@ public class LightShader implements ShaderAPI {
                             GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation,
+                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
                     if (weapon.getSprite() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET, 0);
                             }
                         }
                         originalSprite = weapon.getSprite();
@@ -1868,17 +2003,21 @@ public class LightShader implements ShaderAPI {
                     if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -1901,10 +2040,12 @@ public class LightShader implements ShaderAPI {
                             GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation,
+                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
-                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() && (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
+                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() &&
+                            (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
                         final List<MissileRenderDataAPI> msls = weapon.getMissileRenderData();
                         final int mslSize = msls.size();
                         for (int k = 0; k < mslSize; k++) {
@@ -1915,14 +2056,17 @@ public class LightShader implements ShaderAPI {
 
                             final Vector2f missileLocation = msl.getMissileCenterLocation();
 
-                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
+                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.NORMAL_MAP,
+                                                               ObjectType.MISSILE, 0);
                             originalSprite = msl.getSprite();
                             if (entry != null) {
                                 sprite = entry.sprite;
                                 sprite.setAngle(msl.getMissileFacing() - 90f);
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                                sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
+                                sprite.setAlphaMult(
+                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) *
+                                        msl.getBrightness());
                                 depth = entry.magnitude;
                                 hasNormal = true;
                             } else {
@@ -1938,7 +2082,8 @@ public class LightShader implements ShaderAPI {
                                 GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
                             }
 
-                            sprite.renderAtCenter(missileLocation.x, missileLocation.y);
+                            sprite.renderAtCenter(missileLocation.x + renderOffset.x,
+                                                  missileLocation.y + renderOffset.y);
                         }
                     }
                 }
@@ -1960,7 +2105,8 @@ public class LightShader implements ShaderAPI {
             }
 
             final boolean hasNormal;
-            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
+            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(),
+                                                                  TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
             final SpriteAPI sprite;
             float depth = 1f;
             final SpriteAPI originalSprite = missile.getSpriteAPI();
@@ -2043,16 +2189,19 @@ public class LightShader implements ShaderAPI {
         } else if (ShaderLib.useBufferARB()) {
             ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, ShaderLib.getAuxiliaryBufferId());
         } else {
-            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, ShaderLib.getAuxiliaryBufferId());
+            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
+                                                      ShaderLib.getAuxiliaryBufferId());
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() *
+                               Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
-        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(), viewport.getLLY() + viewport.getVisibleHeight(),
+        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
+                     viewport.getLLY() + viewport.getVisibleHeight(),
                      -2000, 2000);
 
         GL11.glMatrixMode(GL11.GL_TEXTURE);
@@ -2083,7 +2232,8 @@ public class LightShader implements ShaderAPI {
                 asteroidType = "nil";
             }
 
-            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.SURFACE_MAP, ObjectType.ASTEROID, 0);
+            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.SURFACE_MAP,
+                                                                  ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             if (entry != null) {
                 sprite = entry.sprite;
@@ -2114,12 +2264,15 @@ public class LightShader implements ShaderAPI {
                 continue;
             }
 
-            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.SURFACE_MAP, ObjectType.SHIP, 0);
+            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.SURFACE_MAP,
+                                                            ObjectType.SHIP, 0);
             if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.SURFACE_MAP, ObjectType.SHIP, 0);
+                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.SURFACE_MAP,
+                                                   ObjectType.SHIP, 0);
             }
             SpriteAPI sprite;
             SpriteAPI originalSprite = ship.getSpriteAPI();
+            Color originalColor = null;
             if (entry != null) {
                 sprite = entry.sprite;
                 sprite.setAngle(originalSprite.getAngle());
@@ -2129,105 +2282,164 @@ public class LightShader implements ShaderAPI {
                 if (ship.isHulk()) {
                     sprite.setColor(deadSurface);
                 }
-                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
             } else {
                 sprite = originalSprite;
-                final Color originalColor = sprite.getColor();
+                originalColor = sprite.getColor();
 
                 sprite.setColor(Color.BLACK);
+            }
+
+            BoundsAPI bounds = ship.getVisualBounds();
+            if (bounds != null) {
+                bounds.update(ship.getLocation(), ship.getFacing());
+
+                GL11.glEnable(GL11.GL_STENCIL_TEST);
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glColorMask(false, false, false, false);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 16, 0xFF); // Set stencil to 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+                GL11.glStencilMask(0xFF); // Write to stencil buffer
+                GL11.glClearStencil(0);
+                GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
+
+                Tessellate.render(bounds, 1f, 1f, 1f);
+
+                GL11.glColorMask(true, true, true, true);
+                GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+                GL11.glStencilMask(0x00); // Don't write anything to stencil buffer
+
+                sprite.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 sprite.renderAtCenter(shipLocation.x, shipLocation.y);
 
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // Pass test always
+                GL11.glDisable(GL11.GL_STENCIL_TEST);
+            } else {
+                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+            }
+
+            if (entry == null) {
                 sprite.setColor(originalColor);
             }
+
+            final Vector2f renderOffset = VectorUtils.rotate(ship.getRenderOffset(), ship.getFacing(), new Vector2f());
 
             final List<WeaponAPI> weapons = ship.getAllWeapons();
             final List<WeaponSlotAPI> emptySlots = ship.getHullSpec().getAllWeaponSlotsCopy();
             final int weaponSize = weapons.size();
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
-                emptySlots.remove(weapon.getSlot());
-            }
-            final int slotSize = emptySlots.size();
-            for (int j = 0; j < slotSize; j++) {
-                final WeaponSlotAPI slot = emptySlots.get(j);
-                if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() || (slot.getWeaponType() == WeaponType.LAUNCH_BAY)) {
-                    continue;
-                }
-                switch (slot.getSlotSize()) {
-                    default:
-                    case SMALL:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallTurretCover();
+                if (!emptySlots.remove(weapon.getSlot())) {
+                    for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
+                        final WeaponSlotAPI slot = iter.next();
+                        final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
+                                                                   new Vector2f());
+                        final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                        if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
+                            iter.remove();
+                            break;
                         }
-                        break;
-                    case MEDIUM:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumTurretCover();
-                        }
-                        break;
-                    case LARGE:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeTurretCover();
-                        }
-                        break;
-                }
-                if (originalSprite == null || originalSprite.getTextureId() == 0) {
-                    continue;
-                }
-                final Vector2f slotLocation = slot.computePosition(ship);
-
-                if (entry != null) {
-                    sprite = entry.sprite;
-                    sprite.setAngle(originalSprite.getAngle());
-                    sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
-                    sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                    sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
-                    if (ship.isHulk()) {
-                        sprite.setColor(deadSurface);
                     }
-                    sprite.renderAtCenter(slotLocation.x, slotLocation.y);
-                } else {
-                    sprite = originalSprite;
-                    final Color originalColor = sprite.getColor();
+                }
+            }
 
-                    sprite.setColor(Color.BLACK);
-                    sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+            if (bounds == null) {
+                final int slotSize = emptySlots.size();
+                for (int j = 0; j < slotSize; j++) {
+                    final WeaponSlotAPI slot = emptySlots.get(j);
+                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() ||
+                            (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule() ||
+                            slot.isBuiltIn()) {
+                        continue;
+                    }
+                    final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
+                    switch (slot.getSlotSize()) {
+                        default:
+                        case SMALL:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallTurretCover();
+                            }
+                            break;
+                        case MEDIUM:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumTurretCover();
+                            }
+                            break;
+                        case LARGE:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeTurretCover();
+                            }
+                            break;
+                    }
+                    if (originalSprite == null || originalSprite.getTextureId() == 0) {
+                        continue;
+                    }
 
-                    sprite.setColor(originalColor);
+                    if (entry != null) {
+                        sprite = entry.sprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                        sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
+                        sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
+                        sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        if (ship.isHulk()) {
+                            sprite.setColor(deadSurface);
+                        }
+                        sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+                    } else {
+                        sprite = originalSprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                        originalColor = sprite.getColor();
+
+                        sprite.setColor(Color.BLACK);
+                        sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+
+                        sprite.setColor(originalColor);
+                    }
                 }
             }
 
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
                 if (!weapon.getSlot().isHidden()) {
-                    final Vector2f weaponLocation = weapon.getLocation();
+                    final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
 
                     if (weapon.getUnderSpriteAPI() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_UNDER, 0);
                             }
                         }
                         originalSprite = weapon.getUnderSpriteAPI();
@@ -2243,7 +2455,7 @@ public class LightShader implements ShaderAPI {
                             sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
                         } else {
                             sprite = originalSprite;
-                            final Color originalColor = sprite.getColor();
+                            originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
                             sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
@@ -2255,17 +2467,21 @@ public class LightShader implements ShaderAPI {
                     if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -2276,13 +2492,15 @@ public class LightShader implements ShaderAPI {
                             if (ship.isHulk()) {
                                 sprite.setColor(deadSurface);
                             }
-                            weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            weapon.renderBarrel(sprite, weaponLocation,
+                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                         } else {
                             sprite = originalSprite;
-                            final Color originalColor = sprite.getColor();
+                            originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
-                            weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            weapon.renderBarrel(sprite, weaponLocation,
+                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
 
                             sprite.setColor(originalColor);
                         }
@@ -2291,17 +2509,21 @@ public class LightShader implements ShaderAPI {
                     if (weapon.getSprite() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET, 0);
                             }
                         }
                         originalSprite = weapon.getSprite();
@@ -2317,7 +2539,7 @@ public class LightShader implements ShaderAPI {
                             sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
                         } else {
                             sprite = originalSprite;
-                            final Color originalColor = sprite.getColor();
+                            originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
                             sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
@@ -2329,17 +2551,21 @@ public class LightShader implements ShaderAPI {
                     if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -2350,19 +2576,22 @@ public class LightShader implements ShaderAPI {
                             if (ship.isHulk()) {
                                 sprite.setColor(deadSurface);
                             }
-                            weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            weapon.renderBarrel(sprite, weaponLocation,
+                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                         } else {
                             sprite = originalSprite;
-                            final Color originalColor = sprite.getColor();
+                            originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
-                            weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            weapon.renderBarrel(sprite, weaponLocation,
+                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
 
                             sprite.setColor(originalColor);
                         }
                     }
 
-                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() && (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
+                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() &&
+                            (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
                         final List<MissileRenderDataAPI> msls = weapon.getMissileRenderData();
                         final int mslSize = msls.size();
                         for (int k = 0; k < mslSize; k++) {
@@ -2373,24 +2602,29 @@ public class LightShader implements ShaderAPI {
 
                             final Vector2f missileLocation = msl.getMissileCenterLocation();
 
-                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.SURFACE_MAP, ObjectType.MISSILE, 0);
+                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.SURFACE_MAP,
+                                                               ObjectType.MISSILE, 0);
                             originalSprite = msl.getSprite();
                             if (entry != null) {
                                 sprite = entry.sprite;
                                 sprite.setAngle(msl.getMissileFacing() - 90f);
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                                sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
+                                sprite.setAlphaMult(
+                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) *
+                                        msl.getBrightness());
                                 if (ship.isHulk()) {
                                     sprite.setColor(deadSurface);
                                 }
-                                sprite.renderAtCenter(missileLocation.x, missileLocation.y);
+                                sprite.renderAtCenter(missileLocation.x + renderOffset.x,
+                                                      missileLocation.y + renderOffset.y);
                             } else {
                                 sprite = originalSprite;
-                                final Color originalColor = sprite.getColor();
+                                originalColor = sprite.getColor();
 
                                 sprite.setColor(Color.BLACK);
-                                sprite.renderAtCenter(missileLocation.x, missileLocation.y);
+                                sprite.renderAtCenter(missileLocation.x + renderOffset.x,
+                                                      missileLocation.y + renderOffset.y);
 
                                 sprite.setColor(originalColor);
                             }
@@ -2414,7 +2648,8 @@ public class LightShader implements ShaderAPI {
                 continue;
             }
 
-            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(), TextureDataType.SURFACE_MAP, ObjectType.MISSILE, 0);
+            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(),
+                                                                  TextureDataType.SURFACE_MAP, ObjectType.MISSILE, 0);
             final SpriteAPI sprite;
             final SpriteAPI originalSprite = missile.getSpriteAPI();
             if (entry != null) {

@@ -26,7 +26,6 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
     public static final Map<Integer, String> ASTEROID_MAP = new HashMap<>(16);
 
-    public static boolean hasTwigLib = false;
     public static boolean templarsExists = false;
 
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
@@ -50,7 +49,6 @@ public final class ShaderModPlugin extends BaseModPlugin {
     public void onApplicationLoad() throws IOException, JSONException {
         Global.getLogger(ShaderModPlugin.class).setLevel(Level.WARN);
 
-        hasTwigLib = Global.getSettings().getModManager().isModEnabled("ztwiglib");
         try {
             Global.getSettings().getScriptClassLoader().loadClass("data.scripts.TEMModPlugin");
             templarsExists = true;
@@ -61,10 +59,14 @@ public final class ShaderModPlugin extends BaseModPlugin {
         ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/asteroid2.png").getTextureId(), "asteroid2");
         ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/asteroid3.png").getTextureId(), "asteroid3");
         ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/asteroid4.png").getTextureId(), "asteroid4");
-        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid00.png").getTextureId(), "ring_asteroid00");
-        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid01.png").getTextureId(), "ring_asteroid01");
-        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid02.png").getTextureId(), "ring_asteroid02");
-        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid03.png").getTextureId(), "ring_asteroid03");
+        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid00.png").getTextureId(),
+                         "ring_asteroid00");
+        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid01.png").getTextureId(),
+                         "ring_asteroid01");
+        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid02.png").getTextureId(),
+                         "ring_asteroid02");
+        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid03.png").getTextureId(),
+                         "ring_asteroid03");
 //        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid04.png"), "ring_asteroid04");
 //        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid05.png"), "ring_asteroid05");
 //        ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/ring_asteroid06.png"), "ring_asteroid06");
@@ -93,7 +95,8 @@ public final class ShaderModPlugin extends BaseModPlugin {
             try {
                 loadSettings();
             } catch (IOException | JSONException e) {
-                Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
+                Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Failed to load shader settings: " +
+                                                            e.getMessage());
             }
 
             if (useSmallRipple || useLargeRipple) {
@@ -101,7 +104,9 @@ public final class ShaderModPlugin extends BaseModPlugin {
                 try {
                     Global.getSettings().loadTexture(path);
                 } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR,
+                                                                "Texture loading failed at " + path + "! " +
+                                                                e.getMessage());
                     throw e; // Crash the game; it's probably too fucked to work at this point, anyway
                 }
             }
@@ -118,7 +123,9 @@ public final class ShaderModPlugin extends BaseModPlugin {
                         Global.getSettings().loadTexture(path);
                     }
                 } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR,
+                                                                "Texture loading failed at " + path + "! " +
+                                                                e.getMessage());
                     throw e; // Crash the game; it's probably too fucked to work at this point, anyway
                 }
             } else if (useLargeRipple) {
@@ -133,7 +140,9 @@ public final class ShaderModPlugin extends BaseModPlugin {
                         Global.getSettings().loadTexture(path);
                     }
                 } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR,
+                                                                "Texture loading failed at " + path + "! " +
+                                                                e.getMessage());
                     throw e; // Crash the game; it's probably too fucked to work at this point, anyway
                 }
             }

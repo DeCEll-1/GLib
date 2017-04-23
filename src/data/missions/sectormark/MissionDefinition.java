@@ -1,12 +1,10 @@
 package data.missions.sectormark;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DeployedFleetMemberAPI;
-import com.fs.starfarer.api.combat.FighterWingAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -19,10 +17,8 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
@@ -39,16 +35,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -57,16 +49,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -78,16 +66,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -96,16 +80,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -117,16 +97,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -135,16 +111,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -156,16 +128,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -174,16 +142,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
         addShip("ssp_tiger_str");
         addShip("wolf_Assault");
-        addShip("ssp_claymore_wing");
-        addShip("warthog_wing");
         addShip("ssp_boar_eli");
         addShip("sunder_Assault");
         addShip("ssp_stalker_sta");
@@ -234,14 +198,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
     private void generateFleet(FleetSide side, List<String> ships, MissionDefinitionAPI api) {
         for (String ship : ships) {
             try {
-                String id = ship;
-                FleetMemberAPI member;
-                if (id.endsWith("_wing")) {
-                    member = api.addToFleet(side, id, FleetMemberType.FIGHTER_WING, false);
-                } else {
-                    member = api.addToFleet(side, id, FleetMemberType.SHIP, false);
-                }
-                member.setCrewXPLevel(CargoAPI.CrewXPLevel.REGULAR);
+                api.addToFleet(side, ship, FleetMemberType.SHIP, false);
             } catch (Exception ex) {
             }
         }
@@ -270,47 +227,32 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         private long score;
         private double variances = 0.0;
         private float width = 8000f;
-        private final Set<FighterWingAPI> wings = new HashSet<>(100);
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
             List<ShipAPI> ships = Global.getCombatEngine().getShips();
-            wings.clear();
             int playerDP = 0;
             int enemyDP = 0;
             for (ShipAPI ship : ships) {
-                if (ship.getLocation().x <= -20000f || ship.getLocation().x >= 20000f || ship.getLocation().y <= -40000f || ship.getLocation().y >= 40000f) {
-                    Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true, false, ship);
+                if (ship.getLocation().x <= -20000f || ship.getLocation().x >= 20000f || ship.getLocation().y <= -40000f ||
+                        ship.getLocation().y >= 40000f) {
+                    Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true,
+                                                         false, ship);
                 }
-                if (ship.isFighter() && ship.getWing() != null) {
-                    if (!wings.contains(ship.getWing())) {
-                        wings.add(ship.getWing());
-                        if (!ship.getWing().isDestroyed()) {
-                            if (ship.getWing().getWingOwner() == 0) {
-                                DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(0).getDeployedFleetMemberEvenIfDisabled(ship);
-                                if (deployed != null) {
-                                    playerDP += deployed.getMember().getDeploymentCostSupplies();
-                                }
-                            } else if (ship.getWing().getWingOwner() == 1) {
-                                DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(1).getDeployedFleetMemberEvenIfDisabled(ship);
-                                if (deployed != null) {
-                                    enemyDP += deployed.getMember().getDeploymentCostSupplies();
-                                }
-                            }
+                if (ship.isAlive()) {
+                    if (ship.getOwner() == 0) {
+                        DeployedFleetMemberAPI deployed =
+                                               Global.getCombatEngine().getFleetManager(0).getDeployedFleetMemberEvenIfDisabled(
+                                                       ship);
+                        if (deployed != null) {
+                            playerDP += deployed.getMember().getDeploymentCostSupplies();
                         }
-                    }
-                } else {
-                    if (ship.isAlive()) {
-                        if (ship.getOwner() == 0) {
-                            DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(0).getDeployedFleetMemberEvenIfDisabled(ship);
-                            if (deployed != null) {
-                                playerDP += deployed.getMember().getDeploymentCostSupplies();
-                            }
-                        } else if (ship.getOwner() == 1) {
-                            DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(1).getDeployedFleetMemberEvenIfDisabled(ship);
-                            if (deployed != null) {
-                                enemyDP += deployed.getMember().getDeploymentCostSupplies();
-                            }
+                    } else if (ship.getOwner() == 1) {
+                        DeployedFleetMemberAPI deployed =
+                                               Global.getCombatEngine().getFleetManager(1).getDeployedFleetMemberEvenIfDisabled(
+                                                       ship);
+                        if (deployed != null) {
+                            enemyDP += deployed.getMember().getDeploymentCostSupplies();
                         }
                     }
                 }
@@ -331,7 +273,9 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 FleetMemberAPI member = Global.getCombatEngine().getFleetManager(0).getReservesCopy().get(0);
                 playerDP += member.getDeploymentCostSupplies();
                 log.info(String.format("Spawning %s", member.getSpecId()));
-                ShipAPI ship = Global.getCombatEngine().getFleetManager(0).spawnFleetMember(member, new Vector2f(clearancePlayer, -3000f), 90f, 1f);
+                ShipAPI ship = Global.getCombatEngine().getFleetManager(0).spawnFleetMember(member, new Vector2f(
+                                                                                            clearancePlayer, -3000f),
+                                                                                            90f, 1f);
                 Global.getCombatEngine().getFleetManager(0).removeFromReserves(member);
                 if (clearanceRightPlayer) {
                     clearancePlayer += ship.getCollisionRadius() * 3f;
@@ -355,7 +299,9 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                                Global.getCombatEngine().getFleetManager(1).getReservesCopy().size() - 1);
                 enemyDP += member.getDeploymentCostSupplies();
                 log.info(String.format("Spawning %s", member.getSpecId()));
-                ShipAPI ship = Global.getCombatEngine().getFleetManager(1).spawnFleetMember(member, new Vector2f(clearanceEnemy, 3000f), 270f, 1f);
+                ShipAPI ship = Global.getCombatEngine().getFleetManager(1).spawnFleetMember(member, new Vector2f(
+                                                                                            clearanceEnemy, 3000f), 270f,
+                                                                                            1f);
                 Global.getCombatEngine().getFleetManager(1).removeFromReserves(member);
                 if (clearanceRightEnemy) {
                     clearanceEnemy += ship.getCollisionRadius() * 3f;
@@ -384,11 +330,13 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     double variancesAvg = variances / (intervalAvg / 10.0);
                     double gameSpeed = advanced / intervalAvg;
                     double gameSpeedFactor = 1.0 + Math.min(minimumFPS / 30.0, 1.0);
-                    double stabilityFactor = (minimumFPS / fpsAvg + (1.0 - variancesAvg / (1000.0 / fpsAvg)) + (gameSpeed * gameSpeedFactor)) /
+                    double stabilityFactor = (minimumFPS / fpsAvg + (1.0 - variancesAvg / (1000.0 / fpsAvg)) +
+                                              (gameSpeed * gameSpeedFactor)) /
                            (2.0 + gameSpeedFactor);
                     score = Math.round((fpsAvg * Math.sqrt(Math.pow(2.0, stabilityFactor) / 2.0)) * 100.0);
                     log.info(String.format("********************************"));
-                    log.info(String.format("Benchmark Results (%.1f minute run):", (System.currentTimeMillis() - epoch) / 60000.0));
+                    log.info(String.format("Benchmark Results (%.1f minute run):",
+                                           (System.currentTimeMillis() - epoch) / 60000.0));
                     log.info(String.format("  Average FPS: %.1f", fpsAvg));
                     log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                     log.info(String.format("  Average Frame Variance: %.2fms", variancesAvg));
@@ -423,12 +371,15 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             if (System.currentTimeMillis() - epochShort >= 1000) {
                 double interval = (System.currentTimeMillis() - epochShort) / 1000.0;
                 double fps = framesShort / interval;
-                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(200, 200));
+                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(
+                                                                                                      200, 200));
                 double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
                 double fpsAvg = frames / intervalAvg;
-                double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1073741824.0);
+                double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) /
+                       (1073741824.0);
                 memsGB += usedMemGB;
-                log.info(String.format("Benchmark [%s] - %.1f FPS - %.2fGB Memory Used", new SimpleDateFormat("HH.mm.ss").format(new Date()), fps, usedMemGB));
+                log.info(String.format("Benchmark [%s] - %.1f FPS - %.2fGB Memory Used",
+                                       new SimpleDateFormat("HH.mm.ss").format(new Date()), fps, usedMemGB));
                 Global.getCombatEngine().addFloatingText(new Vector2f(0f, 87.5f),
                                                          String.format("Progress: %d%%", (int) (progress * 100.0)),
                                                          75f, Color.yellow, null, 1f, 0f);
@@ -448,7 +399,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
                 for (ShipAPI ship : ships) {
                     if (!ship.isAlive()) {
-                        Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 0.025f * ship.getMaxHitpoints(), DamageType.HIGH_EXPLOSIVE, 0f, true,
+                        Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 0.025f * ship.getMaxHitpoints(),
+                                                             DamageType.HIGH_EXPLOSIVE, 0f, true,
                                                              false, ship);
                     }
                 }
@@ -476,11 +428,13 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 double fpsAvg = frames / intervalAvg;
                 double minimumFPS = minimums / (intervalAvg / 10.0);
                 double variancesAvg = variances / (intervalAvg / 10.0);
-                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(200, 200));
+                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(
+                                                                                                      200, 200));
                 double memoryAvg = memsGB / intervalAvg;
                 double intervalInfo = (System.currentTimeMillis() - epochInfo) / 1000.0;
                 double gameSpeed = advancedShort / intervalInfo;
-                log.info(String.format("Benchmark Stats [%s] (Progress: %d%%):", new SimpleDateFormat("HH:mm:ss").format(new Date()), (int) (progress * 100.0)));
+                log.info(String.format("Benchmark Stats [%s] (Progress: %d%%):",
+                                       new SimpleDateFormat("HH:mm:ss").format(new Date()), (int) (progress * 100.0)));
                 log.info(String.format("  Average FPS: %.1f", fpsAvg));
                 log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                 log.info(String.format("  Frame Variance: %.2fms", stdevMs));

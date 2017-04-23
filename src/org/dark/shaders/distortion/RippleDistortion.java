@@ -9,9 +9,10 @@ import org.json.JSONObject;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
- * A 60-frame animated ripple-shaped distortion object. This type of distortion is suitable for situations where a spreading relatively-even ripple effect of
- * varying relative thickness is desired. This distortion is a radial "pop-out" that does not skew textures. You may also opt not to animate this distortion,
- * instead selecting the thickness desired by loading a particular frame.
+ * A 60-frame animated ripple-shaped distortion object. This type of distortion is suitable for situations where a
+ * spreading relatively-even ripple effect of varying relative thickness is desired. This distortion is a radial
+ * "pop-out" that does not skew textures. You may also opt not to animate this distortion, instead selecting the
+ * thickness desired by loading a particular frame.
  * <p>
  * @author DarkRevenant
  * @since Alpha 1.1
@@ -32,7 +33,8 @@ public class RippleDistortion implements DistortionAPI {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
+            Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: " +
+                                                         e.getMessage());
         }
     }
 
@@ -106,7 +108,8 @@ public class RippleDistortion implements DistortionAPI {
      * <p>
      * @param amount Seconds since last frame.
      * <p>
-     * @return True if the distortion object should be destroyed this frame, false if it should not be destroyed this frame.
+     * @return True if the distortion object should be destroyed this frame, false if it should not be destroyed this
+     *         frame.
      * <p>
      * @since Alpha 1.1
      */
@@ -150,7 +153,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the distortion's intensity to zero and fades in the distortion's intensity to its original value over a period of time.
+     * Sets the distortion's intensity to zero and fades in the distortion's intensity to its original value over a
+     * period of time.
      * <p>
      * @param time The time over which to fade in the distortion's intensity.
      * <p>
@@ -163,7 +167,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the distortion's size to zero and fades in the distortion's size to its original value over a period of time.
+     * Sets the distortion's size to zero and fades in the distortion's size to its original value over a period of
+     * time.
      * <p>
      * @param time The time over which to fade in the distortion's size.
      * <p>
@@ -176,8 +181,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Fades out the distortion's intensity over a period of time. If the distortion hits zero intensity, it is destroyed. Negative time values will cause the
-     * intensity to increase forever.
+     * Fades out the distortion's intensity over a period of time. If the distortion hits zero intensity, it is
+     * destroyed. Negative time values will cause the intensity to increase forever.
      * <p>
      * @param time The time over which to fade out the distortion's intensity.
      * <p>
@@ -189,8 +194,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Fades out the distortion's size over a period of time. If the distortion hits zero size, it is destroyed. Negative time values will cause the size to
-     * increase forever.
+     * Fades out the distortion's size over a period of time. If the distortion hits zero size, it is destroyed.
+     * Negative time values will cause the size to increase forever.
      * <p>
      * @param time The time over which to fade out the distortion's size.
      * <p>
@@ -202,8 +207,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets whether the distortion should be flipped in magnitude. This simulates the effect of performing a horizontal-vertical inversion of the red and green
-     * color channels. For example, if the distortion normally looks like a sphere, it will instead look like a spherical hole.
+     * Sets whether the distortion should be flipped in magnitude. This simulates the effect of performing a
+     * horizontal-vertical inversion of the red and green color channels. For example, if the distortion normally looks
+     * like a sphere, it will instead look like a spherical hole.
      * <p>
      * @param flipped Whether the magnitude should be flipped.
      * <p>
@@ -226,7 +232,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the width of the visible arc's edge attenuation, in degrees. Wider attenuation will make the transition smoother.
+     * Sets the width of the visible arc's edge attenuation, in degrees. Wider attenuation will make the transition
+     * smoother.
      * <p>
      * @param width The desired width of the visible arc's edge attenuation, in degrees.
      * <p>
@@ -237,7 +244,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * The end of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0 degrees.
+     * The end of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc
+     * spans 0 degrees.
      * <p>
      * @return The current facing direction of the distortion.
      * <p>
@@ -249,7 +257,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * The start of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0 degrees.
+     * The start of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc
+     * spans 0 degrees.
      * <p>
      * @return The start of the current visible arc of the distortion, in degrees.
      * <p>
@@ -386,10 +395,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Returns the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255). The distortion engine will handle the
-     * transformation for you. Note that this function refers to the intensity scale of the distortion texture, not its size. Modify the texture's sprite
-     * directly
-     * to change its size directly.
+     * Returns the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255).
+     * The distortion engine will handle the transformation for you. Note that this function refers to the intensity
+     * scale of the distortion texture, not its size. Modify the texture's sprite directly to change its size directly.
      * <p>
      * @return The scaling factor to transform the blue channel by, in world space units.
      * <p>
@@ -401,10 +409,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255). The distortion engine will handle the
-     * transformation for you. Note that this function refers to the intensity scale of the distortion texture, not its size. Modify the texture's sprite
-     * directly
-     * to change its size directly.
+     * Sets the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255). The
+     * distortion engine will handle the transformation for you. Note that this function refers to the intensity scale
+     * of the distortion texture, not its size. Modify the texture's sprite directly to change its size directly.
      * <p>
      * @param intensity The scaling factor to transform the blue channel by, in world space units.
      * <p>
@@ -415,9 +422,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the time the distortion has before it expires. Lifetime does not count down while the distortion is fading (in or out). After reaching the end of
-     * its
-     * lifetime, the distortion may fade out before disappearing if it has AutoFade set.
+     * Sets the time the distortion has before it expires. Lifetime does not count down while the distortion is fading
+     * (in or out). After reaching the end of its lifetime, the distortion may fade out before disappearing if it has
+     * AutoFade set.
      * <p>
      * @param lifetime The time the distortion has before it expires.
      * <p>
@@ -451,8 +458,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Returns the remaining time the distortion has left before it expires. Lifetime does not count down while the distortion is fading (in or out). After
-     * reaching the end of its lifetime, the distortion may fade out before disappearing if it has AutoFade set.
+     * Returns the remaining time the distortion has left before it expires. Lifetime does not count down while the
+     * distortion is fading (in or out). After reaching the end of its lifetime, the distortion may fade out before
+     * disappearing if it has AutoFade set.
      * <p>
      * @return The remaining time the distortion has left before it expires.
      * <p>
@@ -485,10 +493,10 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * The sprite used to draw the distortion texture. The red channel corresponds to horizontal distortion vector, while the green channel corresponds to
-     * vertical distortion vector. The engine will normalize these values for you. The blue channel corresponds to distortion magnitude. For example, a pure
-     * white
-     * square as a distortion texture will copy a square of pixels somewhere to the top-right of the screen.
+     * The sprite used to draw the distortion texture. The red channel corresponds to horizontal distortion vector,
+     * while the green channel corresponds to vertical distortion vector. The engine will normalize these values for
+     * you. The blue channel corresponds to distortion magnitude. For example, a pure white square as a distortion
+     * texture will copy a square of pixels somewhere to the top-right of the screen.
      * <p>
      * @return The sprite used to draw the distortion texture.
      * <p>
@@ -539,8 +547,9 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Whether the distortion should be flipped in magnitude. This simulates the effect of performing a horizontal-vertical inversion of the red and green color
-     * channels. For example, if the distortion normally looks like a sphere, it will instead look like a spherical hole.
+     * Whether the distortion should be flipped in magnitude. This simulates the effect of performing a
+     * horizontal-vertical inversion of the red and green color channels. For example, if the distortion normally looks
+     * like a sphere, it will instead look like a spherical hole.
      * <p>
      * @return Whether the magnitude should be flipped.
      * <p>
@@ -552,7 +561,8 @@ public class RippleDistortion implements DistortionAPI {
     }
 
     /**
-     * Sets the visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0 degrees.
+     * Sets the visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0
+     * degrees.
      * <p>
      * @param start The start of the distortion's visible arc, in degrees.
      * @param end   The end of the distortion's visible arc, in degrees.
@@ -588,5 +598,4 @@ public class RippleDistortion implements DistortionAPI {
         this.autoAnimateFrameRate = frameRate;
         this.autoAnimateFrameStart = frameStart;
     }
-
 }

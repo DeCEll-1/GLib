@@ -48,7 +48,8 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(DistortionsPlugin.class).log(Level.ERROR, "Failed to load performance settings: " + e.getMessage());
+            Global.getLogger(DistortionsPlugin.class).log(Level.ERROR, "Failed to load performance settings: " +
+                                                          e.getMessage());
             enabled = false;
         }
     }
@@ -85,7 +86,8 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             }
 
             if (!projectiles.containsKey(projectile)) {
-                if (projectile.getProjectileSpecId() != null && projectile.getProjectileSpecId().contentEquals("mjolnir_shot") && mjolnirEnabled) {
+                if (projectile.getProjectileSpecId() != null && projectile.getProjectileSpecId().contentEquals(
+                        "mjolnir_shot") && mjolnirEnabled) {
                     WaveDistortion wave = new WaveDistortion(projectile.getLocation(), ZERO);
                     wave.setIntensity(5f);
                     wave.setSize(50f);
@@ -114,41 +116,53 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
                     ShipAPI ship = (ShipAPI) target;
                     float distanceFromShieldBorder = 0f;
                     if (ship.getShield() != null) {
-                        distanceFromShieldBorder = Math.abs((MathUtils.getDistance(projectile.getLocation(), ship.getShield().getLocation()) -
+                        distanceFromShieldBorder = Math.abs((MathUtils.getDistance(projectile.getLocation(),
+                                                                                   ship.getShield().getLocation()) -
                                                              ship.getShield().getRadius()));
                     }
-                    if (ship.getShield() != null && ((ship.getShield().isOn() && ship.getShield().isWithinArc(projectile.getLocation())) ||
-                                                     (ship.getFluxTracker().isOverloaded() && ship.getFluxTracker().getFluxLevel() >= 0.98f &&
+                    if (ship.getShield() != null && ((ship.getShield().isOn() && ship.getShield().isWithinArc(
+                                                      projectile.getLocation())) ||
+                                                     (ship.getFluxTracker().isOverloaded() &&
+                                                      ship.getFluxTracker().getFluxLevel() >= 0.98f &&
                                                       distanceFromShieldBorder <= 10f))) {
-                        Vector2f position = VectorUtils.getDirectionalVector(ship.getShield().getLocation(), projectile.getLocation());
+                        Vector2f position = VectorUtils.getDirectionalVector(ship.getShield().getLocation(),
+                                                                             projectile.getLocation());
                         position.scale(ship.getShield().getRadius());
                         Vector2f.add(position, ship.getShield().getLocation(), position);
                         float fader = 1f;
                         if (!(projectile instanceof MissileAPI) && projectile.getWeapon() != null) {
-                            float lifetime = projectile.getWeapon().getRange() / projectile.getWeapon().getProjectileSpeed();
+                            float lifetime = projectile.getWeapon().getRange() /
+                                  projectile.getWeapon().getProjectileSpeed();
                             float fadetime = 400f / projectile.getWeapon().getProjectileSpeed();
-                            fader = Math.max(0.25f, 1f - Math.max(0f, projectile.getElapsed() / lifetime - 1f) / fadetime);
+                            fader = Math.max(0.25f, 1f - Math.max(0f, projectile.getElapsed() / lifetime - 1f) /
+                                             fadetime);
                             if (fader < 0.99f) {
                                 fader *= 0.5f;
                             }
                         }
                         float factor = ship.getMutableStats().getShieldDamageTakenMult().getModifiedValue();
-                        createHitRipple(position, ship.getVelocity(), info.damage * fader * factor, projectile.getDamageType(), VectorUtils.getFacing(
-                                        VectorUtils.getDirectionalVector(ship.getShield().getLocation(), projectile.getLocation())),
+                        createHitRipple(position, ship.getVelocity(), info.damage * fader * factor,
+                                        projectile.getDamageType(), VectorUtils.getFacing(
+                                                VectorUtils.getDirectionalVector(ship.getShield().getLocation(),
+                                                                                 projectile.getLocation())),
                                         ship.getShield().getRadius());
                     } else if (ShaderModPlugin.templarsExists && TEM_LatticeShield.shieldLevel(ship) > 0f) {
                         float fader = 1f;
                         if (!(projectile instanceof MissileAPI) && projectile.getWeapon() != null) {
-                            float lifetime = projectile.getWeapon().getRange() / projectile.getWeapon().getProjectileSpeed();
+                            float lifetime = projectile.getWeapon().getRange() /
+                                  projectile.getWeapon().getProjectileSpeed();
                             float fadetime = 400f / projectile.getWeapon().getProjectileSpeed();
-                            fader = Math.max(0.25f, 1f - Math.max(0f, projectile.getElapsed() / lifetime - 1f) / fadetime);
+                            fader = Math.max(0.25f, 1f - Math.max(0f, projectile.getElapsed() / lifetime - 1f) /
+                                             fadetime);
                             if (fader < 0.99f) {
                                 fader *= 0.5f;
                             }
                         }
                         float factor = ship.getMutableStats().getShieldDamageTakenMult().getModifiedValue();
-                        createHitRipple(projectile.getLocation(), ship.getVelocity(), info.damage * fader * factor, projectile.getDamageType(),
-                                        VectorUtils.getFacing(VectorUtils.getDirectionalVector(ship.getLocation(), projectile.getLocation())),
+                        createHitRipple(projectile.getLocation(), ship.getVelocity(), info.damage * fader * factor,
+                                        projectile.getDamageType(),
+                                        VectorUtils.getFacing(VectorUtils.getDirectionalVector(ship.getLocation(),
+                                                                                               projectile.getLocation())),
                                         ship.getCollisionRadius());
                     }
                 }
@@ -196,7 +210,8 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
         Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
     }
 
-    private void createHitRipple(Vector2f location, Vector2f velocity, float damage, DamageType type, float direction, float shieldRadius) {
+    private void createHitRipple(Vector2f location, Vector2f velocity, float damage, DamageType type, float direction,
+                                 float shieldRadius) {
         float dmg = damage;
         if (type == DamageType.FRAGMENTATION) {
             dmg *= 0.25f;

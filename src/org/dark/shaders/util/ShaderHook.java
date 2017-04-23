@@ -59,7 +59,8 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
                 for (ShaderAPI shader : shaders) {
                     shader.destroy();
                     try {
-                        final ShaderAPI sdr = (ShaderAPI) Global.getSettings().getScriptClassLoader().loadClass(shader.getClass().getName()).newInstance();
+                        final ShaderAPI sdr = (ShaderAPI) Global.getSettings().getScriptClassLoader().loadClass(
+                                        shader.getClass().getName()).newInstance();
                         newShaders.add(sdr);
                         sdr.initCombat();
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {

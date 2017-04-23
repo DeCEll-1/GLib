@@ -124,7 +124,8 @@ public class TextureData {
             for (int i = 0; i < textureData.length(); i++) {
                 final JSONObject entry = textureData.getJSONObject(i);
 
-                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() && !entry.optString("map").isEmpty() &&
+                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&
+                        !entry.optString("map").isEmpty() &&
                         !entry.optString("path").isEmpty()) {
                     boolean success = true;
                     String type = "";
@@ -186,47 +187,56 @@ public class TextureData {
                     switch (entry.getString("map")) {
                         case "material":
                             if (loadMaterial) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
-                                materialData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(Global.getSettings().getSprite(path),
-                                                                                                                           (float) entry.optDouble("magnitude",
-                                                                                                                                                   1.0)));
+                                materialData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                                 new TextureEntry(Global.getSettings().getSprite(path),
+                                                                  (float) entry.optDouble("magnitude", 1.0)));
                             }
                             break;
                         case "normal":
                             if (loadNormal) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
-                                normalData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(Global.getSettings().getSprite(path),
-                                                                                                                         (float) entry.optDouble("magnitude",
-                                                                                                                                                 1.0)));
+                                normalData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                               new TextureEntry(Global.getSettings().getSprite(path),
+                                                                (float) entry.optDouble("magnitude", 1.0)));
                             }
                             break;
                         case "surface":
                             if (loadSurface) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
-                                surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(Global.getSettings().getSprite(path),
-                                                                                                                          (float) entry.optDouble("magnitude",
-                                                                                                                                                  1.0)));
+                                surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                                new TextureEntry(Global.getSettings().getSprite(path),
+                                                                 (float) entry.optDouble("magnitude", 1.0)));
                             }
                             break;
                         default:
@@ -234,12 +244,14 @@ public class TextureData {
                 }
             }
         } catch (IOException | JSONException e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " + e.getMessage());
+            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " +
+                                                    e.getMessage());
         }
     }
 
     /**
-     * Loads a texture data CSV and makes that data available internally. Duplicate entries will NOT replace previous data.
+     * Loads a texture data CSV and makes that data available internally. Duplicate entries will NOT replace previous
+     * data.
      * <p>
      * @param localPath The local path to the csv file (ex. "data/lights/core_texture_data.csv").
      * <p>
@@ -252,7 +264,8 @@ public class TextureData {
             for (int i = 0; i < textureData.length(); i++) {
                 final JSONObject entry = textureData.getJSONObject(i);
 
-                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() && !entry.optString("map").isEmpty() &&
+                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&
+                        !entry.optString("map").isEmpty() &&
                         !entry.optString("path").isEmpty()) {
                     boolean success = true;
                     String type = "";
@@ -314,57 +327,64 @@ public class TextureData {
                     switch (entry.getString("map")) {
                         case "material":
                             if (loadMaterial) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!materialData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
-                                    materialData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(Global.getSettings().getSprite(
-                                                     path),
-                                                                                                                               (float) entry.optDouble(
-                                                                                                                                       "magnitude",
-                                                                                                                                       1.0)));
+                                    materialData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                                     new TextureEntry(Global.getSettings().getSprite(
+                                                                     path),
+                                                                      (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
                             break;
                         case "normal":
                             if (loadNormal) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!normalData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
-                                    normalData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(
-                                                   Global.getSettings().getSprite(path),
-                                                   (float) entry.optDouble("magnitude",
-                                                                           1.0)));
+                                    normalData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                                   new TextureEntry(
+                                                           Global.getSettings().getSprite(path),
+                                                           (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
                             break;
                         case "surface":
                             if (loadSurface) {
-                                if (Global.getSettings().getSprite(path) == null || Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null ||
+                                        Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
-                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        Global.getLogger(TextureData.class).log(Level.ERROR,
+                                                                                "Texture loading failed at " + path +
+                                                                                "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!surfaceData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
-                                    surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0), new TextureEntry(Global.getSettings().getSprite(
-                                                    path),
-                                                                                                                              (float) entry.optDouble(
-                                                                                                                                      "magnitude",
-                                                                                                                                      1.0)));
+                                    surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0),
+                                                    new TextureEntry(Global.getSettings().getSprite(
+                                                                    path),
+                                                                     (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
                             break;
@@ -373,7 +393,8 @@ public class TextureData {
                 }
             }
         } catch (IOException | JSONException e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " + e.getMessage());
+            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " +
+                                                    e.getMessage());
         }
     }
 

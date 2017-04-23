@@ -12,10 +12,9 @@ import org.lwjgl.util.vector.Vector2f;
 public interface DistortionAPI {
 
     /**
-     * Returns the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255). The distortion engine will handle the
-     * transformation for you. Note that this function refers to the intensity scale of the distortion texture, not its size. Modify the texture's sprite
-     * directly
-     * to change its size directly.
+     * Returns the world-space quantity, in units, to distort by at the maximum distortion level (blue channel at 255).
+     * The distortion engine will handle the transformation for you. Note that this function refers to the intensity
+     * scale of the distortion texture, not its size. Modify the texture's sprite directly to change its size directly.
      * <p>
      * @return The scaling factor to transform the blue channel by, in world space units.
      * <p>
@@ -42,10 +41,10 @@ public interface DistortionAPI {
     float getFacing();
 
     /**
-     * The sprite used to draw the distortion texture. The red channel corresponds to horizontal distortion vector, while the green channel corresponds to
-     * vertical distortion vector. The engine will normalize these values for you. The blue channel corresponds to distortion magnitude. For example, a pure
-     * white
-     * square as a distortion texture will copy a square of pixels somewhere to the top-right of the screen.
+     * The sprite used to draw the distortion texture. The red channel corresponds to horizontal distortion vector,
+     * while the green channel corresponds to vertical distortion vector. The engine will normalize these values for
+     * you. The blue channel corresponds to distortion magnitude. For example, a pure white square as a distortion
+     * texture will copy a square of pixels somewhere to the top-right of the screen.
      * <p>
      * @return The sprite used to draw the distortion texture.
      * <p>
@@ -54,8 +53,9 @@ public interface DistortionAPI {
     SpriteAPI getSprite();
 
     /**
-     * Whether the distortion should be flipped in magnitude. This simulates the effect of performing a horizontal-vertical inversion of the red and green color
-     * channels. For example, if the distortion normally looks like asphere, it will instead look like a spherical hole.
+     * Whether the distortion should be flipped in magnitude. This simulates the effect of performing a
+     * horizontal-vertical inversion of the red and green color channels. For example, if the distortion normally looks
+     * like a sphere, it will instead look like a spherical hole.
      * <p>
      * @return Whether the magnitude should be flipped.
      * <p>
@@ -64,7 +64,8 @@ public interface DistortionAPI {
     boolean isFlipped();
 
     /**
-     * The start of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0 degrees.
+     * The start of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc
+     * spans 0 degrees.
      * <p>
      * @return The start of the current visible arc of the distortion, in degrees.
      * <p>
@@ -73,7 +74,8 @@ public interface DistortionAPI {
     float getArcStart();
 
     /**
-     * The end of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc spans 0 degrees.
+     * The end of the current visible arc of the distortion, in degrees. Note: the entire shader is visible if the arc
+     * spans 0 degrees.
      * <p>
      * @return The end of the current visible arc of the distortion, in degrees.
      * <p>
@@ -95,7 +97,8 @@ public interface DistortionAPI {
      * <p>
      * @param amount Seconds since last frame.
      * <p>
-     * @return True if the distortion object should be destroyed this frame, false if it should not be destroyed this frame.
+     * @return True if the distortion object should be destroyed this frame, false if it should not be destroyed this
+     *         frame.
      * <p>
      * @since Alpha 1.1
      */

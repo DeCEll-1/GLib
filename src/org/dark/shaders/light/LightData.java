@@ -69,7 +69,8 @@ public class LightData {
                         continue;
                     }
 
-                    if (entry.optDouble("size", 0.0) > 0.0 && entry.optDouble("intensity", 0.0) > 0.0 && !entry.optString("color").isEmpty()) {
+                    if (entry.optDouble("size", 0.0) > 0.0 && entry.optDouble("intensity", 0.0) > 0.0 &&
+                            !entry.optString("color").isEmpty()) {
                         lightEntry.hasStandard = true;
                         lightEntry.standardSize = (float) entry.getDouble("size");
                         lightEntry.standardIntensity = (float) entry.getDouble("intensity");
@@ -78,7 +79,8 @@ public class LightData {
                         lightEntry.standardOffset = (float) entry.optDouble("offset", 0.0);
                     }
 
-                    if (entry.optDouble("hit size", 0.0) > 0.0 && entry.optDouble("hit intensity", 0.0) > 0.0 && !entry.optString("hit color").isEmpty()) {
+                    if (entry.optDouble("hit size", 0.0) > 0.0 && entry.optDouble("hit intensity", 0.0) > 0.0 &&
+                            !entry.optString("hit color").isEmpty()) {
                         lightEntry.hasHit = true;
                         lightEntry.hitSize = (float) entry.getDouble("hit size");
                         lightEntry.hitIntensity = (float) entry.getDouble("hit intensity");
@@ -86,7 +88,8 @@ public class LightData {
                         lightEntry.hitFadeout = (float) entry.optDouble("hit fadeout", 0.0);
                     }
 
-                    if (entry.optDouble("flash size", 0.0) > 0.0 && entry.optDouble("flash intensity", 0.0) > 0.0 && !entry.optString("flash color").isEmpty()) {
+                    if (entry.optDouble("flash size", 0.0) > 0.0 && entry.optDouble("flash intensity", 0.0) > 0.0 &&
+                            !entry.optString("flash color").isEmpty()) {
                         lightEntry.hasFlash = true;
                         lightEntry.flashSize = (float) entry.getDouble("flash size");
                         lightEntry.flashIntensity = (float) entry.getDouble("flash intensity");
@@ -100,12 +103,14 @@ public class LightData {
                 }
             }
         } catch (IOException | JSONException e) {
-            Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! " + e.getMessage());
+            Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! " +
+                                                  e.getMessage());
         }
     }
 
     /**
-     * Loads a lighting data CSV and makes that data available internally. Duplicate entries will NOT replace previous data.
+     * Loads a lighting data CSV and makes that data available internally. Duplicate entries will NOT replace previous
+     * data.
      * <p>
      * @param localPath The local path to the csv file (ex. "data/lights/core_light_data.csv").
      * <p>
@@ -144,7 +149,8 @@ public class LightData {
                         continue;
                     }
 
-                    if (entry.optDouble("size", 0.0) > 0.0 && entry.optDouble("intensity", 0.0) > 0.0 && !entry.optString("color").isEmpty()) {
+                    if (entry.optDouble("size", 0.0) > 0.0 && entry.optDouble("intensity", 0.0) > 0.0 &&
+                            !entry.optString("color").isEmpty()) {
                         lightEntry.hasStandard = true;
                         lightEntry.standardSize = (float) entry.getDouble("size");
                         lightEntry.standardIntensity = (float) entry.getDouble("intensity");
@@ -153,7 +159,8 @@ public class LightData {
                         lightEntry.standardOffset = (float) entry.optDouble("offset", 0.0);
                     }
 
-                    if (entry.optDouble("hit size", 0.0) > 0.0 && entry.optDouble("hit intensity", 0.0) > 0.0 && !entry.optString("hit color").isEmpty()) {
+                    if (entry.optDouble("hit size", 0.0) > 0.0 && entry.optDouble("hit intensity", 0.0) > 0.0 &&
+                            !entry.optString("hit color").isEmpty()) {
                         lightEntry.hasHit = true;
                         lightEntry.hitSize = (float) entry.getDouble("hit size");
                         lightEntry.hitIntensity = (float) entry.getDouble("hit intensity");
@@ -161,7 +168,8 @@ public class LightData {
                         lightEntry.hitFadeout = (float) entry.optDouble("hit fadeout", 0.0);
                     }
 
-                    if (entry.optDouble("flash size", 0.0) > 0.0 && entry.optDouble("flash intensity", 0.0) > 0.0 && !entry.optString("flash color").isEmpty()) {
+                    if (entry.optDouble("flash size", 0.0) > 0.0 && entry.optDouble("flash intensity", 0.0) > 0.0 &&
+                            !entry.optString("flash color").isEmpty()) {
                         lightEntry.hasFlash = true;
                         lightEntry.flashSize = (float) entry.getDouble("flash size");
                         lightEntry.flashIntensity = (float) entry.getDouble("flash intensity");
@@ -175,7 +183,8 @@ public class LightData {
                 }
             }
         } catch (IOException | JSONException e) {
-            Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! " + e.getMessage());
+            Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! " +
+                                                  e.getMessage());
         }
     }
 

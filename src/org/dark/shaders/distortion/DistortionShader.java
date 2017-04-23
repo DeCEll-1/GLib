@@ -41,8 +41,10 @@ public class DistortionShader implements ShaderAPI {
     private static final Comparator<DistortionAPI> DISTORTIONSIZE = new Comparator<DistortionAPI>() {
         @Override
         public int compare(DistortionAPI distortion1, DistortionAPI distortion2) {
-            final float distortion1factor = distortion1.getIntensity() * Math.max(distortion1.getSprite().getWidth(), distortion1.getSprite().getHeight());
-            final float distortion2factor = distortion2.getIntensity() * Math.max(distortion2.getSprite().getWidth(), distortion2.getSprite().getHeight());
+            final float distortion1factor = distortion1.getIntensity() * Math.max(distortion1.getSprite().getWidth(),
+                                                                                  distortion1.getSprite().getHeight());
+            final float distortion2factor = distortion2.getIntensity() * Math.max(distortion2.getSprite().getWidth(),
+                                                                                  distortion2.getSprite().getHeight());
             if (distortion1factor > distortion2factor) {
                 return -1;
             } else if (distortion1factor < distortion2factor) {
@@ -56,7 +58,8 @@ public class DistortionShader implements ShaderAPI {
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
 
     /**
-     * Adds a distortion object to the rendering list. This function will do nothing if the distortion shader is not enabled.
+     * Adds a distortion object to the rendering list. This function will do nothing if the distortion shader is not
+     * enabled.
      * <p>
      * Does not check for duplicates.
      * <p>
@@ -82,7 +85,8 @@ public class DistortionShader implements ShaderAPI {
     }
 
     /**
-     * Forcibly removes a distortion object from the rendering list. This function will do nothing if the distortion shader is not enabled.
+     * Forcibly removes a distortion object from the rendering list. This function will do nothing if the distortion
+     * shader is not enabled.
      * <p>
      * @param distortion The distortion object to remove.
      * <p>
@@ -130,7 +134,8 @@ public class DistortionShader implements ShaderAPI {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(DistortionShader.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
+            Global.getLogger(DistortionShader.class).log(Level.ERROR, "Failed to load shader settings: " +
+                                                         e.getMessage());
             enabled = false;
             return;
         }
@@ -169,7 +174,8 @@ public class DistortionShader implements ShaderAPI {
         index[3] = GL20.glGetUniformLocation(program, "norm");
         GL20.glUniform1i(index[0], 0);
         GL20.glUniform1i(index[1], 1);
-        GL20.glUniform4f(index[2], ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), ShaderLib.getVisibleU(), ShaderLib.getVisibleV());
+        GL20.glUniform4f(index[2], ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), ShaderLib.getVisibleU(),
+                         ShaderLib.getVisibleV());
         GL20.glUseProgram(programAux);
         indexAux[0] = GL20.glGetUniformLocation(programAux, "tex");
         indexAux[1] = GL20.glGetUniformLocation(programAux, "facing");
@@ -192,7 +198,8 @@ public class DistortionShader implements ShaderAPI {
 
         CombatEngineAPI engine = Global.getCombatEngine();
 
-        final List<DistortionAPI> distortions = ((LocalData) Global.getCombatEngine().getCustomData().get(DATA_KEY)).distortions;
+        final List<DistortionAPI> distortions =
+                                  ((LocalData) Global.getCombatEngine().getCustomData().get(DATA_KEY)).distortions;
 
         if (!engine.isPaused()) {
             final Iterator<DistortionAPI> iter = distortions.iterator();
@@ -280,16 +287,19 @@ public class DistortionShader implements ShaderAPI {
         } else if (ShaderLib.useBufferARB()) {
             ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, ShaderLib.getAuxiliaryBufferId());
         } else {
-            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, ShaderLib.getAuxiliaryBufferId());
+            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
+                                                      ShaderLib.getAuxiliaryBufferId());
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() *
+                               Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
-        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(), viewport.getLLY() + viewport.getVisibleHeight(),
+        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
+                     viewport.getLLY() + viewport.getVisibleHeight(),
                      -2000, 2000);
 
         GL11.glMatrixMode(GL11.GL_TEXTURE);
@@ -332,7 +342,8 @@ public class DistortionShader implements ShaderAPI {
             final Vector2f location = distortion.getLocation();
             final SpriteAPI sprite = distortion.getSprite();
 
-            if (location == null || sprite == null || !ShaderLib.isOnScreen(location, Math.max(sprite.getHeight(), sprite.getWidth()))) {
+            if (location == null || sprite == null || !ShaderLib.isOnScreen(location, Math.max(sprite.getHeight(),
+                                                                                               sprite.getWidth()))) {
                 continue;
             }
 
@@ -342,7 +353,8 @@ public class DistortionShader implements ShaderAPI {
             GL20.glUniform1f(indexAux[2], scale); // scale
             GL20.glUniform2f(indexAux[3], normS.x, normS.y); // norm
             GL20.glUniform1f(indexAux[4], distortion.isFlipped() ? -1f : 1f); // flip
-            GL20.glUniform2f(indexAux[5], (float) Math.toRadians(distortion.getArcStart()), (float) Math.toRadians(distortion.getArcEnd())); // arc
+            GL20.glUniform2f(indexAux[5], (float) Math.toRadians(distortion.getArcStart()), (float) Math.toRadians(
+                             distortion.getArcEnd())); // arc
             GL20.glUniform1f(indexAux[6], (float) Math.toRadians(distortion.getArcAttenuationWidth())); // attwidth
 
             if (!validatedAux) {

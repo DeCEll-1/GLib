@@ -49,8 +49,9 @@ public class AnamorphicFlare {
      * @param coreColor   The core color of the anamorphic flare. Alpha is not
      *                    used.
      */
-    public static void createFlare(ShipAPI origin, Vector2f point, CombatEngineAPI engine, float brightness, float thickness, float angle, float spread,
-                                   float fringeGain, Color fringeColor, Color coreColor) {
+    public static void createFlare(ShipAPI origin, Vector2f point, CombatEngineAPI engine, float brightness,
+                                   float thickness, float angle, float spread, float fringeGain, Color fringeColor,
+                                   Color coreColor) {
         int magnitude = (int) (1f / thickness);
         int alpha = Math.min((int) (255f * brightness * thickness), 255);
         int alphaf = Math.min((int) (255f * brightness * thickness * fringeGain), 255);
@@ -85,8 +86,9 @@ public class AnamorphicFlare {
         }
     }
 
-    public static void createStripFlare(ShipAPI origin, Vector2f point, CombatEngineAPI engine, float brightness, int magnitude, float thickness,
-                                        float width, float angle, float spread, float fringeGain, Color fringeColor, Color coreColor) {
+    public static void createStripFlare(ShipAPI origin, Vector2f point, CombatEngineAPI engine, float brightness,
+                                        int magnitude, float thickness, float width, float angle, float spread,
+                                        float fringeGain, Color fringeColor, Color coreColor) {
         int alpha = Math.min((int) (255f * brightness), 255);
         int alphaf = Math.min((int) (255f * brightness * fringeGain), 255);
 

@@ -44,12 +44,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>blue</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -77,13 +78,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the screen's contrast to the given amount.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *               false
-     *               to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *               entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *               between both steps, as each is a separate shader object.
      * <p>
      * @param amount The desired contrast. 1 is the default; 0 is completely gray.
      * <p>
@@ -107,12 +108,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>green</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -140,15 +142,16 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Shifts the screen's hue by the given amount.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post    Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                false
-     *                to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post    Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                between both steps, as each is a separate shader object.
      * <p>
-     * @param degrees How much, in degrees, to shift the screen's hue by. For reference, 0 degrees is red, 120 degrees is green, and 240 degrees is blue.
+     * @param degrees How much, in degrees, to shift the screen's hue by. For reference, 0 degrees is red, 120 degrees
+     *                is green, and 240 degrees is blue.
      * <p>
      * @since Beta 1.07
      */
@@ -170,13 +173,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the screen's lightness to the given amount.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *               false
-     *               to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *               entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *               between both steps, as each is a separate shader object.
      * <p>
      * @param amount The desired lightness. 1 is the default; 0 is completely black.
      * <p>
@@ -200,12 +203,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>magenta</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -233,13 +237,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Gives the screen some degree of black noise.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *               false
-     *               to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *               entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *               between both steps, as each is a separate shader object.
      * <p>
      * @param amount The desired screen noise intensity. 0 is the default (off); 1 is completely noisy.
      * <p>
@@ -263,12 +267,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>red</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -296,13 +301,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the screen's color saturation to the given amount.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *               false
-     *               to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post   Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *               entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *               between both steps, as each is a separate shader object.
      * <p>
      * @param amount The desired saturation. 1 is the default; 0 is completely monochrome.
      * <p>
@@ -326,17 +331,18 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Gives the screen CRT-style scan lines.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post     Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                 false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post     Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                 the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                 between both steps, as each is a separate shader object.
      * <p>
      * @param amount   The desired scan line intensity. 0 is the default (off); 1 is completely black.
      * <p>
-     * @param interval The interval, given in rows of pixels, by which scan lines are generated. For example, interval 3 means that there is one scan line per
-     *                 three rows of pixels.
+     * @param interval The interval, given in rows of pixels, by which scan lines are generated. For example, interval 3
+     *                 means that there is one scan line per three rows of pixels.
      * <p>
      * @param width    The width, in rows of pixels, of each scan line.
      * <p>
@@ -349,13 +355,17 @@ public class PostProcessShader implements ShaderAPI {
             if (post) {
                 GL20.glUseProgram(((PostProcessShader) postShader).programPost);
                 GL20.glUniform1f(((PostProcessShader) postShader).indexPost[15], amount);
-                GL20.glUniform1f(((PostProcessShader) postShader).indexPost[16], (float) interval / ShaderLib.getInternalHeight());
-                GL20.glUniform1f(((PostProcessShader) postShader).indexPost[17], (float) width / ShaderLib.getInternalHeight());
+                GL20.glUniform1f(((PostProcessShader) postShader).indexPost[16], (float) interval /
+                                 ShaderLib.getInternalHeight());
+                GL20.glUniform1f(((PostProcessShader) postShader).indexPost[17], (float) width /
+                                 ShaderLib.getInternalHeight());
             } else {
                 GL20.glUseProgram(((PostProcessShader) postShader).programPre);
                 GL20.glUniform1f(((PostProcessShader) postShader).indexPre[15], amount);
-                GL20.glUniform1f(((PostProcessShader) postShader).indexPre[16], (float) interval / ShaderLib.getInternalHeight());
-                GL20.glUniform1f(((PostProcessShader) postShader).indexPre[17], (float) width / ShaderLib.getInternalHeight());
+                GL20.glUniform1f(((PostProcessShader) postShader).indexPre[16], (float) interval /
+                                 ShaderLib.getInternalHeight());
+                GL20.glUniform1f(((PostProcessShader) postShader).indexPre[17], (float) width /
+                                 ShaderLib.getInternalHeight());
             }
             GL20.glUseProgram(0);
         }
@@ -364,12 +374,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>teal</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -397,12 +408,13 @@ public class PostProcessShader implements ShaderAPI {
     /**
      * Sets the hue shift, saturation, and lightness for the <b>yellow</b> color range.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to
-     *                   false to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post       Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect
+     *                   the entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *                   between both steps, as each is a separate shader object.
      * <p>
      * @param hue        How much, in degrees, to shift the screen's hue by, for the given color range.
      * <p>
@@ -428,14 +440,17 @@ public class PostProcessShader implements ShaderAPI {
     }
 
     /**
-     * Sets the lightness function to use an exponential curve when lightness is below 1. Note: If lightness is above 1, an exponential curve is always used.
+     * Sets the lightness function to use an exponential curve when lightness is below 1. Note: If lightness is above 1,
+     * an exponential curve is always used.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind
      * mode)
      * on the first frame. Note: color blind mode is a post-shader effect.
      * <p>
-     * @param post  Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to false
-     *              to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post  Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *              entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *              between both steps, as each is a separate shader object.
      * <p>
      * @param value Whether to use exponential darkness. Default off.
      * <p>
@@ -457,14 +472,16 @@ public class PostProcessShader implements ShaderAPI {
     }
 
     /**
-     * Sets the saturation function to use an exponential curve when saturation is below 1. Note: If saturation is above 1, an exponential curve is always used.
+     * Sets the saturation function to use an exponential curve when saturation is below 1. Note: If saturation is above
+     * 1, an exponential curve is always used.
      * <p>
-     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are overridden by defaults (such as color blind
-     * mode)
-     * on the first frame. Note: color blind mode is a post-shader effect.
+     * Note: This must be called at minimum one frame <b>after</b> combat is initiated, because the settings are
+     * overridden by defaults (such as color blind mode) on the first frame. Note: color blind mode is a post-shader
+     * effect.
      * <p>
-     * @param post  Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the entire screen including UI; set to false
-     *              to exclude the main UI. Effects can be independently stacked/chained between both steps, as each is a separate shader object.
+     * @param post  Selects whether the effect should apply to the pre-shader or post-shader. Set to true to affect the
+     *              entire screen including UI; set to false to exclude the main UI. Effects can be independently stacked/chained
+     *              between both steps, as each is a separate shader object.
      * <p>
      * @param value Whether to use exponential desaturation. Default off.
      * <p>
@@ -505,7 +522,8 @@ public class PostProcessShader implements ShaderAPI {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
+            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Failed to load shader settings: " +
+                                                          e.getMessage());
             enabled = false;
             return;
         }
@@ -520,7 +538,9 @@ public class PostProcessShader implements ShaderAPI {
             vertShader = Global.getSettings().loadText("data/shaders/post/pre.vert");
             fragShader = Global.getSettings().loadText("data/shaders/post/pre.frag");
         } catch (IOException ex) {
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Post Process pre-shader loading error!  Post Processing disabled!" + ex.getMessage());
+            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                                                          "Post Process pre-shader loading error!  Post Processing disabled!" +
+                                                          ex.getMessage());
             enabled = false;
             return;
         }
@@ -529,7 +549,8 @@ public class PostProcessShader implements ShaderAPI {
 
         if (programPre == 0) {
             enabled = false;
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Post Process pre-shader compile error!  Post Processing disabled!");
+            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                                                          "Post Process pre-shader compile error!  Post Processing disabled!");
             return;
         }
 
@@ -537,7 +558,9 @@ public class PostProcessShader implements ShaderAPI {
             vertShader = Global.getSettings().loadText("data/shaders/post/post.vert");
             fragShader = Global.getSettings().loadText("data/shaders/post/post.frag");
         } catch (IOException ex) {
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Post Process post-shader loading error!  Post Processing disabled!" + ex.getMessage());
+            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                                                          "Post Process post-shader loading error!  Post Processing disabled!" +
+                                                          ex.getMessage());
             enabled = false;
             return;
         }
@@ -546,7 +569,8 @@ public class PostProcessShader implements ShaderAPI {
 
         if (programPost == 0) {
             enabled = false;
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Post Process post-shader compile error!  Post Processing disabled!");
+            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                                                          "Post Process post-shader compile error!  Post Processing disabled!");
             return;
         }
 
@@ -700,9 +724,11 @@ public class PostProcessShader implements ShaderAPI {
         }
 
         if (post) {
-            GL20.glUniform1f(indexPost[1], Global.getCombatEngine().getTotalElapsedTime(true) + 1000f * (float) Math.random()); // time
+            GL20.glUniform1f(indexPost[1], Global.getCombatEngine().getTotalElapsedTime(true) + 1000f *
+                             (float) Math.random()); // time
         } else {
-            GL20.glUniform1f(indexPre[1], Global.getCombatEngine().getTotalElapsedTime(true) + 1000f * (float) Math.random()); // time
+            GL20.glUniform1f(indexPre[1], Global.getCombatEngine().getTotalElapsedTime(true) + 1000f *
+                             (float) Math.random()); // time
         }
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -869,5 +895,4 @@ public class PostProcessShader implements ShaderAPI {
         GL20.glUniform1f(indexPre[17], 1f / ShaderLib.getInternalHeight()); // scanwidth
         GL20.glUseProgram(0);
     }
-
 }

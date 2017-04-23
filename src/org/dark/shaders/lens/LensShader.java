@@ -83,9 +83,11 @@ public class LensShader implements ShaderAPI {
         rippleTex = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, rippleTex);
         if (ShaderLib.useBufferCore()) {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (java.nio.ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,
+                              (java.nio.ByteBuffer) null);
         } else {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (java.nio.ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,
+                              (java.nio.ByteBuffer) null);
         }
 
         GL20.glUseProgram(program);

@@ -61,9 +61,11 @@ public class MissileSelfDestruct extends BaseEveryFrameCombatPlugin {
         int size = missiles.size();
         for (int i = 0; i < size; i++) {
             MissileAPI missile = missiles.get(i);
-            if (missile.isFading() && !missile.isFlare() && missile.getCollisionClass() != CollisionClass.NONE && (float) Math.random() > 0.75f) {
+            if (missile.isFading() && !missile.isFlare() && missile.getCollisionClass() != CollisionClass.NONE &&
+                    (float) Math.random() > 0.75f) {
                 if (missile.getProjectileSpecId() == null || !EXCLUDED_MISSILES.contains(missile.getProjectileSpecId())) {
-                    engine.applyDamage(missile, missile.getLocation(), missile.getHitpoints() * 2f, DamageType.FRAGMENTATION, 0f, false, false, missile);
+                    engine.applyDamage(missile, missile.getLocation(), missile.getHitpoints() * 2f,
+                                       DamageType.FRAGMENTATION, 0f, false, false, missile);
                 }
             }
         }

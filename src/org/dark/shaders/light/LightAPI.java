@@ -93,7 +93,8 @@ public interface LightAPI {
     /**
      * Gets the light's type.
      * <p>
-     * @return The light's current type. Type 0: point light (default). Type 1: line light. Type 2: cone light. Type 3: directional light.
+     * @return The light's current type. Type 0: point light (default). Type 1: line light. Type 2: cone light. Type 3:
+     *         directional light.
      */
     int getType();
 

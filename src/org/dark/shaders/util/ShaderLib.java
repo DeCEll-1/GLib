@@ -1,6 +1,7 @@
 package org.dark.shaders.util;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.CombatAsteroidAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.MissileAPI;
@@ -17,14 +18,19 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Level;
+import org.dark.graphics.util.Tessellate;
 import org.dark.shaders.ShaderModPlugin;
 import org.dark.shaders.util.ShaderAPI.RenderOrder;
 import org.dark.shaders.util.TextureData.ObjectType;
 import org.dark.shaders.util.TextureData.TextureDataType;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.lazylib.CollisionUtils;
+import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -45,6 +51,11 @@ public final class ShaderLib {
     public static final Comparator<ShipAPI> SHIP_DRAW_ORDER = new Comparator<ShipAPI>() {
         @Override
         public int compare(ShipAPI ship1, ShipAPI ship2) {
+            if (ship1.getParentStation() == ship2) {
+                return 1; // ship2 first
+            } else if (ship2.getParentStation() == ship1) {
+                return -1; // ship1 first
+            }
             if ((ship1.isFighter() || ship1.isDrone()) && !(ship2.isFighter() || ship2.isDrone())) {
                 return 1; // ship2 first
             } else if (!(ship1.isFighter() || ship1.isDrone()) && (ship2.isFighter() || ship2.isDrone())) {
@@ -119,8 +130,8 @@ public final class ShaderLib {
     static int toggleKey;
 
     /**
-     * Adds the given instance of ShaderAPI to the rendering queue. Duplicates of the same shader or same type of shader are invalid. The shader will be added
-     * even if ShaderLib is not enabled.
+     * Adds the given instance of ShaderAPI to the rendering queue. Duplicates of the same shader or same type of shader
+     * are invalid. The shader will be added even if ShaderLib is not enabled.
      * <p>
      * @param shader The shader to add.
      */
@@ -152,10 +163,12 @@ public final class ShaderLib {
     }
 
     /**
-     * This function is meant to be used at the start of the shader's rendering stage. This sets also sets glOrtho to a screen-space value.
+     * This function is meant to be used at the start of the shader's rendering stage. This sets also sets glOrtho to a
+     * screen-space value.
      * <p>
-     * This function pushes GL_PROJECTION, GL_TEXTURE, and GL_MODELVIEW (in that order) onto the stack, and also pushes GL_ALL_ATTRIB_BITS to the stack.
-     * {@link ShaderLib#exitDraw()} can be used to undo the changes caused by this function; if you do not do so, errors may occur.
+     * This function pushes GL_PROJECTION, GL_TEXTURE, and GL_MODELVIEW (in that order) onto the stack, and also pushes
+     * GL_ALL_ATTRIB_BITS to the stack. {@link ShaderLib#exitDraw()} can be used to undo the changes caused by this
+     * function; if you do not do so, errors may occur.
      * <p>
      * @param shader The shader program ID to bind the renderer to.
      */
@@ -164,8 +177,8 @@ public final class ShaderLib {
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
@@ -201,8 +214,9 @@ public final class ShaderLib {
     }
 
     /**
-     * This function copies the current screen to the given texture and binds that texture to the given texture unit. This function is meant to be used when the
-     * uniform parameters have been bound during the shader's rendering stage.
+     * This function copies the current screen to the given texture and binds that texture to the given texture unit.
+     * This function is meant to be used when the uniform parameters have been bound during the shader's rendering
+     * stage.
      * <p>
      * @param texture     The texture to copy to.
      * @param textureUnit The texture unit to bind the given texture to.
@@ -219,9 +233,9 @@ public final class ShaderLib {
     }
 
     /**
-     * This function draws a quad formatted to fit the whole screen, with texture coordinates mapped such that the entire screen texture (which is usually a
-     * size
-     * like 2048x2048) is represented by the range [0,0] to [1,1]. Not intended for world coordinates.
+     * This function draws a quad formatted to fit the whole screen, with texture coordinates mapped such that the
+     * entire screen texture (which is usually a size like 2048x2048) is represented by the range [0,0] to [1,1]. Not
+     * intended for world coordinates.
      * <p>
      * @param scale How much to scale the quad by (usually for subsampling purposes).
      * <p>
@@ -243,8 +257,8 @@ public final class ShaderLib {
     /**
      * This function is meant to be used at the end of the shader's rendering stage.
      * <p>
-     * This function pops GL_MODELVIEW, GL_TEXTURE, and GL_PROJECTION (in that order) from the stack, and also pops state variables from the stack. See
-     * {@link ShaderLib#beginDraw(int shader)}.
+     * This function pops GL_MODELVIEW, GL_TEXTURE, and GL_PROJECTION (in that order) from the stack, and also pops
+     * state variables from the stack. See {@link ShaderLib#beginDraw(int shader)}.
      */
     public static void exitDraw() {
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -289,12 +303,11 @@ public final class ShaderLib {
     }
 
     /**
-     * Returns the framebuffer object ID of the auxiliary buffer. The auxiliary buffer may be used for any drawing you might need as input for another shader.
-     * The
-     * auxiliary buffer is not preserved between frames.
+     * Returns the framebuffer object ID of the auxiliary buffer. The auxiliary buffer may be used for any drawing you
+     * might need as input for another shader. The auxiliary buffer is not preserved between frames.
      * <p>
-     * The auxiliary buffer texture is a 32-bit or 64-bit RGBA texture with the smallest power-of-two size that fits the visible screen. It has mipmaps and a
-     * floating-point internal type.
+     * The auxiliary buffer texture is a 32-bit or 64-bit RGBA texture with the smallest power-of-two size that fits the
+     * visible screen. It has mipmaps and a floating-point internal type.
      * <p>
      * @return The framebuffer object ID of the auxiliary buffer. Returns 0 if framebuffer objects are not supported.
      * <p>
@@ -309,13 +322,14 @@ public final class ShaderLib {
     }
 
     /**
-     * Returns the texture ID of the texture pointed to by the auxiliary buffer. The auxiliary buffer may be used for any drawing you might need as input for
-     * another shader. The auxiliary buffer is not preserved between frames.
+     * Returns the texture ID of the texture pointed to by the auxiliary buffer. The auxiliary buffer may be used for
+     * any drawing you might need as input for another shader. The auxiliary buffer is not preserved between frames.
      * <p>
-     * The auxiliary buffer texture is a 32-bit or 64-bit RGBA texture with the smallest power-of-two size that fits the visible screen. It has mipmaps and a
-     * floating-point internal type.
+     * The auxiliary buffer texture is a 32-bit or 64-bit RGBA texture with the smallest power-of-two size that fits the
+     * visible screen. It has mipmaps and a floating-point internal type.
      * <p>
-     * @return The texture ID of the texture pointed to by the auxiliary buffer. Returns 0 if framebuffer objects are not supported.
+     * @return The texture ID of the texture pointed to by the auxiliary buffer. Returns 0 if framebuffer objects are
+     *         not supported.
      * <p>
      * @since Alpha v1.6
      */
@@ -328,16 +342,18 @@ public final class ShaderLib {
     }
 
     /**
-     * Returns the texture ID of the framebuffer texture containing every foreground object. Useful for object-space shaders. Returns 0 if there is no combat
-     * engine. Do not use this if the user does not have framebuffer object support!
+     * Returns the texture ID of the framebuffer texture containing every foreground object. Useful for object-space
+     * shaders. Returns 0 if there is no combat engine. Do not use this if the user does not have framebuffer object
+     * support!
      * <p>
-     * Warning: This function may reset your framebuffer binding to 0! You should save your framebuffer parameters (if any) prior to calling this function! Note
-     * that this function uses any Material maps associated with those foreground objects.
+     * Warning: This function may reset your framebuffer binding to 0! You should save your framebuffer parameters (if
+     * any) prior to calling this function! Note that this function uses any Material maps associated with those
+     * foreground objects.
      * <p>
      * @param viewport The viewport in use by the renderer.
      * <p>
-     * @return The texture ID of the framebuffer texture containing every foreground object. Includes any Material maps associated with those foreground
-     *         objects.
+     * @return The texture ID of the framebuffer texture containing every foreground object. Includes any Material maps
+     *         associated with those foreground objects.
      */
     public static int getForegroundTexture(ViewportAPI viewport) {
         if (Global.getCombatEngine() == null) {
@@ -385,7 +401,8 @@ public final class ShaderLib {
     }
 
     /**
-     * Returns the loaded instance of the given class that implements ShaderAPI. Returns null if there is no instance of the given shader.
+     * Returns the loaded instance of the given class that implements ShaderAPI. Returns null if there is no instance of
+     * the given shader.
      * <p>
      * @param shaderAPI The class to search for. Must implement ShaderAPI.
      * <p>
@@ -426,13 +443,14 @@ public final class ShaderLib {
     }
 
     /**
-     * Gets a scalar (x) and offset (y) to transform any range of floats to a texture's standard [0,1] clamp. Sent float (s): s = (data - y) / x. Decoded float
-     * (d): d = s * x + y
+     * Gets a scalar (x) and offset (y) to transform any range of floats to a texture's standard [0,1] clamp. Sent float
+     * (s): s = (data - y) / x. Decoded float (d): d = s * x + y
      * <p>
      * @param minValue The lower bound of the float range.
      * @param maxValue The upper bound of the float range.
      * <p>
-     * @return A scalar (x) and offset (y) that can be used to transform the given range of floats to a texture's standard [0,1] clamp.
+     * @return A scalar (x) and offset (y) that can be used to transform the given range of floats to a texture's
+     *         standard [0,1] clamp.
      */
     public static Vector2f getTextureDataNormalization(float minValue, float maxValue) {
         final Vector2f tempVec = new Vector2f(0.01f, 0f);
@@ -517,7 +535,8 @@ public final class ShaderLib {
             buffersAllowed = true;
         } else {
             buffersAllowed = false;
-            Global.getLogger(ShaderLib.class).log(Level.ERROR, "GPU does not support Framebuffer Objects! Some shaders disabled!");
+            Global.getLogger(ShaderLib.class).log(Level.ERROR,
+                                                  "GPU does not support Framebuffer Objects! Some shaders disabled!");
         }
 
         if (GLContext.getCapabilities().OpenGL20) {
@@ -538,7 +557,8 @@ public final class ShaderLib {
         if (shadersAllowed) {
             screenTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGB,
+                              GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (useFramebufferEXT) {
                 EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
             } else if (useFramebufferARB) {
@@ -555,7 +575,8 @@ public final class ShaderLib {
         if (buffersAllowed && shadersAllowed) {
             foregroundBufferTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, foregroundBufferTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGBA,
+                              GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (useFramebufferEXT) {
                 EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
             } else if (useFramebufferARB) {
@@ -568,25 +589,31 @@ public final class ShaderLib {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (useFramebufferCore) {
-                foregroundBufferId = makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, foregroundBufferTex, 0);
+                foregroundBufferId = makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, foregroundBufferTex,
+                                                     ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else if (useFramebufferARB) {
-                foregroundBufferId = makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, foregroundBufferTex, 0);
+                foregroundBufferId = makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, foregroundBufferTex,
+                                                     ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
-                foregroundBufferId = makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, foregroundBufferTex, 0);
+                foregroundBufferId = makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, foregroundBufferTex,
+                                                     ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             if (foregroundBufferId == 0) {
                 buffersAllowed = false;
-                Global.getLogger(ShaderLib.class).log(Level.ERROR, "Foreground framebuffer object error!  ShaderLib features disabled!");
+                Global.getLogger(ShaderLib.class).log(Level.ERROR,
+                                                      "Foreground framebuffer object error!  ShaderLib features disabled!");
             }
 
             auxiliaryBufferTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, auxiliaryBufferTex);
             if (auxiliaryBuffer64Bit) {
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA16, ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
+                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA16, ShaderLib.getInternalWidth(),
+                                  ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
                                   GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
             } else {
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
+                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, ShaderLib.getInternalWidth(),
+                                  ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
                                   GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             }
             if (useFramebufferEXT) {
@@ -601,16 +628,21 @@ public final class ShaderLib {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (useFramebufferCore) {
-                auxiliaryBufferId = makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, auxiliaryBufferTex, 0);
+                auxiliaryBufferId = makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, auxiliaryBufferTex,
+                                                    ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else if (useFramebufferARB) {
-                auxiliaryBufferId = makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, auxiliaryBufferTex, 0);
+                auxiliaryBufferId = makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, auxiliaryBufferTex,
+                                                    ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
-                auxiliaryBufferId = makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, auxiliaryBufferTex, 0);
+                auxiliaryBufferId =
+                makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, auxiliaryBufferTex,
+                                ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             if (auxiliaryBufferId == 0) {
                 buffersAllowed = false;
-                Global.getLogger(ShaderLib.class).log(Level.ERROR, "Auxiliary framebuffer object error!  ShaderLib features disabled!");
+                Global.getLogger(ShaderLib.class).log(Level.ERROR,
+                                                      "Auxiliary framebuffer object error!  ShaderLib features disabled!");
             }
         }
 
@@ -618,8 +650,9 @@ public final class ShaderLib {
     }
 
     /**
-     * Returns true if there is no combat engine. Do not use this if the user does not have framebuffer object support! Warning: This function may reset your
-     * framebuffer binding to 0! You should save your framebuffer parameters (if any) prior to calling this function!
+     * Returns true if there is no combat engine. Do not use this if the user does not have framebuffer object support!
+     * Warning: This function may reset your framebuffer binding to 0! You should save your framebuffer parameters (if
+     * any) prior to calling this function!
      * <p>
      * @param viewport The viewport in use by the renderer.
      * <p>
@@ -638,9 +671,8 @@ public final class ShaderLib {
     }
 
     /**
-     * Checks if a point, bounded by a certain radius, is on screen. Do note that this is only absolutely true if it returns false; if it returns true, the
-     * point
-     * may still not actually be on screen.
+     * Checks if a point, bounded by a certain radius, is on screen. Do note that this is only absolutely true if it
+     * returns false; if it returns true, the point may still not actually be on screen.
      * <p>
      * @param worldCoords The absolute world coordinates of the point.
      * @param radius      How far away from the screen the point can be.
@@ -652,8 +684,8 @@ public final class ShaderLib {
     }
 
     /**
-     * Checks if a line, bounded by a certain radius, is on screen. Do note that this is only absolutely true if it returns false; if it returns true, the line
-     * may still not actually be on screen.
+     * Checks if a line, bounded by a certain radius, is on screen. Do note that this is only absolutely true if it
+     * returns false; if it returns true, the line may still not actually be on screen.
      * <p>
      * @param worldCoords1 The absolute world coordinates of one endpoint of the line.
      * @param worldCoords2 The absolute world coordinates of the other endpoint of the line.
@@ -687,7 +719,8 @@ public final class ShaderLib {
     }
 
     /**
-     * Compiles the given shader. Does NOT validate the shader; you must call that function yourself. See the example shaders for how to do this.
+     * Compiles the given shader. Does NOT validate the shader; you must call that function yourself. See the example
+     * shaders for how to do this.
      * <p>
      * @param vert The vertex shader, given as a String.
      * @param frag The fragment shader, given as a String.
@@ -737,19 +770,29 @@ public final class ShaderLib {
     /**
      * Creates a framebuffer object for the given texture.
      * <p>
-     * @param attachment Can be EXTFramebufferObject.GL_COLOR_ATTACHMENTi_EXT (i is typically 0), EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, or
-     *                   EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, depending on what kind of texture you use.
+     * @param attachment Can be EXTFramebufferObject.GL_COLOR_ATTACHMENTi_EXT (i is typically 0),
+     *                   EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, or EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, depending on
+     *                   what kind of texture you use.
      * @param texture    Assumed to be a GL_TEXTURE_2D texture.
+     * @param texWidth   Width of texture
+     * @param texHeight  Height of texture
      * @param mipLevel   The mipmapping level of the texture to bind to.
      * <p>
      * @return The created FBO ID.
      */
-    public static int makeFramebuffer(int attachment, int texture, int mipLevel) {
+    public static int makeFramebuffer(int attachment, int texture, int texWidth, int texHeight, int mipLevel) {
         if (useFramebufferCore) {
-            final int bufferId = GL30.glGenFramebuffers();
+            final int rbStencilId = GL30.glGenRenderbuffers();
+            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, rbStencilId);
+            GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_STENCIL_INDEX8, texWidth, texHeight);
+            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
 
+            final int bufferId = GL30.glGenFramebuffers();
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, bufferId);
             GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
+            GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL_ATTACHMENT, GL30.GL_RENDERBUFFER,
+                                           rbStencilId);
+
             final int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
             if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
                 Global.getLogger(ShaderLib.class).log(Level.ERROR, "Couldn't make framebuffer! Error: " + status);
@@ -759,10 +802,20 @@ public final class ShaderLib {
 
             return bufferId;
         } else if (useFramebufferARB) {
-            final int bufferId = ARBFramebufferObject.glGenFramebuffers();
+            final int rbStencilId = ARBFramebufferObject.glGenRenderbuffers();
+            ARBFramebufferObject.glBindRenderbuffer(ARBFramebufferObject.GL_RENDERBUFFER, rbStencilId);
+            ARBFramebufferObject.glRenderbufferStorage(ARBFramebufferObject.GL_RENDERBUFFER,
+                                                       ARBFramebufferObject.GL_STENCIL_INDEX8, texWidth, texHeight);
+            ARBFramebufferObject.glBindRenderbuffer(ARBFramebufferObject.GL_RENDERBUFFER, 0);
 
+            final int bufferId = ARBFramebufferObject.glGenFramebuffers();
             ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, bufferId);
-            ARBFramebufferObject.glFramebufferTexture2D(ARBFramebufferObject.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
+            ARBFramebufferObject.glFramebufferTexture2D(ARBFramebufferObject.GL_FRAMEBUFFER, attachment,
+                                                        GL11.GL_TEXTURE_2D, texture, mipLevel);
+            ARBFramebufferObject.glFramebufferRenderbuffer(ARBFramebufferObject.GL_FRAMEBUFFER,
+                                                           ARBFramebufferObject.GL_STENCIL_ATTACHMENT,
+                                                           ARBFramebufferObject.GL_RENDERBUFFER, rbStencilId);
+
             final int status = ARBFramebufferObject.glCheckFramebufferStatus(ARBFramebufferObject.GL_FRAMEBUFFER);
             if (status != ARBFramebufferObject.GL_FRAMEBUFFER_COMPLETE) {
                 Global.getLogger(ShaderLib.class).log(Level.ERROR, "Couldn't make framebuffer! Error: " + status);
@@ -772,10 +825,21 @@ public final class ShaderLib {
 
             return bufferId;
         } else {
-            final int bufferId = EXTFramebufferObject.glGenFramebuffersEXT();
+            final int rbStencilId = EXTFramebufferObject.glGenRenderbuffersEXT();
+            EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, rbStencilId);
+            EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT,
+                                                          EXTFramebufferObject.GL_STENCIL_INDEX8_EXT, texWidth,
+                                                          texHeight);
+            EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, 0);
 
+            final int bufferId = EXTFramebufferObject.glGenFramebuffersEXT();
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, bufferId);
-            EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
+            EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, attachment,
+                                                           GL11.GL_TEXTURE_2D, texture, mipLevel);
+            EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
+                                                              EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT,
+                                                              EXTFramebufferObject.GL_RENDERBUFFER_EXT, rbStencilId);
+
             final int status = EXTFramebufferObject.glCheckFramebufferStatusEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT);
             if (status != EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT) {
                 Global.getLogger(ShaderLib.class).log(Level.ERROR, "Couldn't make framebuffer! Error: " + status);
@@ -788,9 +852,8 @@ public final class ShaderLib {
     }
 
     /**
-     * This function combines the functionalities of copyScreen and drawScreenQuad. This function is meant to be used when the uniform parameters have been
-     * bound
-     * during the shader's rendering stage.
+     * This function combines the functionalities of copyScreen and drawScreenQuad. This function is meant to be used
+     * when the uniform parameters have been bound during the shader's rendering stage.
      * <p>
      * @param texture     The texture to copy to.
      * @param textureUnit The texture unit to bind the given texture to.
@@ -905,7 +968,8 @@ public final class ShaderLib {
     }
 
     // Modified from LazyWizard's LazyLib
-    private static boolean lineIntersect(Vector2f start1, Vector2f end1, float start2x, float start2y, float end2x, float end2y) {
+    private static boolean lineIntersect(Vector2f start1, Vector2f end1, float start2x, float start2y, float end2x,
+                                         float end2y) {
         if (Line2D.Float.ptSegDistSq(start2x, start2y, end2x, end2y, end1.x, end1.y) <= 0.11111f) {
             return true;
         }
@@ -967,14 +1031,14 @@ public final class ShaderLib {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, foregroundBufferId);
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
-        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(), viewport.getLLY() + viewport.getVisibleHeight(),
-                     -2000, 2000);
+        GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
+                     viewport.getLLY() + viewport.getVisibleHeight(), -2000, 2000);
 
         GL11.glMatrixMode(GL11.GL_TEXTURE);
         GL11.glPushMatrix();
@@ -1005,7 +1069,8 @@ public final class ShaderLib {
                 asteroidType = "nil";
             }
 
-            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.MATERIAL_MAP, ObjectType.ASTEROID, 0);
+            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.MATERIAL_MAP,
+                                                                  ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             if (entry != null) {
                 sprite = entry.sprite;
@@ -1033,9 +1098,12 @@ public final class ShaderLib {
                 continue;
             }
 
-            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.MATERIAL_MAP, ObjectType.SHIP, 0);
+            TextureEntry entry =
+                         TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.MATERIAL_MAP,
+                                                    ObjectType.SHIP, 0);
             if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.MATERIAL_MAP, ObjectType.SHIP, 0);
+                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.MATERIAL_MAP,
+                                                   ObjectType.SHIP, 0);
             }
             SpriteAPI originalSprite = ship.getSpriteAPI();
             SpriteAPI sprite;
@@ -1050,89 +1118,146 @@ public final class ShaderLib {
                 sprite = originalSprite;
             }
 
-            sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+            BoundsAPI bounds = ship.getVisualBounds();
+            if (bounds != null) {
+                bounds.update(ship.getLocation(), ship.getFacing());
+
+                GL11.glEnable(GL11.GL_STENCIL_TEST);
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glColorMask(false, false, false, false);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 16, 0xFF); // Set stencil to 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+                GL11.glStencilMask(0xFF); // Write to stencil buffer
+                GL11.glClearStencil(0);
+                GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
+
+                Tessellate.render(bounds, 1f, 1f, 1f);
+
+                GL11.glColorMask(true, true, true, true);
+                GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+                GL11.glStencilMask(0x00); // Don't write anything to stencil buffer
+
+                sprite.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+
+                GL11.glDisable(GL11.GL_STENCIL_TEST);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // Pass test always
+            } else {
+                sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+            }
+
+            final Vector2f renderOffset = VectorUtils.rotate(ship.getRenderOffset(), ship.getFacing(), new Vector2f());
 
             final List<WeaponAPI> weapons = ship.getAllWeapons();
             final List<WeaponSlotAPI> emptySlots = ship.getHullSpec().getAllWeaponSlotsCopy();
             final int weaponSize = weapons.size();
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
-                emptySlots.remove(weapon.getSlot());
+                if (!emptySlots.remove(weapon.getSlot())) {
+                    for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
+                        final WeaponSlotAPI slot = iter.next();
+                        final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
+                                                                   new Vector2f());
+                        final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                        if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
+                            iter.remove();
+                            break;
+                        }
+                    }
+                }
             }
-            final int slotSize = emptySlots.size();
-            for (int j = 0; j < slotSize; j++) {
-                final WeaponSlotAPI slot = emptySlots.get(j);
-                if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() || (slot.getWeaponType() == WeaponType.LAUNCH_BAY)) {
-                    continue;
-                }
-                switch (slot.getSlotSize()) {
-                    default:
-                    case SMALL:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_COVER_SMALL, 0);
-                            originalSprite = ship.getSmallTurretCover();
-                        }
-                        break;
-                    case MEDIUM:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_COVER_MEDIUM, 0);
-                            originalSprite = ship.getMediumTurretCover();
-                        }
-                        break;
-                    case LARGE:
-                        if (slot.isHardpoint()) {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeHardpointCover();
-                        } else {
-                            entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_COVER_LARGE, 0);
-                            originalSprite = ship.getLargeTurretCover();
-                        }
-                        break;
-                }
-                if (originalSprite == null || originalSprite.getTextureId() == 0) {
-                    continue;
-                }
-                final Vector2f slotLocation = slot.computePosition(ship);
 
-                if (entry != null) {
-                    sprite = entry.sprite;
-                    sprite.setAngle(originalSprite.getAngle());
-                    sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
-                    sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                    sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
-                    sprite.setColor(originalSprite.getColor());
-                } else {
-                    sprite = originalSprite;
-                }
+            if (bounds == null) {
+                final int slotSize = emptySlots.size();
+                for (int j = 0; j < slotSize; j++) {
+                    final WeaponSlotAPI slot = emptySlots.get(j);
+                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() ||
+                            (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule() ||
+                            slot.isBuiltIn()) {
+                        continue;
+                    }
+                    final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
+                    switch (slot.getSlotSize()) {
+                        default:
+                        case SMALL:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_COVER_SMALL, 0);
+                                originalSprite = ship.getSmallTurretCover();
+                            }
+                            break;
+                        case MEDIUM:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_COVER_MEDIUM, 0);
+                                originalSprite = ship.getMediumTurretCover();
+                            }
+                            break;
+                        case LARGE:
+                            if (slot.isHardpoint()) {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeHardpointCover();
+                            } else {
+                                entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_COVER_LARGE, 0);
+                                originalSprite = ship.getLargeTurretCover();
+                            }
+                            break;
+                    }
+                    if (originalSprite == null || originalSprite.getTextureId() == 0) {
+                        continue;
+                    }
 
-                sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+                    if (entry != null) {
+                        sprite = entry.sprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                        sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
+                        sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
+                        sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        sprite.setColor(originalSprite.getColor());
+                    } else {
+                        sprite = originalSprite;
+                        sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                    }
+
+                    sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+                }
             }
 
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
                 if (!weapon.getSlot().isHidden()) {
-                    final Vector2f weaponLocation = weapon.getLocation();
+                    final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
 
                     if (weapon.getUnderSpriteAPI() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_UNDER, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_UNDER,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_UNDER,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_UNDER, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_UNDER, 0);
                             }
                         }
                         originalSprite = weapon.getUnderSpriteAPI();
@@ -1153,17 +1278,21 @@ public final class ShaderLib {
                     if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -1176,23 +1305,28 @@ public final class ShaderLib {
                             sprite = originalSprite;
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation,
+                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
                     if (weapon.getSprite() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET, 0);
                             }
                         }
                         originalSprite = weapon.getSprite();
@@ -1213,17 +1347,21 @@ public final class ShaderLib {
                     if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL,
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_BARREL,
                                                                    weapon.getAnimation().getFrame());
                             } else {
-                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
+                                entry = TextureData.getTextureData(weapon.getId(), TextureDataType.MATERIAL_MAP,
+                                                                   ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -1236,10 +1374,12 @@ public final class ShaderLib {
                             sprite = originalSprite;
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation,
+                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
-                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() && (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
+                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() &&
+                            (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
                         final List<MissileRenderDataAPI> msls = weapon.getMissileRenderData();
                         final int mslSize = msls.size();
                         for (int k = 0; k < mslSize; k++) {
@@ -1250,20 +1390,24 @@ public final class ShaderLib {
 
                             final Vector2f missileLocation = msl.getMissileCenterLocation();
 
-                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.MATERIAL_MAP, ObjectType.MISSILE, 0);
+                            entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.MATERIAL_MAP,
+                                                               ObjectType.MISSILE, 0);
                             originalSprite = msl.getSprite();
                             if (entry != null) {
                                 sprite = entry.sprite;
                                 sprite.setAngle(msl.getMissileFacing() - 90f);
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                                sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
+                                sprite.setAlphaMult(
+                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) *
+                                        msl.getBrightness());
                                 sprite.setColor(originalSprite.getColor());
                             } else {
                                 sprite = originalSprite;
                             }
 
-                            sprite.renderAtCenter(missileLocation.x, missileLocation.y);
+                            sprite.renderAtCenter(missileLocation.x + renderOffset.x,
+                                                  missileLocation.y + renderOffset.y);
                         }
                     }
                 }
@@ -1286,7 +1430,8 @@ public final class ShaderLib {
                 continue;
             }
 
-            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(), TextureDataType.MATERIAL_MAP, ObjectType.MISSILE, 0);
+            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(),
+                                                                  TextureDataType.MATERIAL_MAP, ObjectType.MISSILE, 0);
             final SpriteAPI originalSprite = missile.getSpriteAPI();
             final SpriteAPI sprite;
             if (entry != null) {
@@ -1320,8 +1465,8 @@ public final class ShaderLib {
         }
         GL11.glPopAttrib();
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()), (int) (Global.getSettings().getScreenHeight() *
-                                                                                                                    Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
 
         isForegroundEmpty = objectCount <= 0;
         isForegroundRendered = true;

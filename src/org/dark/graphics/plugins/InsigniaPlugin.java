@@ -30,7 +30,8 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: " + e.getMessage());
+            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: " +
+                                                            e.getMessage());
             enabled = false;
         }
     }
@@ -117,10 +118,14 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
 
                 if (tier != null) {
                     List<Vector2f> corners = new ArrayList<>(4);
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() * 0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() * 0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() * -0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() * -0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() *
+                                             0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() *
+                                             0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() *
+                                             -0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() *
+                                             -0.5f));
                     corners = VectorUtils.rotate(corners, ship.getFacing() - 90f);
                     for (Vector2f corner : corners) {
                         Vector2f.add(ship.getLocation(), corner, corner);
@@ -148,11 +153,13 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
                     Vector2f shipLoc = new Vector2f(viewport.convertWorldXtoScreenX(ship.getLocation().x),
                                                     viewport.convertWorldYtoScreenY(ship.getLocation().y));
                     Vector2f loc = new Vector2f(x, y);
-                    Vector2f alternate = MathUtils.getPointOnCircumference(shipLoc, radius + border, VectorUtils.getAngle(shipLoc, loc));
+                    Vector2f alternate = MathUtils.getPointOnCircumference(shipLoc, radius + border,
+                                                                           VectorUtils.getAngle(shipLoc, loc));
                     x = alternate.x;
                     y = alternate.y;
 
-                    CaptainTier.insignias.renderRegionAtCenter(x + tier.offsetX, y + tier.offsetY, tier.uvLeft, tier.uvBottom,
+                    CaptainTier.insignias.renderRegionAtCenter(x + tier.offsetX, y + tier.offsetY, tier.uvLeft,
+                                                               tier.uvBottom,
                                                                (tier.uvRight - tier.uvLeft),
                                                                (tier.uvTop - tier.uvBottom));
                 }

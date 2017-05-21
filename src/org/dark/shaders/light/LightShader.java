@@ -42,7 +42,6 @@ import org.dark.shaders.util.TextureData.TextureDataType;
 import org.dark.shaders.util.TextureEntry;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lazywizard.lazylib.CollisionUtils;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.BufferUtils;
@@ -1678,6 +1677,10 @@ public class LightShader implements ShaderAPI {
             TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.NORMAL_MAP,
                                                             ObjectType.SHIP, 0);
             if (entry == null) {
+                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.NORMAL_MAP,
+                                                   ObjectType.SHIP, 0);
+            }
+            if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.NORMAL_MAP,
                                                    ObjectType.SHIP, 0);
             }
@@ -1748,7 +1751,7 @@ public class LightShader implements ShaderAPI {
                 GL11.glClearStencil(0);
                 GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
 
-                Tessellate.render(bounds, 1f, 1f, 1f);
+                Tessellate.render(bounds, 1f, 1f, 1f, ship.getId());
 
                 GL11.glColorMask(true, true, true, true);
                 GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16
@@ -2267,6 +2270,10 @@ public class LightShader implements ShaderAPI {
             TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.SURFACE_MAP,
                                                             ObjectType.SHIP, 0);
             if (entry == null) {
+                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.SURFACE_MAP,
+                                                   ObjectType.SHIP, 0);
+            }
+            if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.SURFACE_MAP,
                                                    ObjectType.SHIP, 0);
             }
@@ -2303,7 +2310,7 @@ public class LightShader implements ShaderAPI {
                 GL11.glClearStencil(0);
                 GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
 
-                Tessellate.render(bounds, 1f, 1f, 1f);
+                Tessellate.render(bounds, 1f, 1f, 1f, ship.getId());
 
                 GL11.glColorMask(true, true, true, true);
                 GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16

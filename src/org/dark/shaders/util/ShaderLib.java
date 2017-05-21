@@ -28,7 +28,6 @@ import org.dark.shaders.util.TextureData.ObjectType;
 import org.dark.shaders.util.TextureData.TextureDataType;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lazywizard.lazylib.CollisionUtils;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -1102,6 +1101,10 @@ public final class ShaderLib {
                          TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.MATERIAL_MAP,
                                                     ObjectType.SHIP, 0);
             if (entry == null) {
+                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.MATERIAL_MAP,
+                                                   ObjectType.SHIP, 0);
+            }
+            if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.MATERIAL_MAP,
                                                    ObjectType.SHIP, 0);
             }
@@ -1132,7 +1135,7 @@ public final class ShaderLib {
                 GL11.glClearStencil(0);
                 GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
 
-                Tessellate.render(bounds, 1f, 1f, 1f);
+                Tessellate.render(bounds, 1f, 1f, 1f, ship.getId());
 
                 GL11.glColorMask(true, true, true, true);
                 GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16

@@ -1,3 +1,10 @@
+1.2.0 (Unreleased)
+- Now works on Starsector 0.8.1a
+- Additional LazyLib check
+- Fixed some misc. bugs that nobody noticed
+- Tweaked ship destruction effects for ship pieces to avoid fx spam
+- Updated even more sprites
+
 1.1.0 (April 23, 2017)
 - Now works on Starsector 0.8a
 - Supports lighting on destroyed ship pieces

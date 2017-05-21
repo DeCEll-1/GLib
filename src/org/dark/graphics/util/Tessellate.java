@@ -12,7 +12,11 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class Tessellate {
 
-    public static void render(BoundsAPI bounds, float r, float g, float b) {
+    public static void clearCache() {
+        /* TODO: Implement some kind of caching feature for this stupid bullshit */
+    }
+
+    public static void render(BoundsAPI bounds, float r, float g, float b, String id) {
         GLUtessellatorImpl tesselator = (GLUtessellatorImpl) GLU.gluNewTess();
         TessCallbackV2 callback = new TessCallbackV2();
         tesselator.gluTessCallback(GLU.GLU_TESS_VERTEX, callback);

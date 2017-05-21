@@ -49,6 +49,10 @@ public class TextureData {
      * @since Alpha 1.5
      */
     public static TextureEntry getTextureData(String key, TextureDataType map, ObjectType type, int frame) {
+        if (key == null) {
+            return null;
+        }
+
         final String typeStr;
         switch (type) {
             case SHIP:

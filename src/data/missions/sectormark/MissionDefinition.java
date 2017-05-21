@@ -234,6 +234,9 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             int playerDP = 0;
             int enemyDP = 0;
             for (ShipAPI ship : ships) {
+                if (ship.isFighter()) {
+                    continue;
+                }
                 if (ship.getLocation().x <= -20000f || ship.getLocation().x >= 20000f || ship.getLocation().y <= -40000f ||
                         ship.getLocation().y >= 40000f) {
                     Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true,

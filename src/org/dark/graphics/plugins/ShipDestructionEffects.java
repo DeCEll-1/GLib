@@ -272,6 +272,12 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     if (trailsEnabled && !ship.isShuttlePod() && !ship.isDrone()) {
                         int count = (int) (shipRadius * EXPLOSION_SIZE_MOD.get(shipHullSize) / 4f);
                         float length = EXPLOSION_LENGTH.get(shipHullSize) * ((float) Math.random() * 0.5f + 0.75f);
+                        if (ship.isPiece()) {
+                            count /= 2;
+                        }
+                        if (count < 0) {
+                            count = 1;
+                        }
 
                         ExplodingShip exploder = new ExplodingShip(ship, count, length / count);
                         explodingShips.add(exploder);
@@ -287,7 +293,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
             if (ship != null && !ships.contains(ship)) {
                 Vector2f shipLoc = ship.getLocation();
-                String shipHullId = ship.getHullSpec().getHullId();
+                String shipHullId = ship.getHullSpec().getBaseHullId();
                 float shipRadius = ship.getCollisionRadius();
                 HullSize shipHullSize = ship.getHullSize();
                 if (explosionEnabled) {

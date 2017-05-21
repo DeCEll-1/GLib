@@ -49,10 +49,9 @@ public final class ShaderModPlugin extends BaseModPlugin {
     public void onApplicationLoad() throws IOException, JSONException {
         Global.getLogger(ShaderModPlugin.class).setLevel(Level.WARN);
 
-        try {
-            Global.getSettings().getScriptClassLoader().loadClass("data.scripts.TEMModPlugin");
-            templarsExists = true;
-        } catch (ClassNotFoundException ex) {
+        templarsExists = Global.getSettings().getModManager().isModEnabled("Templars");
+        if (!Global.getSettings().getModManager().isModEnabled("lw_lazylib")) {
+            throw new RuntimeException("LazyLib is required!");
         }
 
         ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/asteroid1.png").getTextureId(), "asteroid1");

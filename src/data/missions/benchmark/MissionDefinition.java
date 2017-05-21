@@ -19,7 +19,6 @@ import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,70 +33,70 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
 
-    public static final WeightedRandomPicker<String> FACTIONS = new WeightedRandomPicker<>();
-    public static final WeightedRandomPicker<String> ROLES = new WeightedRandomPicker<>();
+    public static final List<String> FACTIONS = new ArrayList<>(28);
+    public static final List<String> ROLES = new ArrayList<>(29);
 
     public static final Logger log = Global.getLogger(MissionDefinition.class);
 
     static {
-        FACTIONS.add(Factions.HEGEMONY, 10f);
-        FACTIONS.add(Factions.DIKTAT, 5f);
-        FACTIONS.add(Factions.INDEPENDENT, 10f);
-        FACTIONS.add(Factions.KOL, 2.5f);
-        FACTIONS.add(Factions.LIONS_GUARD, 2.5f);
-        FACTIONS.add(Factions.LUDDIC_CHURCH, 10f);
-        FACTIONS.add(Factions.LUDDIC_PATH, 5f);
-        FACTIONS.add(Factions.PIRATES, 10f);
-        FACTIONS.add(Factions.TRITACHYON, 10f);
-        FACTIONS.add(Factions.PERSEAN, 10f);
-        FACTIONS.add(Factions.DERELICT, 2.5f);
-        FACTIONS.add(Factions.REMNANTS, 2.5f);
-        FACTIONS.add("cabal", 5f);
-        FACTIONS.add("interstellarimperium", 10f);
-        FACTIONS.add("citadeldefenders", 5f);
-        FACTIONS.add("blackrock_driveyards", 7.5f);
-        FACTIONS.add("exigency", 7.5f);
-        FACTIONS.add("exipirated", 5f);
-        FACTIONS.add("templars", 2.5f);
-        FACTIONS.add("shadow_industry", 10f);
-        FACTIONS.add("mayorate", 5f);
-        FACTIONS.add("junk_pirates", 7.5f);
-        FACTIONS.add("pack", 5f);
-        FACTIONS.add("syndicate_asp", 5f);
-        FACTIONS.add("SCY", 10f);
-        FACTIONS.add("tiandong", 7.5f);
-        FACTIONS.add("diableavionics", 7.5f);
-        FACTIONS.add("ORA", 7.5f);
+        FACTIONS.add(Factions.HEGEMONY);
+        FACTIONS.add(Factions.DIKTAT);
+        FACTIONS.add(Factions.INDEPENDENT);
+        FACTIONS.add(Factions.KOL);
+        FACTIONS.add(Factions.LIONS_GUARD);
+        FACTIONS.add(Factions.LUDDIC_CHURCH);
+        FACTIONS.add(Factions.LUDDIC_PATH);
+        FACTIONS.add(Factions.PIRATES);
+        FACTIONS.add(Factions.TRITACHYON);
+        FACTIONS.add(Factions.PERSEAN);
+        FACTIONS.add(Factions.DERELICT);
+        FACTIONS.add(Factions.REMNANTS);
+        FACTIONS.add("cabal");
+        FACTIONS.add("interstellarimperium");
+        FACTIONS.add("citadeldefenders");
+        FACTIONS.add("blackrock_driveyards");
+        FACTIONS.add("exigency");
+        FACTIONS.add("exipirated");
+        FACTIONS.add("templars");
+        FACTIONS.add("shadow_industry");
+        FACTIONS.add("mayorate");
+        FACTIONS.add("junk_pirates");
+        FACTIONS.add("pack");
+        FACTIONS.add("syndicate_asp");
+        FACTIONS.add("SCY");
+        FACTIONS.add("tiandong");
+        FACTIONS.add("diableavionics");
+        FACTIONS.add("ORA");
 
-        ROLES.add(ShipRoles.FAST_ATTACK, 10f);
-        ROLES.add(ShipRoles.ESCORT_SMALL, 10f);
-        ROLES.add(ShipRoles.ESCORT_MEDIUM, 8f);
-        ROLES.add(ShipRoles.COMBAT_SMALL, 10f);
-        ROLES.add(ShipRoles.COMBAT_MEDIUM, 8f);
-        ROLES.add(ShipRoles.COMBAT_LARGE, 6f);
-        ROLES.add(ShipRoles.COMBAT_CAPITAL, 3f);
-        ROLES.add(ShipRoles.COMBAT_FREIGHTER_SMALL, 5f);
-        ROLES.add(ShipRoles.COMBAT_FREIGHTER_MEDIUM, 4f);
-        ROLES.add(ShipRoles.COMBAT_FREIGHTER_LARGE, 3f);
-        ROLES.add(ShipRoles.CIV_RANDOM, 5f);
-        ROLES.add(ShipRoles.CARRIER_SMALL, 5f);
-        ROLES.add(ShipRoles.CARRIER_MEDIUM, 4f);
-        ROLES.add(ShipRoles.CARRIER_LARGE, 3f);
-        ROLES.add(ShipRoles.FREIGHTER_SMALL, 4f);
-        ROLES.add(ShipRoles.FREIGHTER_MEDIUM, 2f);
-        ROLES.add(ShipRoles.FREIGHTER_LARGE, 1f);
-        ROLES.add(ShipRoles.TANKER_SMALL, 2f);
-        ROLES.add(ShipRoles.TANKER_MEDIUM, 1f);
-        ROLES.add(ShipRoles.TANKER_LARGE, 0.5f);
-        ROLES.add(ShipRoles.PERSONNEL_SMALL, 2f);
-        ROLES.add(ShipRoles.PERSONNEL_MEDIUM, 1f);
-        ROLES.add(ShipRoles.PERSONNEL_LARGE, 0.5f);
-        ROLES.add(ShipRoles.LINER_SMALL, 2f);
-        ROLES.add(ShipRoles.LINER_MEDIUM, 1f);
-        ROLES.add(ShipRoles.LINER_LARGE, 0.5f);
-        ROLES.add(ShipRoles.TUG, 1f);
-        ROLES.add(ShipRoles.CRIG, 1f);
-        ROLES.add(ShipRoles.UTILITY, 1f);
+        ROLES.add(ShipRoles.FAST_ATTACK);
+        ROLES.add(ShipRoles.ESCORT_SMALL);
+        ROLES.add(ShipRoles.ESCORT_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_SMALL);
+        ROLES.add(ShipRoles.COMBAT_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_LARGE);
+        ROLES.add(ShipRoles.COMBAT_CAPITAL);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_SMALL);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_LARGE);
+        ROLES.add(ShipRoles.CIV_RANDOM);
+        ROLES.add(ShipRoles.CARRIER_SMALL);
+        ROLES.add(ShipRoles.CARRIER_MEDIUM);
+        ROLES.add(ShipRoles.CARRIER_LARGE);
+        ROLES.add(ShipRoles.FREIGHTER_SMALL);
+        ROLES.add(ShipRoles.FREIGHTER_MEDIUM);
+        ROLES.add(ShipRoles.FREIGHTER_LARGE);
+        ROLES.add(ShipRoles.TANKER_SMALL);
+        ROLES.add(ShipRoles.TANKER_MEDIUM);
+        ROLES.add(ShipRoles.TANKER_LARGE);
+        ROLES.add(ShipRoles.PERSONNEL_SMALL);
+        ROLES.add(ShipRoles.PERSONNEL_MEDIUM);
+        ROLES.add(ShipRoles.PERSONNEL_LARGE);
+        ROLES.add(ShipRoles.LINER_SMALL);
+        ROLES.add(ShipRoles.LINER_MEDIUM);
+        ROLES.add(ShipRoles.LINER_LARGE);
+        ROLES.add(ShipRoles.TUG);
+        ROLES.add(ShipRoles.CRIG);
+        ROLES.add(ShipRoles.UTILITY);
     }
 
     private final List<String> ships = new ArrayList<>(5000);
@@ -105,8 +104,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
     @Override
     public void defineMission(MissionDefinitionAPI api) {
         Set<String> variants = new HashSet<>(5000);
-        for (String role : ROLES.getItems()) {
-            for (String faction : FACTIONS.getItems()) {
+        for (String role : ROLES) {
+            for (String faction : FACTIONS) {
                 List<RoleEntryAPI> roleEntries;
                 try {
                     roleEntries = Global.getSettings().getEntriesForRole(faction, role);
@@ -173,7 +172,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 String id = ship;
                 FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, id);
                 String hull = member.getHullId();
-                if (member.isCivilian() || member.getVariant().isEmptyHullVariant()) {
+                if (member.isCivilian() || member.getVariant().isEmptyHullVariant() || member.isStation()) {
                     continue;
                 }
                 if (hulls.contains(hull)) {
@@ -220,6 +219,9 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             int playerDP = 0;
             int enemyDP = 0;
             for (ShipAPI ship : ships) {
+                if (ship.isFighter()) {
+                    continue;
+                }
                 if (ship.getLocation().x <= -25000f || ship.getLocation().x >= 25000f || ship.getLocation().y <= -40000f ||
                         ship.getLocation().y >= 40000f) {
                     Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true,

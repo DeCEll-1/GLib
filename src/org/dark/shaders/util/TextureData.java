@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Level;
+import org.dark.shaders.ShaderModPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -126,6 +127,10 @@ public class TextureData {
             final JSONArray textureData = Global.getSettings().loadCSV(localPath);
 
             for (int i = 0; i < textureData.length(); i++) {
+                if (i % 10 == 0) {
+                    ShaderModPlugin.refresh();
+                }
+
                 final JSONObject entry = textureData.getJSONObject(i);
 
                 if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&
@@ -266,6 +271,10 @@ public class TextureData {
             final JSONArray textureData = Global.getSettings().loadCSV(localPath);
 
             for (int i = 0; i < textureData.length(); i++) {
+                if (i % 10 == 0) {
+                    ShaderModPlugin.refresh();
+                }
+
                 final JSONObject entry = textureData.getJSONObject(i);
 
                 if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&

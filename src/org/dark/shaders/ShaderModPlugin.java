@@ -16,6 +16,7 @@ import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lwjgl.opengl.Display;
 
 /**
  * This is the base mod plugin for ShaderLib, which initializes its shaders.
@@ -32,6 +33,13 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
     private static boolean useLargeRipple = false;
     private static boolean useSmallRipple = false;
+
+    public static void refresh() {
+        try {
+            Display.processMessages();
+        } catch (Throwable t) {
+        }
+    }
 
     private static void loadSettings() throws IOException, JSONException {
         final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
@@ -79,6 +87,8 @@ public final class ShaderModPlugin extends BaseModPlugin {
         ShipColors.init();
         MissileSelfDestruct.loadSettings();
 
+        refresh();
+
         if (ShaderLib.areShadersAllowed()) {
             //ShaderLib.addShaderAPI(new LensShader());
             //ShaderLib.addShaderAPI(new InvertShader());
@@ -114,6 +124,10 @@ public final class ShaderModPlugin extends BaseModPlugin {
                 String path = "";
                 try {
                     for (int i = 1; i <= 60; i++) {
+                        if (i % 10 == 0) {
+                            refresh();
+                        }
+
                         if (i < 10) {
                             path = "graphics/shaders/distortions/smallripple/000" + i + ".PNG";
                         } else {
@@ -125,12 +139,16 @@ public final class ShaderModPlugin extends BaseModPlugin {
                     Global.getLogger(ShaderModPlugin.class).log(Level.ERROR,
                                                                 "Texture loading failed at " + path + "! " +
                                                                 e.getMessage());
-                    throw e; // Crash the game; it's probably too fucked to work at this point, anyway
+                    throw e;
                 }
             } else if (useLargeRipple) {
                 String path = "";
                 try {
                     for (int i = 1; i <= 60; i++) {
+                        if (i % 10 == 0) {
+                            refresh();
+                        }
+
                         if (i < 10) {
                             path = "graphics/shaders/distortions/ripple/000" + i + ".PNG";
                         } else {
@@ -142,7 +160,7 @@ public final class ShaderModPlugin extends BaseModPlugin {
                     Global.getLogger(ShaderModPlugin.class).log(Level.ERROR,
                                                                 "Texture loading failed at " + path + "! " +
                                                                 e.getMessage());
-                    throw e; // Crash the game; it's probably too fucked to work at this point, anyway
+                    throw e;
                 }
             }
         }

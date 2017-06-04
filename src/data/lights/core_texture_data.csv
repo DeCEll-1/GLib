@@ -26,6 +26,8 @@ cerberus_d_pirates,ship,,,material,graphics/shaders/material/ships/cerberus/cerb
 cerberus_luddic_path,ship,,,material,graphics/shaders/material/ships/cerberus/cerberus_luddic_path_material.png
 claw,ship,,,material,graphics/shaders/material/ships/claw_material.png
 colossus,ship,,,material,graphics/shaders/material/ships/colossus/colossus_material.png
+colossus2,ship,,,material,graphics/shaders/material/ships/colossus/colossus2_pather_material.png
+colossus3,ship,,,material,graphics/shaders/material/ships/colossus/colossus3_pirate_material.png
 condor,ship,,,material,graphics/shaders/material/ships/condor/condor_base_material.png
 conquest,ship,,,material,graphics/shaders/material/ships/conquest/conquest_material.png
 crig,ship,,,material,graphics/shaders/material/ships/salvage_rig_material.png
@@ -110,7 +112,7 @@ odyssey,ship,,,material,graphics/shaders/material/ships/odyssey_material.png
 omen,ship,,,material,graphics/shaders/material/ships/omen_ff_material.png
 onslaught,ship,,,material,graphics/shaders/material/ships/onslaught/onslaught_base_material.png
 onslaught_xiv,ship,,,material,graphics/shaders/material/ships/onslaught/onslaught_hegemony_material.png
-ox,ship,,,material,graphics/shaders/material/ships/ox_material.png
+ox,ship,,,material,graphics/shaders/material/ships/ox/ox2_material.png
 paragon,ship,,,material,graphics/shaders/material/ships/paragon_material.png
 phaeton,ship,,,material,graphics/shaders/material/ships/tanker_medium_material.png
 picket,ship,,,material,graphics/shaders/material/ships/derelict/derelict_picket_material.png
@@ -147,7 +149,7 @@ talon_tritachyon,ship,,,material,graphics/shaders/material/ships/talon/talon_tri
 tarsus,ship,,,material,graphics/shaders/material/ships/tarsus/tarsus_base_material.png
 tarsus_d,ship,,,material,graphics/shaders/material/ships/tarsus/tarsus_substandard_material.png
 tempest,ship,,,material,graphics/shaders/material/ships/tempest_material.png
-thunder,ship,,,material,graphics/shaders/material/ships/thunder_material.png
+thunder,ship,,,material,graphics/shaders/material/ships/thunder2_material.png
 trident,ship,,,material,graphics/shaders/material/ships/trident_material.png
 valkyrie,ship,,,material,graphics/shaders/material/ships/valkyrie_ap_material.png
 venture,ship,,,material,graphics/shaders/material/ships/venture/venture_material.png
@@ -188,6 +190,8 @@ cerberus_d_pirates,ship,,1,normal,graphics/shaders/normal/ships/cerberus/cerberu
 cerberus_luddic_path,ship,,1,normal,graphics/shaders/normal/ships/cerberus/cerberus_luddic_path_normal.png
 claw,ship,,1,normal,graphics/shaders/normal/ships/claw_normal.png
 colossus,ship,,1,normal,graphics/shaders/normal/ships/colossus/colossus_normal.png
+colossus2,ship,,1,normal,graphics/shaders/normal/ships/colossus/colossus2_pather_normal.png
+colossus3,ship,,1,normal,graphics/shaders/normal/ships/colossus/colossus3_pirate_normal.png
 condor,ship,,1,normal,graphics/shaders/normal/ships/condor/condor_base_normal.png
 conquest,ship,,1,normal,graphics/shaders/normal/ships/conquest/conquest_normal.png
 crig,ship,,1,normal,graphics/shaders/normal/ships/salvage_rig_normal.png
@@ -272,7 +276,7 @@ odyssey,ship,,1,normal,graphics/shaders/normal/ships/odyssey_normal.png
 omen,ship,,1,normal,graphics/shaders/normal/ships/omen_ff_normal.png
 onslaught,ship,,1,normal,graphics/shaders/normal/ships/onslaught/onslaught_base_normal.png
 onslaught_xiv,ship,,1,normal,graphics/shaders/normal/ships/onslaught/onslaught_hegemony_normal.png
-ox,ship,,1,normal,graphics/shaders/normal/ships/ox_normal.png
+ox,ship,,1,normal,graphics/shaders/normal/ships/ox/ox2_normal.png
 paragon,ship,,1,normal,graphics/shaders/normal/ships/paragon_normal.png
 phaeton,ship,,1,normal,graphics/shaders/normal/ships/tanker_medium_normal.png
 picket,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_picket_normal.png
@@ -309,7 +313,7 @@ talon_tritachyon,ship,,1,normal,graphics/shaders/normal/ships/talon/talon_tritac
 tarsus,ship,,1,normal,graphics/shaders/normal/ships/tarsus/tarsus_base_normal.png
 tarsus_d,ship,,1,normal,graphics/shaders/normal/ships/tarsus/tarsus_substandard_normal.png
 tempest,ship,,1,normal,graphics/shaders/normal/ships/tempest_normal.png
-thunder,ship,,1,normal,graphics/shaders/normal/ships/thunder_normal.png
+thunder,ship,,1,normal,graphics/shaders/normal/ships/thunder2_normal.png
 trident,ship,,1,normal,graphics/shaders/normal/ships/trident_normal.png
 valkyrie,ship,,1,normal,graphics/shaders/normal/ships/valkyrie_ap_normal.png
 venture,ship,,1,normal,graphics/shaders/normal/ships/venture/venture_normal.png
@@ -350,6 +354,8 @@ cerberus_d_pirates,ship,,,surface,graphics/shaders/surface/ships/cerberus/cerber
 cerberus_luddic_path,ship,,,surface,graphics/shaders/surface/ships/cerberus/cerberus_luddic_path_surface.png
 claw,ship,,,surface,graphics/shaders/surface/ships/claw_surface.png
 colossus,ship,,,surface,graphics/shaders/surface/ships/colossus/colossus_surface.png
+colossus2,ship,,,surface,graphics/shaders/surface/ships/colossus/colossus2_pather_surface.png
+colossus3,ship,,,surface,graphics/shaders/surface/ships/colossus/colossus3_pirate_surface.png
 condor,ship,,,surface,graphics/shaders/surface/ships/condor/condor_base_surface.png
 conquest,ship,,,surface,graphics/shaders/surface/ships/conquest/conquest_surface.png
 crig,ship,,,surface,graphics/shaders/surface/ships/salvage_rig_surface.png
@@ -434,7 +440,7 @@ odyssey,ship,,,surface,graphics/shaders/surface/ships/odyssey_surface.png
 omen,ship,,,surface,graphics/shaders/surface/ships/omen_ff_surface.png
 onslaught,ship,,,surface,graphics/shaders/surface/ships/onslaught/onslaught_base_surface.png
 onslaught_xiv,ship,,,surface,graphics/shaders/surface/ships/onslaught/onslaught_hegemony_surface.png
-ox,ship,,,surface,graphics/shaders/surface/ships/ox_surface.png
+ox,ship,,,surface,graphics/shaders/surface/ships/ox/ox2_surface.png
 paragon,ship,,,surface,graphics/shaders/surface/ships/paragon_surface.png
 phaeton,ship,,,surface,graphics/shaders/surface/ships/tanker_medium_surface.png
 picket,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_picket_surface.png
@@ -471,7 +477,7 @@ talon_tritachyon,ship,,,surface,graphics/shaders/surface/ships/talon/talon_trita
 tarsus,ship,,,surface,graphics/shaders/surface/ships/tarsus/tarsus_base_surface.png
 tarsus_d,ship,,,surface,graphics/shaders/surface/ships/tarsus/tarsus_substandard_surface.png
 tempest,ship,,,surface,graphics/shaders/surface/ships/tempest_surface.png
-thunder,ship,,,surface,graphics/shaders/surface/ships/thunder_surface.png
+thunder,ship,,,surface,graphics/shaders/surface/ships/thunder2_surface.png
 trident,ship,,,surface,graphics/shaders/surface/ships/trident_surface.png
 valkyrie,ship,,,surface,graphics/shaders/surface/ships/valkyrie_ap_surface.png
 venture,ship,,,surface,graphics/shaders/surface/ships/venture/venture_surface.png

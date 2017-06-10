@@ -153,6 +153,15 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         }
     }
 
+    private static float effectiveRadius(ShipAPI ship) {
+        if (ship.getSpriteAPI() == null || ship.isPiece()) {
+            return ship.getCollisionRadius();
+        } else {
+            float fudgeFactor = 1.5f;
+            return ((ship.getSpriteAPI().getWidth() / 2f) + (ship.getSpriteAPI().getHeight() / 2f)) * 0.5f * fudgeFactor;
+        }
+    }
+
     private static void loadSettings() throws IOException, JSONException {
         JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
 
@@ -203,7 +212,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     deadShips.add(ship);
                     Vector2f shipLoc = ship.getLocation();
                     Vector2f shipVel = ship.getVelocity();
-                    float shipRadius = ship.getCollisionRadius();
+                    float shipRadius = effectiveRadius(ship);
                     HullSize shipHullSize = ship.getHullSize();
 
                     String style = ship.getHullStyleId();
@@ -294,7 +303,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
             if (ship != null && !ships.contains(ship)) {
                 Vector2f shipLoc = ship.getLocation();
                 String shipHullId = ship.getHullSpec().getBaseHullId();
-                float shipRadius = ship.getCollisionRadius();
+                float shipRadius = effectiveRadius(ship);
                 HullSize shipHullSize = ship.getHullSize();
                 if (explosionEnabled) {
                     String style = ship.getHullStyleId();
@@ -450,7 +459,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
             Vector2f shipLoc = exploder.ship.getLocation();
             String shipHullId = exploder.ship.getHullSpec().getHullId();
-            float shipRadius = exploder.ship.getCollisionRadius();
+            float shipRadius = effectiveRadius(exploder.ship);
             HullSize shipHullSize = exploder.ship.getHullSize();
             Vector2f shipVel = exploder.ship.getVelocity();
 

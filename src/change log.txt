@@ -1,29 +1,32 @@
-1.2.0 (June 4, 2017)
+Version 1.2.1 (June 10, 2017)
+- Improved various effects for certain edge cases with sprites that are significantly smaller than the collision radius
+
+Version 1.2.0 (June 4, 2017)
 - Now works on Starsector 0.8.1a
 - Additional LazyLib check
 - Fixed some misc. bugs that nobody noticed
 - Tweaked ship destruction effects for ship pieces to avoid fx spam
 - Updated even more sprites
 
-1.1.0 (April 23, 2017)
+Version 1.1.0 (April 23, 2017)
 - Now works on Starsector 0.8a
 - Supports lighting on destroyed ship pieces
 - New maps for the new ships/weapons, and updated maps for a large number of existing ships/weapons
 
-1.0.4 (March 26, 2017)
+Version 1.0.4 (March 26, 2017)
 - Adjusted ripple intensity for ship deaths
 - Disable bloom automatically on Intel IGPs
 
-1.0.3 (January 8, 2017)
+Version 1.0.3 (January 8, 2017)
 - Nvidia post processing bug is fixed
 
-1.0.2 (May 21, 2016)
+Version 1.0.2 (May 21, 2016)
 - General compatibility update
 
-1.0.1 (April 22, 2016)
+Version 1.0.1 (April 22, 2016)
 - Added sun/hyperspace lighting from SS+
 
-1.0.0 (April 15, 2016)
+Version 1.0.0 (April 15, 2016)
 - Renamed to GraphicsLib
 - shaderSettings.json renamed to GRAPHICS_OPTIONS.ini
 - Added graphical effects plugins previously in Starsector+

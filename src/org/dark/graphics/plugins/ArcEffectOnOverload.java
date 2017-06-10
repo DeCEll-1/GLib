@@ -7,12 +7,15 @@ import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
 import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Level;
 import org.dark.shaders.util.ShaderLib;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
@@ -87,8 +90,15 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                         for (int a = 0; a < arcs; a++) {
                             Vector2f point = new Vector2f(ship.getLocation());
 
-                            point.x += (ship.getCollisionRadius() / 3f) * (((float) Math.random() * 2f) - 1);
-                            point.y += (ship.getCollisionRadius() / 3f) * (((float) Math.random() * 2f) - 1);
+                            float angle = MathUtils.getRandomNumberInRange(0f, 360f);
+                            Vector2f test = new Vector2f(ship.getCollisionRadius(), 0f);
+                            VectorUtils.rotate(test, angle, test);
+                            Vector2f.add(test, point, test);
+                            float radiusAtAngle = Misc.getTargetingRadius(test, empTarget, false);
+
+                            Vector2f add = new Vector2f(radiusAtAngle * (float) Math.random(), 0f);
+                            VectorUtils.rotate(add, angle, add);
+                            Vector2f.add(add, point, point);
 
                             engine.spawnEmpArc(ship, point, empTarget, empTarget, DamageType.OTHER, 0f, 0f,
                                                ship.getCollisionRadius(), null, 12f,

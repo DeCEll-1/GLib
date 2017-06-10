@@ -48,6 +48,15 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         }
     }
 
+    private static float effectiveRadius(ShipAPI ship) {
+        if (ship.getSpriteAPI() == null || ship.isPiece()) {
+            return ship.getCollisionRadius();
+        } else {
+            float fudgeFactor = 1.5f;
+            return ((ship.getSpriteAPI().getWidth() / 2f) + (ship.getSpriteAPI().getHeight() / 2f)) * 0.5f * fudgeFactor;
+        }
+    }
+
     private static List<NearbyPlanetData> getNearbyStars(CampaignFleetAPI playerFleet) {
         LocationAPI loc = playerFleet.getContainingLocation();
         List<NearbyPlanetData> result = new ArrayList<>(2);
@@ -96,6 +105,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                 continue;
             }
 
+            float shipRadius = effectiveRadius(ship);
+
             if (ship.getTravelDrive().isActive() && !ship.isFighter()) {
                 Vector2f location = null;
                 if (ship.getEngineController() == null) {
@@ -134,7 +145,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                     }
                 } else {
                     StandardLight light = new StandardLight(location, ZERO, ZERO, null);
-                    float intensity = (float) Math.sqrt(ship.getCollisionRadius()) / 10f;
+                    float intensity = (float) Math.sqrt(shipRadius) / 10f;
                     float size = intensity * 200f;
 
                     light.setIntensity(intensity);
@@ -199,7 +210,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 }
                             } else {
                                 StandardLight light = new StandardLight(location, ZERO, ZERO, null);
-                                float intensity = (float) Math.sqrt(ship.getCollisionRadius()) / 10f;
+                                float intensity = (float) Math.sqrt(shipRadius) / 10f;
                                 float size = intensity * 200f;
 
                                 light.setIntensity(intensity);
@@ -256,7 +267,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 }
                             } else {
                                 StandardLight light = new StandardLight(location, ZERO, ZERO, null);
-                                float intensity = (float) Math.sqrt(ship.getCollisionRadius()) / 40f;
+                                float intensity = (float) Math.sqrt(shipRadius) / 40f;
                                 float size = intensity * 600f;
 
                                 light.setIntensity(intensity);
@@ -313,7 +324,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 }
                             } else {
                                 StandardLight light = new StandardLight(location, ZERO, ZERO, null);
-                                float intensity = (float) Math.sqrt(ship.getCollisionRadius()) / 25f;
+                                float intensity = (float) Math.sqrt(shipRadius) / 25f;
                                 float size = intensity * 400f;
 
                                 light.setIntensity(intensity);

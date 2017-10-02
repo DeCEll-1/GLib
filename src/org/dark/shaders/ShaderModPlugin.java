@@ -59,7 +59,7 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
         templarsExists = Global.getSettings().getModManager().isModEnabled("Templars");
         if (!Global.getSettings().getModManager().isModEnabled("lw_lazylib")) {
-            throw new RuntimeException("LazyLib is required!");
+            throw new RuntimeException("GraphicsLib requires LazyLib by LazyWizard!");
         }
 
         ASTEROID_MAP.put(Global.getSettings().getSprite("graphics/asteroids/asteroid1.png").getTextureId(), "asteroid1");

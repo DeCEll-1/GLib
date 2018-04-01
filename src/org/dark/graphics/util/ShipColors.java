@@ -28,19 +28,23 @@ public class ShipColors {
         SMOKE_COLORS.put("HIGH_TECH", new Color(100, 165, 255, 255));
     }
 
+    public static int clamp255(int x) {
+        return Math.max(0, Math.min(255, x));
+    }
+
     public static Color colorBlend(Color a, Color b, float amount) {
         float conjAmount = 1f - amount;
-        return new Color((int) Math.max(0, Math.min(255, a.getRed() * conjAmount + b.getRed() * amount)),
-                         (int) Math.max(0, Math.min(255, a.getGreen() * conjAmount + b.getGreen() * amount)),
-                         (int) Math.max(0, Math.min(255, a.getBlue() * conjAmount + b.getBlue() * amount)),
-                         (int) Math.max(0, Math.min(255, a.getAlpha() * conjAmount + b.getAlpha() * amount)));
+        return new Color(clamp255((int) (a.getRed() * conjAmount + b.getRed() * amount)),
+                clamp255((int) (a.getGreen() * conjAmount + b.getGreen() * amount)),
+                clamp255((int) (a.getBlue() * conjAmount + b.getBlue() * amount)),
+                clamp255((int) (a.getAlpha() * conjAmount + b.getAlpha() * amount)));
     }
 
     public static Color colorJitter(Color color, float amount) {
-        return new Color(Math.max(0, Math.min(255, color.getRed() + (int) (((float) Math.random() - 0.5f) * amount))),
-                         Math.max(0, Math.min(255, color.getGreen() + (int) (((float) Math.random() - 0.5f) * amount))),
-                         Math.max(0, Math.min(255, color.getBlue() + (int) (((float) Math.random() - 0.5f) * amount))),
-                         color.getAlpha());
+        return new Color(clamp255((int) (color.getRed() + (int) (((float) Math.random() - 0.5f) * amount))),
+                clamp255((int) (color.getGreen() + (int) (((float) Math.random() - 0.5f) * amount))),
+                clamp255((int) (color.getBlue() + (int) (((float) Math.random() - 0.5f) * amount))),
+                color.getAlpha());
     }
 
     public static void init() throws IOException, JSONException {
@@ -64,7 +68,7 @@ public class ShipColors {
                     green = explosionColorArray.optInt(1, 255);
                     blue = explosionColorArray.optInt(2, 255);
                     alpha = explosionColorArray.optInt(3, 255);
-                    Color color = new Color(red, green, blue, alpha);
+                    Color color = new Color(clamp255((int) red), clamp255((int) green), clamp255((int) blue), clamp255((int) alpha));
                     EXPLOSION_COLORS.put(key, color);
                     Global.getLogger(ShipColors.class).info("Loaded explosion color for " + key + ": " + color);
                 }
@@ -74,7 +78,7 @@ public class ShipColors {
                     green = smokeColorArray.optInt(1, 0);
                     blue = smokeColorArray.optInt(2, 0);
                     alpha = smokeColorArray.optInt(3, 255);
-                    Color color = new Color(red, green, blue, alpha);
+                    Color color = new Color(clamp255((int) red), clamp255((int) green), clamp255((int) blue), clamp255((int) alpha));
                     SMOKE_COLORS.put(key, color);
                     Global.getLogger(ShipColors.class).info("Loaded smoke color for " + key + ": " + color);
                 }

@@ -53,13 +53,11 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         FACTIONS.add(Factions.REMNANTS);
         FACTIONS.add("cabal");
         FACTIONS.add("interstellarimperium");
-        FACTIONS.add("citadeldefenders");
         FACTIONS.add("blackrock_driveyards");
         FACTIONS.add("exigency");
         FACTIONS.add("exipirated");
         FACTIONS.add("templars");
         FACTIONS.add("shadow_industry");
-        FACTIONS.add("mayorate");
         FACTIONS.add("junk_pirates");
         FACTIONS.add("pack");
         FACTIONS.add("syndicate_asp");

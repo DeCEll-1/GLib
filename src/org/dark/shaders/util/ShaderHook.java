@@ -60,7 +60,7 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
                     shader.destroy();
                     try {
                         final ShaderAPI sdr = (ShaderAPI) Global.getSettings().getScriptClassLoader().loadClass(
-                                        shader.getClass().getName()).newInstance();
+                                shader.getClass().getName()).newInstance();
                         newShaders.add(sdr);
                         sdr.initCombat();
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
@@ -135,5 +135,9 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
         for (ShaderAPI shader : shaders) {
             shader.renderInWorldCoords(viewport);
         }
+    }
+
+    @Override
+    public void processInputPreCoreControls(float f, List<InputEventAPI> list) {
     }
 }

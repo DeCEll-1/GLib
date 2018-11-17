@@ -229,8 +229,8 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/lights/2dtangent.frag");
             } catch (IOException ex) {
                 Global.getLogger(LightShader.class).log(Level.ERROR,
-                                                        "Normal transform shader loading error!  Normals disabled!" +
-                                                        ex.getMessage());
+                        "Normal transform shader loading error!  Normals disabled!"
+                        + ex.getMessage());
                 normalEnabled = false;
             }
         }
@@ -240,7 +240,7 @@ public class LightShader implements ShaderAPI {
 
             if (programAux == 0) {
                 Global.getLogger(LightShader.class).log(Level.ERROR,
-                                                        "Normal transform shader compile error!  Normals disabled!");
+                        "Normal transform shader compile error!  Normals disabled!");
                 normalEnabled = false;
             }
         }
@@ -254,8 +254,8 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/lights/lights.frag");
             }
         } catch (IOException ex) {
-            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!" +
-                                                    ex.getMessage());
+            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!"
+                    + ex.getMessage());
             enabled = false;
             return;
         }
@@ -271,21 +271,29 @@ public class LightShader implements ShaderAPI {
         if (bloomEnabled) {
             try {
                 vertShader = Global.getSettings().loadText("data/shaders/bloom/bloom1.vert");
-                if (bloomQuality == 1) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-5.frag");
-                } else if (bloomQuality == 2) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-7.frag");
-                } else if (bloomQuality == 3) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-9.frag");
-                } else if (bloomQuality == 4) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-11.frag");
-                } else if (bloomQuality == 5) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-13.frag");
+                switch (bloomQuality) {
+                    case 1:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-5.frag");
+                        break;
+                    case 2:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-7.frag");
+                        break;
+                    case 3:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-9.frag");
+                        break;
+                    case 4:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-11.frag");
+                        break;
+                    case 5:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-13.frag");
+                        break;
+                    default:
+                        break;
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!" +
-                                                        ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!"
+                        + ex.getMessage());
             }
 
             programBloom1 = ShaderLib.loadShader(vertShader, fragShader);
@@ -297,21 +305,29 @@ public class LightShader implements ShaderAPI {
 
             try {
                 vertShader = Global.getSettings().loadText("data/shaders/bloom/bloom2.vert");
-                if (bloomQuality == 1) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-5.frag");
-                } else if (bloomQuality == 2) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-7.frag");
-                } else if (bloomQuality == 3) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-9.frag");
-                } else if (bloomQuality == 4) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-11.frag");
-                } else if (bloomQuality == 5) {
-                    fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-13.frag");
+                switch (bloomQuality) {
+                    case 1:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-5.frag");
+                        break;
+                    case 2:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-7.frag");
+                        break;
+                    case 3:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-9.frag");
+                        break;
+                    case 4:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-11.frag");
+                        break;
+                    case 5:
+                        fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-13.frag");
+                        break;
+                    default:
+                        break;
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!" +
-                                                        ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!"
+                        + ex.getMessage());
             }
 
             programBloom2 = ShaderLib.loadShader(vertShader, fragShader);
@@ -326,8 +342,8 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom3.frag");
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!" +
-                                                        ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!"
+                        + ex.getMessage());
             }
 
             programBloom3 = ShaderLib.loadShader(vertShader, fragShader);
@@ -342,18 +358,18 @@ public class LightShader implements ShaderAPI {
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, lightTex);
         if (ShaderLib.useBufferCore()) {
             GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
-                              (ByteBuffer) null);
+                    (ByteBuffer) null);
         } else {
             GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
-                              (ByteBuffer) null);
+                    (ByteBuffer) null);
         }
 
         if (normalEnabled) {
             normalTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalTex);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth(),
-                              ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
-                              GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
+                    GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -367,22 +383,22 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
                 normalBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, normalTex,
-                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                                                           0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                        0);
             } else if (ShaderLib.useBufferARB()) {
                 normalBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, normalTex,
-                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                                                           0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                        0);
             } else {
                 normalBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, normalTex,
-                                                           ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                                                           0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
+                        0);
             }
 
             if (normalBufferId == 0) {
                 normalEnabled = false;
                 Global.getLogger(LightShader.class).log(Level.ERROR,
-                                                        "Normals framebuffer object error!  Normals disabled!");
+                        "Normals framebuffer object error!  Normals disabled!");
             }
         }
 
@@ -390,8 +406,8 @@ public class LightShader implements ShaderAPI {
             hdrTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB16, ShaderLib.getInternalWidth(),
-                              ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
-                              GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
+                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
+                    GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -405,21 +421,21 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
                 hdrBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex,
-                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else if (ShaderLib.useBufferARB()) {
                 hdrBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex,
-                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
                 hdrBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex,
-                                                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             hdrTex2 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex2);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
-                              ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                              ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
-                              GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+                    ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                    ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
+                    GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -433,27 +449,27 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex2,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex2,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             } else {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex2,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             }
 
             hdrTex3 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex3);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
-                              ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                              ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
-                              GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+                    ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                    ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
+                    GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -467,19 +483,19 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex3,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex3,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             } else {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex3,
-                                                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                                                         ShaderLib.getInternalHeight() /
-                                                         (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
+                        ShaderLib.getInternalHeight()
+                        / (int) Math.pow(2, bloomMips - 1), 0);
             }
 
             if (hdrBufferId == 0 || hdrBuffer2Id == 0 || hdrBuffer3Id == 0) {
@@ -529,7 +545,7 @@ public class LightShader implements ShaderAPI {
             indexBloom1[3] = GL20.glGetUniformLocation(programBloom1, "scale");
             GL20.glUniform1i(indexBloom1[0], 0);
             GL20.glUniform2f(indexBloom1[1], (ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1)),
-                             ShaderLib.getVisibleU());
+                    ShaderLib.getVisibleU());
             GL20.glUniform1f(indexBloom1[2], 16f);
             GL20.glUniform1f(indexBloom1[3], bloomScale);
             GL20.glUseProgram(programBloom2);
@@ -539,7 +555,7 @@ public class LightShader implements ShaderAPI {
             indexBloom2[3] = GL20.glGetUniformLocation(programBloom2, "scale");
             GL20.glUniform1i(indexBloom2[0], 0);
             GL20.glUniform2f(indexBloom2[1], ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1),
-                             ShaderLib.getVisibleV());
+                    ShaderLib.getVisibleV());
             GL20.glUniform1f(indexBloom2[2], bloomIntensity);
             GL20.glUniform1f(indexBloom2[3], bloomScale);
             GL20.glUseProgram(programBloom3);
@@ -757,14 +773,14 @@ public class LightShader implements ShaderAPI {
                 if (data.hasStandard) {
                     if ((float) Math.random() <= data.chance) {
                         final StandardLight light;
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
-                                data.fighterDim) {
-                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity *
-                                                      fighterLightMultiplier, data.standardSize *
-                                                      fighterLightMultiplier);
+                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
+                                && data.fighterDim) {
+                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity
+                                    * fighterLightMultiplier, data.standardSize
+                                    * fighterLightMultiplier);
                         } else {
                             light = new StandardLight(ZERO, ZERO, new Vector2f(-data.standardOffset, 0f), proj,
-                                                      data.standardIntensity, data.standardSize);
+                                    data.standardIntensity, data.standardSize);
                         }
                         light.setColor(data.standardColor);
                         light.setAutoFadeOutTime(data.standardFadeout);
@@ -790,8 +806,8 @@ public class LightShader implements ShaderAPI {
                         } else {
                             light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
                         }
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
-                                data.fighterDim) {
+                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
+                                && data.fighterDim) {
                             light.setIntensity(data.flashIntensity * fighterLightMultiplier);
                             light.setSize(data.flashSize * fighterLightMultiplier);
                         } else {
@@ -813,9 +829,21 @@ public class LightShader implements ShaderAPI {
             final Map.Entry<DamagingProjectileAPI, Boolean> entry = iter1.next();
             final DamagingProjectileAPI proj = entry.getKey();
 
+            boolean boom = proj.didDamage();
+            boolean isMine = false;
+            if (proj instanceof MissileAPI) {
+                MissileAPI missile = (MissileAPI) proj;
+                if (missile.isMine()) {
+                    isMine = true;
+                    if ((missile.getUntilMineExplosion() <= (1f / 30f)) && !engine.isEntityInPlay(missile)) {
+                        boom = true;
+                    }
+                }
+            }
+
             if (!entry.getValue()) {
-                if (proj.isFading() || (!engine.isEntityInPlay(proj) && !proj.didDamage()) ||
-                        (proj instanceof MissileAPI && ((MissileAPI) proj).isFizzling())) {
+                if ((proj.isFading() && !isMine) || (!engine.isEntityInPlay(proj) && !boom)
+                        || (proj instanceof MissileAPI && ((MissileAPI) proj).isFizzling() && !isMine)) {
                     entry.setValue(true);
 
                     for (LightAPI light : lights) {
@@ -835,7 +863,7 @@ public class LightShader implements ShaderAPI {
                 }
             }
 
-            if (proj.didDamage()) {
+            if (boom) {
                 LightEntry data = null;
                 if (LightData.projectileLightData.containsKey(proj.getProjectileSpecId())) {
                     data = LightData.projectileLightData.get(proj.getProjectileSpecId());
@@ -874,10 +902,10 @@ public class LightShader implements ShaderAPI {
                 if (data != null) {
                     // Hit light
                     if (data.hasHit) {
-                        if (((float) Math.random() <= data.chance || hadAttachment) && proj.getDamageTarget() != null) {
+                        if ((((float) Math.random() <= data.chance) || hadAttachment) && ((proj.getDamageTarget() != null) || isMine)) {
                             final StandardLight light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
-                            if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER &&
-                                    data.fighterDim) {
+                            if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
+                                    && data.fighterDim) {
                                 light.setIntensity(data.hitIntensity * fighterLightMultiplier * currentFactor);
                                 light.setSize(data.hitSize * fighterLightMultiplier * currentFactor);
                             } else {
@@ -925,8 +953,8 @@ public class LightShader implements ShaderAPI {
                     // Attached light
                     if (data.hasStandard) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, ZERO, ZERO, beam);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
-                                data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
+                                && data.fighterDim) {
                             light.setIntensity(data.standardIntensity * fighterLightMultiplier);
                             light.setSize(data.standardSize * fighterLightMultiplier);
                         } else {
@@ -942,8 +970,8 @@ public class LightShader implements ShaderAPI {
                     // Flash light
                     if (data.hasFlash) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, false);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
-                                data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
+                                && data.fighterDim) {
                             light.setIntensity(data.flashIntensity * fighterLightMultiplier);
                             light.setSize(data.flashSize * fighterLightMultiplier);
                         } else {
@@ -959,8 +987,8 @@ public class LightShader implements ShaderAPI {
                     // Hit light
                     if (data.hasHit) {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, true);
-                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER &&
-                                data.fighterDim) {
+                        if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
+                                && data.fighterDim) {
                             light.setIntensity(data.hitIntensity * fighterLightMultiplier);
                             light.setSize(data.hitSize * fighterLightMultiplier);
                         } else {
@@ -1053,244 +1081,246 @@ public class LightShader implements ShaderAPI {
                 }
             }
 
-            if (type == 0) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                               light.getLocation()));
-                size = ShaderLib.unitsToUV(size);
-                final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-
-                if (maxCoords == null || minCoords == null) {
-                    maxCoords = new Vector2f(coords);
-                    minCoords = new Vector2f(coords);
-                } else {
-                    if (coords.x > maxCoords.x) {
-                        maxCoords.x = coords.x;
-                    } else if (coords.x < minCoords.x) {
-                        minCoords.x = coords.x;
+            switch (type) {
+                case 0: {
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                            light.getLocation()));
+                    size = ShaderLib.unitsToUV(size);
+                    final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
+                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    if (maxCoords == null || minCoords == null) {
+                        maxCoords = new Vector2f(coords);
+                        minCoords = new Vector2f(coords);
+                    } else {
+                        if (coords.x > maxCoords.x) {
+                            maxCoords.x = coords.x;
+                        } else if (coords.x < minCoords.x) {
+                            minCoords.x = coords.x;
+                        }
+                        if (coords.y > maxCoords.y) {
+                            maxCoords.y = coords.y;
+                        } else if (coords.y < minCoords.y) {
+                            minCoords.y = coords.y;
+                        }
                     }
-                    if (coords.y > maxCoords.y) {
-                        maxCoords.y = coords.y;
-                    } else if (coords.y < minCoords.y) {
-                        minCoords.y = coords.y;
+                    if (maxCoords2 == null || minCoords2 == null) {
+                        maxCoords2 = new Vector2f(coords);
+                        minCoords2 = new Vector2f(coords);
+                    } else {
+                        if (coords.x > maxCoords2.x) {
+                            maxCoords2.x = coords.x;
+                        } else if (coords.x < minCoords2.x) {
+                            minCoords2.x = coords.x;
+                        }
+                        if (coords.y > maxCoords2.y) {
+                            maxCoords2.y = coords.y;
+                        } else if (coords.y < minCoords2.y) {
+                            minCoords2.y = coords.y;
+                        }
                     }
-                }
-                if (maxCoords2 == null || minCoords2 == null) {
-                    maxCoords2 = new Vector2f(coords);
-                    minCoords2 = new Vector2f(coords);
-                } else {
-                    if (coords.x > maxCoords2.x) {
-                        maxCoords2.x = coords.x;
-                    } else if (coords.x < minCoords2.x) {
-                        minCoords2.x = coords.x;
+                    if (size > maxSize) {
+                        maxSize = size;
                     }
-                    if (coords.y > maxCoords2.y) {
-                        maxCoords2.y = coords.y;
-                    } else if (coords.y < minCoords2.y) {
-                        minCoords2.y = coords.y;
+                    if (intensity > maxIntensity) {
+                        maxIntensity = intensity;
                     }
-                }
-                if (size > maxSize) {
-                    maxSize = size;
-                }
-                if (intensity > maxIntensity) {
-                    maxIntensity = intensity;
-                }
-                if (height > maxHeight) {
-                    maxHeight = height;
-                } else if (height < minHeight) {
-                    minHeight = height;
-                }
-
-                bufferPut[0] = coords.x;
-                bufferPut[1] = coords.y;
-                bufferPut[2] = light.getColor().x;
-                bufferPut[3] = light.getColor().y;
-                bufferPut[4] = light.getColor().z;
-                bufferPut[5] = size;
-                bufferPut[6] = intensity;
-                bufferPut[7] = 0f;
-                //bufferPut[8] = 0f;
-                //bufferPut[9] = 0f;
-                bufferPut[10] = height;
-                dataBufferPre.put(bufferPut);
-            } else if (type == 1) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                               light.getLocation()));
-                final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                               light.getLocation2()));
-                size = ShaderLib.unitsToUV(size);
-                final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-
-                if (maxCoords == null || minCoords == null) {
-                    maxCoords = new Vector2f(coords);
-                    minCoords = new Vector2f(coords);
-                } else {
-                    if (coords.x > maxCoords.x) {
-                        maxCoords.x = coords.x;
-                    } else if (coords.x < minCoords.x) {
-                        minCoords.x = coords.x;
+                    if (height > maxHeight) {
+                        maxHeight = height;
+                    } else if (height < minHeight) {
+                        minHeight = height;
                     }
-                    if (coords.y > maxCoords.y) {
-                        maxCoords.y = coords.y;
-                    } else if (coords.y < minCoords.y) {
-                        minCoords.y = coords.y;
+                    bufferPut[0] = coords.x;
+                    bufferPut[1] = coords.y;
+                    bufferPut[2] = light.getColor().x;
+                    bufferPut[3] = light.getColor().y;
+                    bufferPut[4] = light.getColor().z;
+                    bufferPut[5] = size;
+                    bufferPut[6] = intensity;
+                    bufferPut[7] = 0f;
+                    //bufferPut[8] = 0f;
+                    //bufferPut[9] = 0f;
+                    bufferPut[10] = height;
+                    dataBufferPre.put(bufferPut);
+                    break;
+                }
+                case 1: {
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                            light.getLocation()));
+                    final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                            light.getLocation2()));
+                    size = ShaderLib.unitsToUV(size);
+                    final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
+                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    if (maxCoords == null || minCoords == null) {
+                        maxCoords = new Vector2f(coords);
+                        minCoords = new Vector2f(coords);
+                    } else {
+                        if (coords.x > maxCoords.x) {
+                            maxCoords.x = coords.x;
+                        } else if (coords.x < minCoords.x) {
+                            minCoords.x = coords.x;
+                        }
+                        if (coords.y > maxCoords.y) {
+                            maxCoords.y = coords.y;
+                        } else if (coords.y < minCoords.y) {
+                            minCoords.y = coords.y;
+                        }
                     }
-                }
-                if (maxCoords2 == null || minCoords2 == null) {
-                    maxCoords2 = new Vector2f(coords2);
-                    minCoords2 = new Vector2f(coords2);
-                } else {
-                    if (coords2.x > maxCoords2.x) {
-                        maxCoords2.x = coords2.x;
-                    } else if (coords2.x < minCoords2.x) {
-                        minCoords2.x = coords2.x;
+                    if (maxCoords2 == null || minCoords2 == null) {
+                        maxCoords2 = new Vector2f(coords2);
+                        minCoords2 = new Vector2f(coords2);
+                    } else {
+                        if (coords2.x > maxCoords2.x) {
+                            maxCoords2.x = coords2.x;
+                        } else if (coords2.x < minCoords2.x) {
+                            minCoords2.x = coords2.x;
+                        }
+                        if (coords2.y > maxCoords2.y) {
+                            maxCoords2.y = coords2.y;
+                        } else if (coords2.y < minCoords2.y) {
+                            minCoords2.y = coords2.y;
+                        }
                     }
-                    if (coords2.y > maxCoords2.y) {
-                        maxCoords2.y = coords2.y;
-                    } else if (coords2.y < minCoords2.y) {
-                        minCoords2.y = coords2.y;
+                    if (size > maxSize) {
+                        maxSize = size;
                     }
-                }
-                if (size > maxSize) {
-                    maxSize = size;
-                }
-                if (intensity > maxIntensity) {
-                    maxIntensity = intensity;
-                }
-                if (height > maxHeight) {
-                    maxHeight = height;
-                } else if (height < minHeight) {
-                    minHeight = height;
-                }
-
-                bufferPut[0] = coords.x;
-                bufferPut[1] = coords.y;
-                bufferPut[2] = light.getColor().x;
-                bufferPut[3] = light.getColor().y;
-                bufferPut[4] = light.getColor().z;
-                bufferPut[5] = size;
-                bufferPut[6] = intensity;
-                bufferPut[7] = 0.33f;
-                bufferPut[8] = coords2.x;
-                bufferPut[9] = coords2.y;
-                bufferPut[10] = height;
-                dataBufferPre.put(bufferPut);
-            } else if (type == 2) {
-                final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                               light.getLocation()));
-                final float anglesx = (float) Math.toRadians(light.getArcStart());
-                final float anglesy = (float) Math.toRadians(light.getArcEnd());
-                size = ShaderLib.unitsToUV(size);
-                final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-
-                if (maxCoords == null || minCoords == null) {
-                    maxCoords = new Vector2f(coords);
-                    minCoords = new Vector2f(coords);
-                } else {
-                    if (coords.x > maxCoords.x) {
-                        maxCoords.x = coords.x;
-                    } else if (coords.x < minCoords.x) {
-                        minCoords.x = coords.x;
+                    if (intensity > maxIntensity) {
+                        maxIntensity = intensity;
                     }
-                    if (coords.y > maxCoords.y) {
-                        maxCoords.y = coords.y;
-                    } else if (coords.y < minCoords.y) {
-                        minCoords.y = coords.y;
+                    if (height > maxHeight) {
+                        maxHeight = height;
+                    } else if (height < minHeight) {
+                        minHeight = height;
                     }
+                    bufferPut[0] = coords.x;
+                    bufferPut[1] = coords.y;
+                    bufferPut[2] = light.getColor().x;
+                    bufferPut[3] = light.getColor().y;
+                    bufferPut[4] = light.getColor().z;
+                    bufferPut[5] = size;
+                    bufferPut[6] = intensity;
+                    bufferPut[7] = 0.33f;
+                    bufferPut[8] = coords2.x;
+                    bufferPut[9] = coords2.y;
+                    bufferPut[10] = height;
+                    dataBufferPre.put(bufferPut);
+                    break;
                 }
-                if (maxCoords2 == null || minCoords2 == null) {
-                    maxCoords2 = new Vector2f(anglesx, anglesy);
-                    minCoords2 = new Vector2f(anglesx, anglesy);
-                } else {
-                    if (anglesx > maxCoords2.x) {
-                        maxCoords2.x = anglesx;
-                    } else if (anglesx < minCoords2.x) {
-                        minCoords2.x = anglesx;
+                case 2: {
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
+                            light.getLocation()));
+                    final float anglesx = (float) Math.toRadians(light.getArcStart());
+                    final float anglesy = (float) Math.toRadians(light.getArcEnd());
+                    size = ShaderLib.unitsToUV(size);
+                    final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
+                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    if (maxCoords == null || minCoords == null) {
+                        maxCoords = new Vector2f(coords);
+                        minCoords = new Vector2f(coords);
+                    } else {
+                        if (coords.x > maxCoords.x) {
+                            maxCoords.x = coords.x;
+                        } else if (coords.x < minCoords.x) {
+                            minCoords.x = coords.x;
+                        }
+                        if (coords.y > maxCoords.y) {
+                            maxCoords.y = coords.y;
+                        } else if (coords.y < minCoords.y) {
+                            minCoords.y = coords.y;
+                        }
                     }
-                    if (anglesy > maxCoords2.y) {
-                        maxCoords2.y = anglesy;
-                    } else if (anglesy < minCoords2.y) {
-                        minCoords2.y = anglesy;
+                    if (maxCoords2 == null || minCoords2 == null) {
+                        maxCoords2 = new Vector2f(anglesx, anglesy);
+                        minCoords2 = new Vector2f(anglesx, anglesy);
+                    } else {
+                        if (anglesx > maxCoords2.x) {
+                            maxCoords2.x = anglesx;
+                        } else if (anglesx < minCoords2.x) {
+                            minCoords2.x = anglesx;
+                        }
+                        if (anglesy > maxCoords2.y) {
+                            maxCoords2.y = anglesy;
+                        } else if (anglesy < minCoords2.y) {
+                            minCoords2.y = anglesy;
+                        }
                     }
-                }
-                if (size > maxSize) {
-                    maxSize = size;
-                }
-                if (intensity > maxIntensity) {
-                    maxIntensity = intensity;
-                }
-                if (height > maxHeight) {
-                    maxHeight = height;
-                } else if (height < minHeight) {
-                    minHeight = height;
-                }
-
-                bufferPut[0] = coords.x;
-                bufferPut[1] = coords.y;
-                bufferPut[2] = light.getColor().x;
-                bufferPut[3] = light.getColor().y;
-                bufferPut[4] = light.getColor().z;
-                bufferPut[5] = size;
-                bufferPut[6] = intensity;
-                bufferPut[7] = 0.67f;
-                bufferPut[8] = anglesx;
-                bufferPut[9] = anglesy;
-                bufferPut[10] = height;
-                dataBufferPre.put(bufferPut);
-            } else {
-                final float directionx = light.getDirection().x;
-                final float directiony = light.getDirection().y;
-                final float directionz = light.getDirection().z;
-                final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-                final float specularIntensity = Math.max(light.getSpecularIntensity() * lightMultiplier, 0f);
-
-                if (maxCoords == null || minCoords == null) {
-                    maxCoords = new Vector2f(directionx, directiony);
-                    minCoords = new Vector2f(directionx, directiony);
-                } else {
-                    if (directionx > maxCoords.x) {
-                        maxCoords.x = directionx;
-                    } else if (directionx < minCoords.x) {
-                        minCoords.x = directionx;
+                    if (size > maxSize) {
+                        maxSize = size;
                     }
-                    if (directiony > maxCoords.y) {
-                        maxCoords.y = directiony;
-                    } else if (directiony < minCoords.y) {
-                        minCoords.y = directiony;
+                    if (intensity > maxIntensity) {
+                        maxIntensity = intensity;
                     }
-                }
-                if (maxCoords2 == null || minCoords2 == null) {
-                    maxCoords2 = new Vector2f(directionz, 0.5f);
-                    minCoords2 = new Vector2f(directionz, 0.5f);
-                } else {
-                    if (directionz > maxCoords2.x) {
-                        maxCoords2.x = directionz;
-                    } else if (directionz < minCoords2.x) {
-                        minCoords2.x = directionz;
+                    if (height > maxHeight) {
+                        maxHeight = height;
+                    } else if (height < minHeight) {
+                        minHeight = height;
                     }
+                    bufferPut[0] = coords.x;
+                    bufferPut[1] = coords.y;
+                    bufferPut[2] = light.getColor().x;
+                    bufferPut[3] = light.getColor().y;
+                    bufferPut[4] = light.getColor().z;
+                    bufferPut[5] = size;
+                    bufferPut[6] = intensity;
+                    bufferPut[7] = 0.67f;
+                    bufferPut[8] = anglesx;
+                    bufferPut[9] = anglesy;
+                    bufferPut[10] = height;
+                    dataBufferPre.put(bufferPut);
+                    break;
                 }
-                if (specularIntensity > maxSize) {
-                    maxSize = specularIntensity;
+                case 3:
+                default: {
+                    final float directionx = light.getDirection().x;
+                    final float directiony = light.getDirection().y;
+                    final float directionz = light.getDirection().z;
+                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    final float specularIntensity = Math.max(light.getSpecularIntensity() * lightMultiplier, 0f);
+                    if (maxCoords == null || minCoords == null) {
+                        maxCoords = new Vector2f(directionx, directiony);
+                        minCoords = new Vector2f(directionx, directiony);
+                    } else {
+                        if (directionx > maxCoords.x) {
+                            maxCoords.x = directionx;
+                        } else if (directionx < minCoords.x) {
+                            minCoords.x = directionx;
+                        }
+                        if (directiony > maxCoords.y) {
+                            maxCoords.y = directiony;
+                        } else if (directiony < minCoords.y) {
+                            minCoords.y = directiony;
+                        }
+                    }
+                    if (maxCoords2 == null || minCoords2 == null) {
+                        maxCoords2 = new Vector2f(directionz, 0.5f);
+                        minCoords2 = new Vector2f(directionz, 0.5f);
+                    } else {
+                        if (directionz > maxCoords2.x) {
+                            maxCoords2.x = directionz;
+                        } else if (directionz < minCoords2.x) {
+                            minCoords2.x = directionz;
+                        }
+                    }
+                    if (specularIntensity > maxSize) {
+                        maxSize = specularIntensity;
+                    }
+                    if (intensity > maxIntensity) {
+                        maxIntensity = intensity;
+                    }
+                    bufferPut[0] = directionx;
+                    bufferPut[1] = directiony;
+                    bufferPut[2] = light.getColor().x;
+                    bufferPut[3] = light.getColor().y;
+                    bufferPut[4] = light.getColor().z;
+                    bufferPut[5] = specularIntensity;
+                    bufferPut[6] = intensity;
+                    bufferPut[7] = 1f;
+                    bufferPut[8] = directionz;
+                    //bufferPut[9] = 0f;
+                    //bufferPut[10] = 0f;
+                    dataBufferPre.put(bufferPut);
+                    break;
                 }
-                if (intensity > maxIntensity) {
-                    maxIntensity = intensity;
-                }
-
-                bufferPut[0] = directionx;
-                bufferPut[1] = directiony;
-                bufferPut[2] = light.getColor().x;
-                bufferPut[3] = light.getColor().y;
-                bufferPut[4] = light.getColor().z;
-                bufferPut[5] = specularIntensity;
-                bufferPut[6] = intensity;
-                bufferPut[7] = 1f;
-                bufferPut[8] = directionz;
-                //bufferPut[9] = 0f;
-                //bufferPut[10] = 0f;
-                dataBufferPre.put(bufferPut);
             }
 
             if (type == 1) {
@@ -1565,16 +1595,16 @@ public class LightShader implements ShaderAPI {
         }
 
         GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                        (int) (Global.getSettings().getScreenHeight() *
-                               Display.getPixelScaleFactor()));
+                (int) (Global.getSettings().getScreenHeight()
+                * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
         GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
-                     viewport.getLLY() + viewport.getVisibleHeight(),
-                     -2000,
-                     2000);
+                viewport.getLLY() + viewport.getVisibleHeight(),
+                -2000,
+                2000);
 
         GL11.glMatrixMode(GL11.GL_TEXTURE);
         GL11.glPushMatrix();
@@ -1606,7 +1636,7 @@ public class LightShader implements ShaderAPI {
 
             final boolean hasNormal;
             final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP,
-                                                                  ObjectType.ASTEROID, 0);
+                    ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             float depth = 1f;
             if (entry != null) {
@@ -1652,7 +1682,7 @@ public class LightShader implements ShaderAPI {
                     GL11.glPopAttrib();
 
                     GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                                    (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -1675,14 +1705,14 @@ public class LightShader implements ShaderAPI {
 
             boolean hasNormal;
             TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.NORMAL_MAP,
-                                                            ObjectType.SHIP, 0);
+                    ObjectType.SHIP, 0);
             if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.NORMAL_MAP,
-                                                   ObjectType.SHIP, 0);
+                        ObjectType.SHIP, 0);
             }
             if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.NORMAL_MAP,
-                                                   ObjectType.SHIP, 0);
+                        ObjectType.SHIP, 0);
             }
             SpriteAPI sprite;
             float depth = 1f;
@@ -1730,7 +1760,7 @@ public class LightShader implements ShaderAPI {
                     GL11.glPopAttrib();
 
                     GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                                    (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -1778,7 +1808,7 @@ public class LightShader implements ShaderAPI {
                     for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
                         final WeaponSlotAPI slot = iter.next();
                         final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
-                                                                   new Vector2f());
+                                new Vector2f());
                         final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
                         if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
                             iter.remove();
@@ -1792,9 +1822,9 @@ public class LightShader implements ShaderAPI {
                 final int slotSize = emptySlots.size();
                 for (int j = 0; j < slotSize; j++) {
                     final WeaponSlotAPI slot = emptySlots.get(j);
-                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() ||
-                            (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule() ||
-                            slot.isBuiltIn()) {
+                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot()
+                            || (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule()
+                            || slot.isBuiltIn()) {
                         continue;
                     }
                     final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
@@ -1803,33 +1833,33 @@ public class LightShader implements ShaderAPI {
                         case SMALL:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                        ObjectType.HARDPOINT_COVER_SMALL, 0);
                                 originalSprite = ship.getSmallHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_COVER_SMALL, 0);
+                                        ObjectType.TURRET_COVER_SMALL, 0);
                                 originalSprite = ship.getSmallTurretCover();
                             }
                             break;
                         case MEDIUM:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                        ObjectType.HARDPOINT_COVER_MEDIUM, 0);
                                 originalSprite = ship.getMediumHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_COVER_MEDIUM, 0);
+                                        ObjectType.TURRET_COVER_MEDIUM, 0);
                                 originalSprite = ship.getMediumTurretCover();
                             }
                             break;
                         case LARGE:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                        ObjectType.HARDPOINT_COVER_LARGE, 0);
                                 originalSprite = ship.getLargeHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_COVER_LARGE, 0);
+                                        ObjectType.TURRET_COVER_LARGE, 0);
                                 originalSprite = ship.getLargeTurretCover();
                             }
                             break;
@@ -1873,20 +1903,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_UNDER,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_UNDER,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_UNDER, 0);
+                                        ObjectType.HARDPOINT_UNDER, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_UNDER,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_UNDER,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_UNDER, 0);
+                                        ObjectType.TURRET_UNDER, 0);
                             }
                         }
                         originalSprite = weapon.getUnderSpriteAPI();
@@ -1918,20 +1948,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL, 0);
+                                        ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_BARREL, 0);
+                                        ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -1955,27 +1985,27 @@ public class LightShader implements ShaderAPI {
                         }
 
                         weapon.renderBarrel(sprite, weaponLocation,
-                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
                     if (weapon.getSprite() != null) {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT, 0);
+                                        ObjectType.HARDPOINT, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET, 0);
+                                        ObjectType.TURRET, 0);
                             }
                         }
                         originalSprite = weapon.getSprite();
@@ -2007,20 +2037,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL, 0);
+                                        ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.NORMAL_MAP,
-                                                                   ObjectType.TURRET_BARREL, 0);
+                                        ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -2044,11 +2074,11 @@ public class LightShader implements ShaderAPI {
                         }
 
                         weapon.renderBarrel(sprite, weaponLocation,
-                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
-                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() &&
-                            (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
+                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty()
+                            && (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
                         final List<MissileRenderDataAPI> msls = weapon.getMissileRenderData();
                         final int mslSize = msls.size();
                         for (int k = 0; k < mslSize; k++) {
@@ -2060,7 +2090,7 @@ public class LightShader implements ShaderAPI {
                             final Vector2f missileLocation = msl.getMissileCenterLocation();
 
                             entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.NORMAL_MAP,
-                                                               ObjectType.MISSILE, 0);
+                                    ObjectType.MISSILE, 0);
                             originalSprite = msl.getSprite();
                             if (entry != null) {
                                 sprite = entry.sprite;
@@ -2068,8 +2098,8 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(
-                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) *
-                                        msl.getBrightness());
+                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult())
+                                        * msl.getBrightness());
                                 depth = entry.magnitude;
                                 hasNormal = true;
                             } else {
@@ -2086,7 +2116,7 @@ public class LightShader implements ShaderAPI {
                             }
 
                             sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                                  missileLocation.y + renderOffset.y);
+                                    missileLocation.y + renderOffset.y);
                         }
                     }
                 }
@@ -2109,7 +2139,7 @@ public class LightShader implements ShaderAPI {
 
             final boolean hasNormal;
             final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(),
-                                                                  TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
+                    TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
             final SpriteAPI sprite;
             float depth = 1f;
             final SpriteAPI originalSprite = missile.getSpriteAPI();
@@ -2157,7 +2187,7 @@ public class LightShader implements ShaderAPI {
                     GL11.glPopAttrib();
 
                     GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                                    (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -2193,19 +2223,19 @@ public class LightShader implements ShaderAPI {
             ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, ShaderLib.getAuxiliaryBufferId());
         } else {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
-                                                      ShaderLib.getAuxiliaryBufferId());
+                    ShaderLib.getAuxiliaryBufferId());
         }
 
         GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                        (int) (Global.getSettings().getScreenHeight() *
-                               Display.getPixelScaleFactor()));
+                (int) (Global.getSettings().getScreenHeight()
+                * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
         GL11.glOrtho(viewport.getLLX(), viewport.getLLX() + viewport.getVisibleWidth(), viewport.getLLY(),
-                     viewport.getLLY() + viewport.getVisibleHeight(),
-                     -2000, 2000);
+                viewport.getLLY() + viewport.getVisibleHeight(),
+                -2000, 2000);
 
         GL11.glMatrixMode(GL11.GL_TEXTURE);
         GL11.glPushMatrix();
@@ -2236,7 +2266,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.SURFACE_MAP,
-                                                                  ObjectType.ASTEROID, 0);
+                    ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             if (entry != null) {
                 sprite = entry.sprite;
@@ -2268,14 +2298,14 @@ public class LightShader implements ShaderAPI {
             }
 
             TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.SURFACE_MAP,
-                                                            ObjectType.SHIP, 0);
+                    ObjectType.SHIP, 0);
             if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.SURFACE_MAP,
-                                                   ObjectType.SHIP, 0);
+                        ObjectType.SHIP, 0);
             }
             if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.SURFACE_MAP,
-                                                   ObjectType.SHIP, 0);
+                        ObjectType.SHIP, 0);
             }
             SpriteAPI sprite;
             SpriteAPI originalSprite = ship.getSpriteAPI();
@@ -2341,7 +2371,7 @@ public class LightShader implements ShaderAPI {
                     for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
                         final WeaponSlotAPI slot = iter.next();
                         final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
-                                                                   new Vector2f());
+                                new Vector2f());
                         final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
                         if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
                             iter.remove();
@@ -2355,9 +2385,9 @@ public class LightShader implements ShaderAPI {
                 final int slotSize = emptySlots.size();
                 for (int j = 0; j < slotSize; j++) {
                     final WeaponSlotAPI slot = emptySlots.get(j);
-                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot() ||
-                            (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule() ||
-                            slot.isBuiltIn()) {
+                    if (slot.isDecorative() || slot.isHidden() || slot.isSystemSlot()
+                            || (slot.getWeaponType() == WeaponType.LAUNCH_BAY) || slot.isStationModule()
+                            || slot.isBuiltIn()) {
                         continue;
                     }
                     final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
@@ -2366,33 +2396,33 @@ public class LightShader implements ShaderAPI {
                         case SMALL:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                        ObjectType.HARDPOINT_COVER_SMALL, 0);
                                 originalSprite = ship.getSmallHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_COVER_SMALL, 0);
+                                        ObjectType.TURRET_COVER_SMALL, 0);
                                 originalSprite = ship.getSmallTurretCover();
                             }
                             break;
                         case MEDIUM:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                        ObjectType.HARDPOINT_COVER_MEDIUM, 0);
                                 originalSprite = ship.getMediumHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_COVER_MEDIUM, 0);
+                                        ObjectType.TURRET_COVER_MEDIUM, 0);
                                 originalSprite = ship.getMediumTurretCover();
                             }
                             break;
                         case LARGE:
                             if (slot.isHardpoint()) {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                        ObjectType.HARDPOINT_COVER_LARGE, 0);
                                 originalSprite = ship.getLargeHardpointCover();
                             } else {
                                 entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_COVER_LARGE, 0);
+                                        ObjectType.TURRET_COVER_LARGE, 0);
                                 originalSprite = ship.getLargeTurretCover();
                             }
                             break;
@@ -2433,20 +2463,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_UNDER,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_UNDER,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_UNDER, 0);
+                                        ObjectType.HARDPOINT_UNDER, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_UNDER,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_UNDER,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_UNDER, 0);
+                                        ObjectType.TURRET_UNDER, 0);
                             }
                         }
                         originalSprite = weapon.getUnderSpriteAPI();
@@ -2475,20 +2505,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL, 0);
+                                        ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_BARREL, 0);
+                                        ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -2500,14 +2530,14 @@ public class LightShader implements ShaderAPI {
                                 sprite.setColor(deadSurface);
                             }
                             weapon.renderBarrel(sprite, weaponLocation,
-                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                    Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                         } else {
                             sprite = originalSprite;
                             originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
                             weapon.renderBarrel(sprite, weaponLocation,
-                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                    Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
 
                             sprite.setColor(originalColor);
                         }
@@ -2517,20 +2547,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT, 0);
+                                        ObjectType.HARDPOINT, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET, 0);
+                                        ObjectType.TURRET, 0);
                             }
                         }
                         originalSprite = weapon.getSprite();
@@ -2559,20 +2589,20 @@ public class LightShader implements ShaderAPI {
                         if (weapon.getSlot().isHardpoint()) {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.HARDPOINT_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.HARDPOINT_BARREL, 0);
+                                        ObjectType.HARDPOINT_BARREL, 0);
                             }
                         } else {
                             if (weapon.getAnimation() != null) {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_BARREL,
-                                                                   weapon.getAnimation().getFrame());
+                                        ObjectType.TURRET_BARREL,
+                                        weapon.getAnimation().getFrame());
                             } else {
                                 entry = TextureData.getTextureData(weapon.getId(), TextureDataType.SURFACE_MAP,
-                                                                   ObjectType.TURRET_BARREL, 0);
+                                        ObjectType.TURRET_BARREL, 0);
                             }
                         }
                         originalSprite = weapon.getBarrelSpriteAPI();
@@ -2584,21 +2614,21 @@ public class LightShader implements ShaderAPI {
                                 sprite.setColor(deadSurface);
                             }
                             weapon.renderBarrel(sprite, weaponLocation,
-                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                    Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                         } else {
                             sprite = originalSprite;
                             originalColor = sprite.getColor();
 
                             sprite.setColor(Color.BLACK);
                             weapon.renderBarrel(sprite, weaponLocation,
-                                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                    Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
 
                             sprite.setColor(originalColor);
                         }
                     }
 
-                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty() &&
-                            (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
+                    if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty()
+                            && (!weapon.usesAmmo() || weapon.getAmmo() > 0)) {
                         final List<MissileRenderDataAPI> msls = weapon.getMissileRenderData();
                         final int mslSize = msls.size();
                         for (int k = 0; k < mslSize; k++) {
@@ -2610,7 +2640,7 @@ public class LightShader implements ShaderAPI {
                             final Vector2f missileLocation = msl.getMissileCenterLocation();
 
                             entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.SURFACE_MAP,
-                                                               ObjectType.MISSILE, 0);
+                                    ObjectType.MISSILE, 0);
                             originalSprite = msl.getSprite();
                             if (entry != null) {
                                 sprite = entry.sprite;
@@ -2618,20 +2648,20 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(
-                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) *
-                                        msl.getBrightness());
+                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult())
+                                        * msl.getBrightness());
                                 if (ship.isHulk()) {
                                     sprite.setColor(deadSurface);
                                 }
                                 sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                                      missileLocation.y + renderOffset.y);
+                                        missileLocation.y + renderOffset.y);
                             } else {
                                 sprite = originalSprite;
                                 originalColor = sprite.getColor();
 
                                 sprite.setColor(Color.BLACK);
                                 sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                                      missileLocation.y + renderOffset.y);
+                                        missileLocation.y + renderOffset.y);
 
                                 sprite.setColor(originalColor);
                             }
@@ -2656,7 +2686,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(),
-                                                                  TextureDataType.SURFACE_MAP, ObjectType.MISSILE, 0);
+                    TextureDataType.SURFACE_MAP, ObjectType.MISSILE, 0);
             final SpriteAPI sprite;
             final SpriteAPI originalSprite = missile.getSpriteAPI();
             if (entry != null) {

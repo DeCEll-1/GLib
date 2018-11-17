@@ -1,3 +1,10 @@
+Version 1.3.0 (November 17, 2018):
+- Added a bunch of shader maps for new/updated Starsector 0.9a sprites
+- Updated lighting settings where applicable for new/updated Starsector 0.9a content
+- Fixed rendering order for station modules
+- Added lighting support for mine explosions
+- Works in Starsector 0.9a
+
 Version 1.2.1 (June 10, 2017)
 - Improved various effects for certain edge cases with sprites that are significantly smaller than the collision radius
 

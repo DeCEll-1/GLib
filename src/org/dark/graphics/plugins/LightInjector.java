@@ -137,8 +137,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
                     light.setLocation(location);
 
-                    if ((ship.getTravelDrive().isActive() && !ship.getTravelDrive().isOn()) ||
-                            ship.getTravelDrive().isChargedown()) {
+                    if ((ship.getTravelDrive().isActive() && !ship.getTravelDrive().isOn())
+                            || ship.getTravelDrive().isChargedown()) {
                         if (!light.isFadingOut()) {
                             light.fadeOut(1f);
                         }
@@ -338,6 +338,58 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                             }
                         }
                         break;
+                    case "microburn":
+                        if (system.isActive()) {
+                            Vector2f location = null;
+                            if (ship.getEngineController() == null) {
+                                break;
+                            }
+                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
+                            int num = 0;
+                            int enginesSize = engines.size();
+                            for (int j = 0; j < enginesSize; j++) {
+                                ShipEngineAPI eng = engines.get(j);
+                                if (eng.isActive() && !eng.isDisabled()) {
+                                    num++;
+                                    if (location == null) {
+                                        location = new Vector2f(eng.getLocation());
+                                    } else {
+                                        Vector2f.add(location, eng.getLocation(), location);
+                                    }
+                                }
+                            }
+                            if (location == null) {
+                                break;
+                            }
+
+                            location.scale(1f / num);
+
+                            if (lights.containsKey(ship)) {
+                                StandardLight light = lights.get(ship);
+
+                                light.setLocation(location);
+
+                                if ((system.isActive() && !system.isOn()) || system.isChargedown()) {
+                                    if (!light.isFadingOut()) {
+                                        light.fadeOut(2f);
+                                    }
+                                }
+                            } else {
+                                StandardLight light = new StandardLight(location, ZERO, ZERO, null);
+                                float intensity = (float) Math.sqrt(shipRadius) / 10f;
+                                float size = intensity * 200f;
+
+                                light.setIntensity(intensity);
+                                light.setSize(size);
+                                Color color = new Color(100, 255, 100, 255);
+                                light.setColor(color);
+                                light.fadeIn(1f);
+
+                                lights.put(ship, light);
+                                LightShader.addLight(light);
+                            }
+                        }
+                        break;
                     case "emp":
                         if (system.isActive()) {
                             Vector2f location = ship.getLocation();
@@ -445,8 +497,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         public HyperPlugin() {
             float magnitude = Global.getSettings().getFloat("sunLightBrightnessScale") / 1.5f;
             magnitude = Math.min(Math.max(magnitude, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
-            Vector2f horizontal = new Vector2f(((float) Math.random() + 0.0001f) * 2f - 1f, ((float) Math.random() +
-                                                                                             0.0001f) * 2f - 1f);
+            Vector2f horizontal = new Vector2f(((float) Math.random() + 0.0001f) * 2f - 1f, ((float) Math.random()
+                    + 0.0001f) * 2f - 1f);
             horizontal.normalise();
             baseDirection = new Vector3f(horizontal.x, horizontal.y, -0.4f);
             baseDirection.normalise();
@@ -496,8 +548,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                 actualDirection.z += Math.sin(sineTimeZ) * sineZScale;
                 hyper.setDirection(actualDirection);
                 float magnitude = Global.getSettings().getFloat("sunLightBrightnessScale") * (1f + (float) Math.sin(
-                                                                                              sineTimeM) * sineMScale) /
-                      1.5f;
+                        sineTimeM) * sineMScale)
+                        / 1.5f;
                 magnitude = Math.min(Math.max(magnitude, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
                 hyper.setIntensity(magnitude);
                 hyper.setSpecularIntensity(magnitude * Global.getSettings().getFloat("sunLightSpecularFactor"));
@@ -519,12 +571,12 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         }
 
         public SunPlugin(float distance, Vector2f offset, Color color, float radius) {
-            float magnitude = (float) Math.sqrt(radius / 500f) * radius / (distance + radius) *
-                  Global.getSettings().getFloat("sunLightBrightnessScale");
+            float magnitude = (float) Math.sqrt(radius / 500f) * radius / (distance + radius)
+                    * Global.getSettings().getFloat("sunLightBrightnessScale");
             magnitude = Math.min(Math.max(magnitude * 5f, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
             Vector3f direction = new Vector3f(offset.x, offset.y, -MathUtils.getRandomNumberInRange(
-                                              Global.getSettings().getFloat("sunLightZComponentMin"),
-                                              Global.getSettings().getFloat("sunLightZComponentMax")));
+                    Global.getSettings().getFloat("sunLightZComponentMin"),
+                    Global.getSettings().getFloat("sunLightZComponentMax")));
             direction.normalise();
             sun = new StandardLight(direction);
             sun.setColor(color);

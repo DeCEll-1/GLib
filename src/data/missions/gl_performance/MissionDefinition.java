@@ -1,4 +1,4 @@
-package data.missions.performance;
+package data.missions.gl_performance;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;

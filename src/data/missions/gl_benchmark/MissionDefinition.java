@@ -1,7 +1,10 @@
-package data.missions.sectormark;
+package data.missions.gl_benchmark;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.AssignmentTargetAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
+import com.fs.starfarer.api.combat.BattleObjectiveAPI;
+import com.fs.starfarer.api.combat.CombatAssignmentType;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DeployedFleetMemberAPI;
@@ -9,7 +12,10 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.ShipRoles;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
@@ -17,175 +23,137 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
 
+    public static final List<String> FACTIONS = new ArrayList<>(28);
+    public static final List<String> ROLES = new ArrayList<>(29);
+
     public static final Logger log = Global.getLogger(MissionDefinition.class);
 
-    private final List<String> ships = new ArrayList<>(188);
+    static {
+        FACTIONS.add(Factions.HEGEMONY);
+        FACTIONS.add(Factions.DIKTAT);
+        FACTIONS.add(Factions.INDEPENDENT);
+        FACTIONS.add(Factions.KOL);
+        FACTIONS.add(Factions.LIONS_GUARD);
+        FACTIONS.add(Factions.LUDDIC_CHURCH);
+        FACTIONS.add(Factions.LUDDIC_PATH);
+        FACTIONS.add(Factions.PIRATES);
+        FACTIONS.add(Factions.TRITACHYON);
+        FACTIONS.add(Factions.PERSEAN);
+        FACTIONS.add(Factions.DERELICT);
+        FACTIONS.add(Factions.REMNANTS);
+        FACTIONS.add("cabal");
+        FACTIONS.add("interstellarimperium");
+        FACTIONS.add("blackrock_driveyards");
+        FACTIONS.add("exigency");
+        FACTIONS.add("exipirated");
+        FACTIONS.add("templars");
+        FACTIONS.add("shadow_industry");
+        FACTIONS.add("junk_pirates");
+        FACTIONS.add("pack");
+        FACTIONS.add("syndicate_asp");
+        FACTIONS.add("SCY");
+        FACTIONS.add("tiandong");
+        FACTIONS.add("diableavionics");
+        FACTIONS.add("ORA");
+
+        ROLES.add(ShipRoles.FAST_ATTACK);
+        ROLES.add(ShipRoles.ESCORT_SMALL);
+        ROLES.add(ShipRoles.ESCORT_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_SMALL);
+        ROLES.add(ShipRoles.COMBAT_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_LARGE);
+        ROLES.add(ShipRoles.COMBAT_CAPITAL);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_SMALL);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_MEDIUM);
+        ROLES.add(ShipRoles.COMBAT_FREIGHTER_LARGE);
+        ROLES.add(ShipRoles.CIV_RANDOM);
+        ROLES.add(ShipRoles.CARRIER_SMALL);
+        ROLES.add(ShipRoles.CARRIER_MEDIUM);
+        ROLES.add(ShipRoles.CARRIER_LARGE);
+        ROLES.add(ShipRoles.FREIGHTER_SMALL);
+        ROLES.add(ShipRoles.FREIGHTER_MEDIUM);
+        ROLES.add(ShipRoles.FREIGHTER_LARGE);
+        ROLES.add(ShipRoles.TANKER_SMALL);
+        ROLES.add(ShipRoles.TANKER_MEDIUM);
+        ROLES.add(ShipRoles.TANKER_LARGE);
+        ROLES.add(ShipRoles.PERSONNEL_SMALL);
+        ROLES.add(ShipRoles.PERSONNEL_MEDIUM);
+        ROLES.add(ShipRoles.PERSONNEL_LARGE);
+        ROLES.add(ShipRoles.LINER_SMALL);
+        ROLES.add(ShipRoles.LINER_MEDIUM);
+        ROLES.add(ShipRoles.LINER_LARGE);
+        ROLES.add(ShipRoles.TUG);
+        ROLES.add(ShipRoles.CRIG);
+        ROLES.add(ShipRoles.UTILITY);
+    }
+
+    private final List<String> ships = new ArrayList<>(5000);
 
     @Override
     public void defineMission(MissionDefinitionAPI api) {
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_victory_ass");
-        addShip("onslaught_Standard");
+        Set<String> variants = new HashSet<>(5000);
+        for (String role : ROLES) {
+            for (String faction : FACTIONS) {
+                List<RoleEntryAPI> roleEntries;
+                try {
+                    roleEntries = Global.getSettings().getEntriesForRole(faction, role);
+                } catch (Exception e) {
+                    continue;
+                }
+                for (RoleEntryAPI roleEntry : roleEntries) {
+                    variants.add(roleEntry.getVariantId());
+                }
+            }
+            List<RoleEntryAPI> roleEntries = Global.getSettings().getDefaultEntriesForRole(role);
+            for (RoleEntryAPI roleEntry : roleEntries) {
+                variants.add(roleEntry.getVariantId());
+            }
+        }
 
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_victory_ass");
-        addShip("onslaught_Standard");
+        for (String variant : variants) {
+            addShip(variant);
+        }
 
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_victory_ass");
-        addShip("onslaught_Standard");
-
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_tiger_str");
-        addShip("wolf_Assault");
-        addShip("ssp_boar_eli");
-        addShip("sunder_Assault");
-        addShip("ssp_stalker_sta");
-        addShip("dominator_Outdated");
-        addShip("ssp_victory_ass");
-        addShip("onslaught_Standard");
-
-        api.initFleet(FleetSide.PLAYER, "Green", FleetGoal.ATTACK, true, 20);
-        api.initFleet(FleetSide.ENEMY, "Red", FleetGoal.ATTACK, true, 20);
+        api.initFleet(FleetSide.PLAYER, "Green", FleetGoal.ATTACK, false, 5);
+        api.initFleet(FleetSide.ENEMY, "Red", FleetGoal.ATTACK, false, 5);
 
         api.setFleetTagline(FleetSide.PLAYER, "Green fleet");
         api.setFleetTagline(FleetSide.ENEMY, "Red fleet");
 
-        api.addBriefingItem("Use this mission for official benchmarks!");
         api.addBriefingItem("This mission automatically enables dev mode");
 
         generateFleet(FleetSide.PLAYER, ships, api);
         generateFleet(FleetSide.ENEMY, ships, api);
 
-        float width = 4000f;
-        float height = 4000f;
+        float width = 8000f;
+        float height = 14000f;
         api.initMap(-width / 2f, width / 2f, -height / 2f, height / 2f);
 
         float minX = -width / 2;
         float minY = -height / 2;
 
-        api.addNebula(minX + width * 0.25f, minY + height * 0.25f, 150f);
-        api.addNebula(minX + width * 0.75f, minY + height * 0.25f, 150f);
-        api.addNebula(minX + width * 0.75f, minY + height * 0.75f, 150f);
-        api.addNebula(minX + width * 0.25f, minY + height * 0.75f, 150f);
-        api.addNebula(minX + width * 0.5f, minY + height * 0.5f, 150f);
+        api.addNebula(minX + 3000f, minY + 7000f, 150f);
+        api.addNebula(minX + 5000f, minY + 7000f, 150f);
+        api.addNebula(minX + 5000f, minY + 9000f, 150f);
+        api.addNebula(minX + 3000f, minY + 9000f, 150f);
+        api.addNebula(minX + 4000f, minY + 8000f, 150f);
 
-        api.addAsteroidField(minX + width * 0.5f, minY + height * 0.5f, 45f, 500f + height / 2f, 50f, 100f, 50);
+        api.addAsteroidField(minX + width * 0.5f, minY + height * 0.5f, 45f, 500f + height / 2f, 50f, 100f, 100);
 
-        api.addObjective(minX + width * 0.25f, minY + height * 0.25f, "comm_relay");
-        api.addObjective(minX + width * 0.75f, minY + height * 0.25f, "comm_relay");
-        api.addObjective(minX + width * 0.75f, minY + height * 0.75f, "comm_relay");
-        api.addObjective(minX + width * 0.25f, minY + height * 0.75f, "comm_relay");
+        api.addObjective(minX + width * 0.375f, minY + height * 0.45f, "nav_buoy");
+        api.addObjective(minX + width * 0.625f, minY + height * 0.45f, "sensor_array");
+        api.addObjective(minX + width * 0.625f, minY + height * 0.55f, "nav_buoy");
+        api.addObjective(minX + width * 0.375f, minY + height * 0.55f, "sensor_array");
         api.addObjective(minX + width * 0.5f, minY + height * 0.5f, "comm_relay");
 
         api.addPlugin(new Plugin());
@@ -196,9 +164,21 @@ public class MissionDefinition implements MissionDefinitionPlugin {
     }
 
     private void generateFleet(FleetSide side, List<String> ships, MissionDefinitionAPI api) {
+        Set<String> hulls = new HashSet<>(ships.size());
         for (String ship : ships) {
             try {
-                api.addToFleet(side, ship, FleetMemberType.SHIP, false);
+                String id = ship;
+                FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, id);
+                String hull = member.getHullId();
+                if (member.isCivilian() || member.getVariant().isEmptyHullVariant() || member.isStation()) {
+                    continue;
+                }
+                if (hulls.contains(hull)) {
+                    continue;
+                } else {
+                    hulls.add(hull);
+                }
+                api.addToFleet(side, id, FleetMemberType.SHIP, false);
             } catch (Exception ex) {
             }
         }
@@ -206,8 +186,9 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
     private final static class Plugin extends BaseEveryFrameCombatPlugin {
 
-        private double advanced = 0f;
-        private double advancedShort = 0f;
+        private double advanced = 0.0;
+        private double advancedShort = 0.0;
+        private int battleSize = 600;
         private float clearanceEnemy = 0f;
         private float clearancePlayer = 0f;
         private boolean clearanceRightEnemy = true;
@@ -217,16 +198,18 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         private long epochInfo;
         private long epochMicro;
         private long epochShort;
+        private long epochSize;
         private final List<Double> frameTimes = new LinkedList<>();
         private int frames = 0;
         private int framesShort = 0;
-        private float height = 16000f;
+        private int framesSize = 0;
+        private float height = 4500f;
         private int maxDP = 0;
         private double memsGB = 0.0;
         private double minimums = 0.0;
-        private long score;
+        private int orderedStuff = 60;
         private double variances = 0.0;
-        private float width = 8000f;
+        private float width = 4500f;
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
@@ -237,7 +220,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 if (ship.isFighter()) {
                     continue;
                 }
-                if (ship.getLocation().x <= -20000f || ship.getLocation().x >= 20000f || ship.getLocation().y <= -40000f ||
+                if (ship.getLocation().x <= -25000f || ship.getLocation().x >= 25000f || ship.getLocation().y <= -40000f ||
                         ship.getLocation().y >= 40000f) {
                     Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true,
                                                          false, ship);
@@ -269,7 +252,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 enemyTotalDP += member.getDeploymentCostSupplies();
             }
             maxDP = Math.max(maxDP, Math.max(playerTotalDP, enemyTotalDP));
-            while (playerDP < Global.getSettings().getBattleSize() / 2) {
+            while (playerDP < battleSize / 2) {
                 if (Global.getCombatEngine().getFleetManager(0).getReservesCopy().isEmpty()) {
                     break;
                 }
@@ -294,7 +277,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     }
                 }
             }
-            while (enemyDP < Global.getSettings().getBattleSize() / 2) {
+            while (enemyDP < battleSize / 2) {
                 if (Global.getCombatEngine().getFleetManager(1).getReservesCopy().isEmpty()) {
                     break;
                 }
@@ -332,11 +315,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     double minimumFPS = minimums / (intervalAvg / 10.0);
                     double variancesAvg = variances / (intervalAvg / 10.0);
                     double gameSpeed = advanced / intervalAvg;
-                    double gameSpeedFactor = 1.0 + Math.min(minimumFPS / 30.0, 1.0);
-                    double stabilityFactor = (minimumFPS / fpsAvg + (1.0 - variancesAvg / (1000.0 / fpsAvg)) +
-                                              (gameSpeed * gameSpeedFactor)) /
-                           (2.0 + gameSpeedFactor);
-                    score = Math.round((fpsAvg * Math.sqrt(Math.pow(2.0, stabilityFactor) / 2.0)) * 100.0);
                     log.info(String.format("********************************"));
                     log.info(String.format("Benchmark Results (%.1f minute run):",
                                            (System.currentTimeMillis() - epoch) / 60000.0));
@@ -344,12 +322,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                     log.info(String.format("  Average Frame Variance: %.2fms", variancesAvg));
                     log.info(String.format("  Perceived Game Speed: %d%%", Math.round(gameSpeed * 100.0)));
-                    log.info(String.format("  SectorMarks: %d", score));
+                    log.info(String.format("  Battle Size: %d", battleSize - 200));
                     log.info(String.format("********************************"));
                     Global.getSoundPlayer().playUISound("cr_playership_critical", 1f, 2f);
                 }
                 Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f),
-                                                         String.format("SectorMarks: %d", score),
+                                                         String.format("Recommended Battle Size: %d", battleSize - 200),
                                                          200f, Color.yellow, null, 1f, 0f);
                 return;
             }
@@ -358,6 +336,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 epoch += System.currentTimeMillis() - epochMicro;
                 epochShort += System.currentTimeMillis() - epochMicro;
                 epochInfo += System.currentTimeMillis() - epochMicro;
+                epochSize += System.currentTimeMillis() - epochMicro;
                 epochMicro = System.currentTimeMillis();
                 return;
             }
@@ -370,12 +349,51 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
             frames++;
             framesShort++;
+            framesSize++;
+            orderedStuff--;
+            if (orderedStuff == 0) {
+                for (BattleObjectiveAPI objective : Global.getCombatEngine().getObjectives()) {
+                    if (objective.getLocation().x <= 500f && objective.getLocation().y <= 500f) {
+                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(
+                                CombatAssignmentType.ASSAULT,
+                                (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(
+                                CombatAssignmentType.ASSAULT,
+                                (AssignmentTargetAPI) objective, false);
+                    } else {
+                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(
+                                CombatAssignmentType.CAPTURE,
+                                (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(
+                                CombatAssignmentType.CAPTURE,
+                                (AssignmentTargetAPI) objective, false);
+                    }
+                }
+            }
+
+            if ((System.currentTimeMillis() - epochSize >= 1000 * 30) && (System.currentTimeMillis() - epoch >= 1000 *
+                                                                          60 * 2)) {
+                double intervalSize = (System.currentTimeMillis() - epochSize) / 1000.0;
+                double currentFPSAvg = framesSize / intervalSize;
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
+                       (double) (maxDP - battleSize);
+                double scale = 1.0 - progress * 0.9;
+
+                if (currentFPSAvg > 30.0 + 10.0 * scale) {
+                    battleSize += scale * 20.0;
+                } else if (currentFPSAvg < 30.0) {
+                    battleSize -= scale * 20.0;
+                }
+
+                framesSize = 0;
+                epochSize = System.currentTimeMillis();
+            }
 
             if (System.currentTimeMillis() - epochShort >= 1000) {
                 double interval = (System.currentTimeMillis() - epochShort) / 1000.0;
                 double fps = framesShort / interval;
-                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(
-                                                                                                      200, 200));
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
+                       (double) (maxDP - battleSize);
                 double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
                 double fpsAvg = frames / intervalAvg;
                 double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) /
@@ -389,10 +407,13 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f),
                                                          String.format("Average FPS: %.1f", fpsAvg),
                                                          100f, Color.yellow, null, 1f, 0f);
+                Global.getCombatEngine().addFloatingText(new Vector2f(0f, -75f),
+                                                         String.format("Battle Size: %d", battleSize - 200),
+                                                         50f, Color.yellow, null, 1f, 0f);
                 if (progress > 0.0 && System.currentTimeMillis() - epoch >= 1000 * 60 * 2) {
                     double speed = progress / ((System.currentTimeMillis() - epoch) / 60000.0);
                     double eta = (1.0 - progress) / speed;
-                    Global.getCombatEngine().addFloatingText(new Vector2f(0f, -75f),
+                    Global.getCombatEngine().addFloatingText(new Vector2f(0f, -125f),
                                                              String.format("Time Remaining: %d minutes", Math.round(eta)),
                                                              50f, Color.yellow, null, 1f, 0f);
                 }
@@ -431,8 +452,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 double fpsAvg = frames / intervalAvg;
                 double minimumFPS = minimums / (intervalAvg / 10.0);
                 double variancesAvg = variances / (intervalAvg / 10.0);
-                double progress = 1.0 - Math.min(playerTotalDP - 200, enemyTotalDP - 200) / (double) (maxDP - Math.max(
-                                                                                                      200, 200));
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
+                       (double) (maxDP - battleSize);
                 double memoryAvg = memsGB / intervalAvg;
                 double intervalInfo = (System.currentTimeMillis() - epochInfo) / 1000.0;
                 double gameSpeed = advancedShort / intervalInfo;
@@ -444,6 +465,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 log.info(String.format("  Average Frame Variance: %.2fms", variancesAvg));
                 log.info(String.format("  Average Memory Used: %.2fGB", memoryAvg));
                 log.info(String.format("  Game Speed: %.1f%%", gameSpeed * 100.0));
+                log.info(String.format("  Battle Size: %d", battleSize - 200));
 
                 frameTimes.clear();
                 advancedShort = 0.0;
@@ -465,7 +487,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             }
             Global.getSettings().setDevMode(true);
             engine.getViewport().setExternalControl(true);
-            engine.getViewport().set(-width / 3f, -height / 6f, width / 1.5f, height / 3f);
+            engine.getViewport().set(-width * 0.5f, -height * 0.5f, width, height);
             epoch = System.currentTimeMillis();
             epochShort = System.currentTimeMillis();
             epochMicro = System.currentTimeMillis();

@@ -371,7 +371,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
                                 if ((system.isActive() && !system.isOn()) || system.isChargedown()) {
                                     if (!light.isFadingOut()) {
-                                        light.fadeOut(2f);
+                                        light.fadeOut(0.5f);
                                     }
                                 }
                             } else {
@@ -383,7 +383,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 light.setSize(size);
                                 Color color = new Color(100, 255, 100, 255);
                                 light.setColor(color);
-                                light.fadeIn(1f);
+                                light.fadeIn(0.5f);
 
                                 lights.put(ship, light);
                                 LightShader.addLight(light);

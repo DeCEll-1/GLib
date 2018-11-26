@@ -1,3 +1,6 @@
+Version 1.3.1 (Unreleased):
+- Fixed lighting for plasma burn system
+
 Version 1.3.0 (November 17, 2018):
 - Added a bunch of shader maps for new/updated Starsector 0.9a sprites
 - Updated lighting settings where applicable for new/updated Starsector 0.9a content

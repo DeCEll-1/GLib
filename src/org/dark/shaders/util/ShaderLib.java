@@ -69,8 +69,16 @@ public final class ShaderLib {
                 }
             }
             if ((ship1.getParentStation() != null) && (ship1.getParentStation() == ship2.getParentStation())) {
-                final List<ShipAPI> children = ship1.getParentStation().getChildModulesCopy();
-                return Integer.compare(children.indexOf(ship2), children.indexOf(ship1));
+                if (ship1.getHullSpec().getHints().contains(ShipTypeHints.UNDER_PARENT)
+                        && !ship2.getHullSpec().getHints().contains(ShipTypeHints.UNDER_PARENT)) {
+                    return -1; // ship1 first
+                } else if (!ship1.getHullSpec().getHints().contains(ShipTypeHints.UNDER_PARENT)
+                        && ship2.getHullSpec().getHints().contains(ShipTypeHints.UNDER_PARENT)) {
+                    return 1; // ship2 first
+                } else {
+                    final List<ShipAPI> children = ship1.getParentStation().getChildModulesCopy();
+                    return Integer.compare(children.indexOf(ship2), children.indexOf(ship1));
+                }
             }
             return ship1.getHullSpec().getHullId().compareTo(ship2.getHullSpec().getHullId()); // alphabetical order
         }

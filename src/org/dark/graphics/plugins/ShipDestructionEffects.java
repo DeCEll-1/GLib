@@ -69,15 +69,15 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
     private static boolean trailsEnabled = true;
 
     static {
-        BOSS_SHIPS.put("ssp_superhyperion", 4f);
-        BOSS_SHIPS.put("ssp_oberon", 2f);
-        BOSS_SHIPS.put("ssp_ultron", 2f);
-        BOSS_SHIPS.put("ssp_zeus", 2f);
-        BOSS_SHIPS.put("ssp_ezekiel", 3f);
-        BOSS_SHIPS.put("ssp_cristarium", 2f);
-        BOSS_SHIPS.put("ssp_zero", 4f);
-        BOSS_SHIPS.put("ssp_superzero", 5f);
-        BOSS_SHIPS.put("ssp_hyperzero", 6f);
+        BOSS_SHIPS.put("swp_arcade_superhyperion", 4f);
+        BOSS_SHIPS.put("swp_arcade_oberon", 2f);
+        BOSS_SHIPS.put("swp_arcade_ultron", 2f);
+        BOSS_SHIPS.put("swp_arcade_zeus", 2f);
+        BOSS_SHIPS.put("swp_arcade_ezekiel", 3f);
+        BOSS_SHIPS.put("swp_arcade_cristarium", 2f);
+        BOSS_SHIPS.put("swp_arcade_zero", 4f);
+        BOSS_SHIPS.put("swp_arcade_superzero", 5f);
+        BOSS_SHIPS.put("swp_arcade_hyperzero", 6f);
     }
 
     static {
@@ -313,7 +313,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
                     if (engine.isInCampaign() || engine.isInCampaignSim() || engine.isSimulation() ||
                             engine.getPlayerShip() == null ||
-                            !engine.getPlayerShip().getHullSpec().getHullId().contentEquals("ssp_superhyperion") ||
+                            !engine.getPlayerShip().getHullSpec().getHullId().contentEquals("swp_arcade_superhyperion") ||
                             BOSS_SHIPS.containsKey(shipHullId)) {
                         engine.addHitParticle(shipLoc, ZERO, shipRadius * 15f, 0.75f, shipRadius / 15f, COLOR_WHITE1);
                         engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 10f, 0.25f, shipRadius / 10f, COLOR_WHITE2);

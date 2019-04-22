@@ -3,6 +3,7 @@ package org.dark.shaders.util;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.CombatAsteroidAPI;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MissileRenderDataAPI;
@@ -21,6 +22,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.Tessellate;
 import org.dark.shaders.ShaderModPlugin;
@@ -1058,6 +1061,71 @@ public final class ShaderLib {
         return radiansPredicate;
     }
 
+    /**
+     * Retrieves the most appropriate TextureEntry corresponding to the given ship and texture type.
+     * <p>
+     * @param ship Ship to find TextureEntry for.
+     * @param type Texture type to find TextureEntry for.
+     * <p>
+     * @return TextureEntry corresponding to the given ship/type, or null if not found.
+     * <p>
+     * @since 1.3.2
+     */
+    public static TextureEntry getShipTexture(ShipAPI ship, TextureDataType type) {
+        TextureEntry entry = null;
+
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine != null) {
+            Map<String, Object> customData = engine.getCustomData();
+            if (customData != null) {
+                Map<ShipAPI, String> shipTexOvd = (Map<ShipAPI, String>) customData.get("SL_shipTexOvd");
+                if (shipTexOvd != null) {
+                    String ovdId = shipTexOvd.get(ship);
+                    if (ovdId != null) {
+                        entry = TextureData.getTextureData(ovdId, type, ObjectType.SHIP, 0);
+                    }
+                }
+            }
+        }
+
+        if (entry == null) {
+            entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), type, ObjectType.SHIP, 0);
+
+            if (entry == null) {
+                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), type, ObjectType.SHIP, 0);
+
+                if (entry == null) {
+                    entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), type, ObjectType.SHIP, 0);
+                }
+            }
+        }
+        return entry;
+    }
+
+    /**
+     * Overrides a ship's ID for the purposes of determining which TextureEntry to use within shaders (such as
+     * lighting). Normally, the ship's Hull ID, D-Parent Hull ID, and then the Base Hull ID are used (in that order).
+     * <p>
+     * @param ship Ship to override ID for.
+     * @param id New ID to use.
+     * <p>
+     * @since 1.3.2
+     */
+    public static void overrideShipTexture(ShipAPI ship, String id) {
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine != null) {
+            Map<String, Object> customData = engine.getCustomData();
+            if (customData != null) {
+                Map<ShipAPI, String> shipTexOvd = (Map<ShipAPI, String>) customData.get("SL_shipTexOvd");
+                if (shipTexOvd == null) {
+                    shipTexOvd = new WeakHashMap<>();
+                    customData.put("SL_shipTexOvd", shipTexOvd);
+                }
+                shipTexOvd.put(ship, id);
+            }
+        }
+    }
+
     private static void renderForeground(ViewportAPI viewport) {
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         if (useFramebufferCore) {
@@ -1135,17 +1203,7 @@ public final class ShaderLib {
                 continue;
             }
 
-            TextureEntry entry
-                    = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.MATERIAL_MAP,
-                            ObjectType.SHIP, 0);
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.MATERIAL_MAP,
-                        ObjectType.SHIP, 0);
-            }
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.MATERIAL_MAP,
-                        ObjectType.SHIP, 0);
-            }
+            TextureEntry entry = getShipTexture(ship, TextureDataType.MATERIAL_MAP);
             SpriteAPI originalSprite = ship.getSpriteAPI();
             SpriteAPI sprite;
             if (entry != null) {

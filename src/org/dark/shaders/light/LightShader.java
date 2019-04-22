@@ -1704,16 +1704,7 @@ public class LightShader implements ShaderAPI {
             }
 
             boolean hasNormal;
-            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.NORMAL_MAP,
-                    ObjectType.SHIP, 0);
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.NORMAL_MAP,
-                        ObjectType.SHIP, 0);
-            }
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.NORMAL_MAP,
-                        ObjectType.SHIP, 0);
-            }
+            TextureEntry entry = ShaderLib.getShipTexture(ship, TextureDataType.NORMAL_MAP);
             SpriteAPI sprite;
             float depth = 1f;
             SpriteAPI originalSprite = ship.getSpriteAPI();
@@ -2297,16 +2288,7 @@ public class LightShader implements ShaderAPI {
                 continue;
             }
 
-            TextureEntry entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), TextureDataType.SURFACE_MAP,
-                    ObjectType.SHIP, 0);
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), TextureDataType.SURFACE_MAP,
-                        ObjectType.SHIP, 0);
-            }
-            if (entry == null) {
-                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), TextureDataType.SURFACE_MAP,
-                        ObjectType.SHIP, 0);
-            }
+            TextureEntry entry = ShaderLib.getShipTexture(ship, TextureDataType.SURFACE_MAP);
             SpriteAPI sprite;
             SpriteAPI originalSprite = ship.getSpriteAPI();
             Color originalColor = null;

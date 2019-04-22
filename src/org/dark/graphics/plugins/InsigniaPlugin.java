@@ -154,7 +154,7 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
                                                     viewport.convertWorldYtoScreenY(ship.getLocation().y));
                     Vector2f loc = new Vector2f(x, y);
                     Vector2f alternate = MathUtils.getPointOnCircumference(shipLoc, radius + border,
-                                                                           VectorUtils.getAngle(shipLoc, loc));
+                                                                           VectorUtils.getAngleStrict(shipLoc, loc));
                     x = alternate.x;
                     y = alternate.y;
 

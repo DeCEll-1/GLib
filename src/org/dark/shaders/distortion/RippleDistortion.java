@@ -33,8 +33,8 @@ public class RippleDistortion implements DistortionAPI {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: " +
-                                                         e.getMessage());
+            Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: "
+                    + e.getMessage());
         }
     }
 
@@ -109,7 +109,7 @@ public class RippleDistortion implements DistortionAPI {
      * @param amount Seconds since last frame.
      * <p>
      * @return True if the distortion object should be destroyed this frame, false if it should not be destroyed this
-     *         frame.
+     * frame.
      * <p>
      * @since Alpha 1.1
      */
@@ -118,31 +118,35 @@ public class RippleDistortion implements DistortionAPI {
         size += deltaSize * amount;
         intensity += deltaIntensity * amount;
         frame += frameRate * amount;
-        if (size >= maxSize && deltaSize > 0f) {
+        if ((size >= maxSize) && (deltaSize > 0f)) {
             size = maxSize;
             deltaSize = 0f;
         }
-        if (intensity >= maxIntensity && deltaIntensity > 0f) {
+        if ((intensity >= maxIntensity) && (deltaIntensity > 0f)) {
             intensity = maxIntensity;
             deltaIntensity = 0f;
         }
-        if (size <= 0f || intensity <= 0f || frame < 0 || frame >= FRAMES) {
+        if ((size <= 0f) || (intensity <= 0f) || (frame < 0) || (frame >= FRAMES)) {
             return true;
         }
 
         location.translate(velocity.x * amount, velocity.y * amount);
 
-        if (Float.compare(deltaSize, 0f) == 0 && Float.compare(deltaIntensity, 0f) == 0) {
+        if ((Float.compare(deltaSize, 0f) == 0) && (Float.compare(deltaIntensity, 0f) == 0)) {
             if (lifetime >= 0f) {
                 lifetime -= amount;
 
                 if (lifetime <= 0f) {
-                    if (Float.compare(autoFadeSizeTime, 0f) == 0 || Float.compare(autoFadeIntensityTime, 0f) == 0) {
+                    if ((Float.compare(autoFadeSizeTime, 0f) == 0) || (Float.compare(autoFadeIntensityTime, 0f) == 0)) {
                         return true;
                     }
 
-                    fadeOutSize(autoFadeSizeTime);
-                    fadeOutIntensity(autoFadeIntensityTime);
+                    if (Float.compare(autoFadeSizeTime, 0f) != 0) {
+                        fadeOutSize(autoFadeSizeTime);
+                    }
+                    if (Float.compare(autoFadeIntensityTime, 0f) != 0) {
+                        fadeOutIntensity(autoFadeIntensityTime);
+                    }
                     setCurrentFrame(autoAnimateFrameStart);
                     setFrameRate(autoAnimateFrameRate);
                 }
@@ -565,7 +569,7 @@ public class RippleDistortion implements DistortionAPI {
      * degrees.
      * <p>
      * @param start The start of the distortion's visible arc, in degrees.
-     * @param end   The end of the distortion's visible arc, in degrees.
+     * @param end The end of the distortion's visible arc, in degrees.
      * <p>
      * @since Alpha 1.11
      */
@@ -589,7 +593,7 @@ public class RippleDistortion implements DistortionAPI {
     /**
      * Sets the frame rate and the starting frame the animation will play at after its lifetime expires.
      * <p>
-     * @param frameRate  The frame rate the animation should play at when the object's lifetime expires.
+     * @param frameRate The frame rate the animation should play at when the object's lifetime expires.
      * @param frameStart The frame the animation should start at when the object's lifetime expires.
      * <p>
      * @since Alpha 1.1

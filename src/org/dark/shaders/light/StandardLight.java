@@ -50,6 +50,7 @@ public class StandardLight implements LightAPI {
     private final Vector2f offset;
     private float size = 0f;
     private float specularIntensity = 0f;
+    private float specularMultiplier = 1f;
     private float superLifetime = 60f;
     private int type;
     private final Vector2f velocity;
@@ -812,6 +813,29 @@ public class StandardLight implements LightAPI {
      */
     public void setSpecularIntensity(float intensity) {
         specularIntensity = intensity;
+    }
+
+    /**
+     * Gets the specular multiplier of the light. Only used for point-type lights.
+     * <p>
+     * @return The specular multiplier of the light.
+     * <p>
+     * @since 1.4.0
+     */
+    @Override
+    public float getSpecularMult() {
+        return specularMultiplier;
+    }
+
+    /**
+     * Sets the specular multiplier of the light. Only used for point-type lights.
+     * <p>
+     * @param multiplier The specular multiplier of the light.
+     * <p>
+     * @since 1.4.0
+     */
+    public void setSpecularMult(float multiplier) {
+        specularMultiplier = multiplier;
     }
 
     /**

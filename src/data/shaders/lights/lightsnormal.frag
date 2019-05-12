@@ -33,7 +33,7 @@ vec4 getLightData2(in float index) {
 	return vec4(texture1D(data, texCoord + 0.00048828125).r, texture1D(data, texCoord + 0.000732421875).r, texture1D(data, texCoord + 0.0009765625).r, texture1D(data, texCoord + 0.00146484375).r * norm2.y);
 }
 
-// [POINT] x = unused (8)  |  y = unused (9)  |  z = height (10)
+// [POINT] x = specularIntensity (8)  |  y = unused (9)  |  z = height (10)
 // [LINE] x = position2.x (8)  |  y = position2.y (9)  |  z = height (10)
 // [CONE] x = arcStart (8)  |  y = arcEnd (9)  |  z = height (10)
 // [DIRECTION] x = direction.z (8)  |  y = unused (9)  |  z = unused (10)
@@ -157,7 +157,7 @@ void main() {
 					} else {
 						lightData3 = getLightData3(float(i));
 						vec3 specular;
-						float specularFactor = specmult * mix(dot(color2.rgb, vec3(0.3333333)), surface.g, useSurface);
+						float specularFactor = specmult * mix(dot(color2.rgb, vec3(0.3333333)), surface.g, useSurface) * lightData3.x;
 						vec3 light = getPointLight(vec3(lightData1.xy, lightData3.z), lightData2.rgb, specularFactor, magnitude, vec3(coord, 0.0), norm, spechard * mix(1.0, 5.0 * max(surface.b, 0.05), useSurface), specular);
 						illum += light + specular;
 					}

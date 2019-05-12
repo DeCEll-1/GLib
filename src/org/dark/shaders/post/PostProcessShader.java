@@ -1,6 +1,7 @@
 package org.dark.shaders.post;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import java.io.IOException;
@@ -894,5 +895,15 @@ public class PostProcessShader implements ShaderAPI {
         GL20.glUniform1f(indexPre[16], 3f / ShaderLib.getInternalHeight()); // scanint
         GL20.glUniform1f(indexPre[17], 1f / ShaderLib.getInternalHeight()); // scanwidth
         GL20.glUseProgram(0);
+    }
+
+    @Override
+    public CombatEngineLayers getCombatLayer() {
+        return CombatEngineLayers.JUST_BELOW_WIDGETS;
+    }
+
+    @Override
+    public boolean isCombat() {
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package org.dark.shaders.util;
 
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import java.util.List;
@@ -22,7 +23,7 @@ public interface ShaderAPI {
     void renderInWorldCoords(ViewportAPI viewport);
 
     /**
-     * This method is called before advance() and before the UI is drawn.
+     * This method is called before advance() and before the UI is drawn. Warning: only called if isCombat() is false!
      * <p>
      * @param viewport The screen-based coordinates to draw with.
      */
@@ -59,8 +60,27 @@ public interface ShaderAPI {
     public boolean isEnabled();
 
     /**
+     * This method determines the combat rendering layer in which the shader is run. This method is read every frame.
+     * Note that this is only used if isCombat() is true.
+     * <p>
+     * @return The layer in which the shader will render.
+     * <p>
+     * @since 1.4.0
+     */
+    CombatEngineLayers getCombatLayer();
+
+    /**
+     * This method returns whether this shader is rendered within a combat layer or not.
+     * <p>
+     * @return Whether this shader is rendered within a combat layer.
+     * <p>
+     * @since 1.4.0
+     */
+    boolean isCombat();
+
+    /**
      * This method determines the order in which the shader is inserted in the rendering queue. This method is read
-     * every frame.
+     * every frame. Note that this is only used if isCombat() is false.
      * <p>
      * @return The order by which the shader will render.
      */

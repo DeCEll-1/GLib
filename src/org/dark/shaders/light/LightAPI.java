@@ -61,6 +61,15 @@ public interface LightAPI {
     float getSpecularIntensity();
 
     /**
+     * Gets the specular multiplier of the light. Only used for point-type lights.
+     * <p>
+     * @return The specular multiplier of the light.
+     * <p>
+     * @since 1.4.0
+     */
+    float getSpecularMult();
+
+    /**
      * Gets the height of the light, in world-space units. Only used for the purposes of normal maps.
      * <p>
      * @return The world-space height of the light.

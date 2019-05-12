@@ -2,6 +2,7 @@ package org.dark.shaders.distortion;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
@@ -426,6 +427,16 @@ public class DistortionShader implements ShaderAPI {
 
         enabled = settings.getBoolean("enableDistortion");
         maxDistortions = settings.getInt("maximumDistortions");
+    }
+
+    @Override
+    public CombatEngineLayers getCombatLayer() {
+        return CombatEngineLayers.JUST_BELOW_WIDGETS;
+    }
+
+    @Override
+    public boolean isCombat() {
+        return true;
     }
 
     private static final class LocalData {

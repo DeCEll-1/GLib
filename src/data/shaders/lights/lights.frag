@@ -16,7 +16,7 @@ vec2 coord = gl_TexCoord[0].xy;
 // [POINT] x = position.x (0)  |  y = position.y (1)  |  z = size (5)  |  w = type (7)
 // [LINE] x = position.x (0)  |  y = position.y (1)  |  z = size (5)  |  w = type (7)
 // [CONE] x = position.x (0)  |  y = position.y (1)  |  z = size (5)  |  w = type (7)
-// [DIRECTION] x = direction.x (0)  |  y = direction.y (1)  |  z = unused (5)  |  w = type (7)
+// [DIRECTION] x = direction.x (0)  |  y = direction.y (1)  |  z = specularIntensity (5)  |  w = type (7)
 vec4 getLightData1(in float index) {
 	// This is equivalent to: float texCoord = (11.0 * index + 0.5) / 4096.0;
 	float texCoord = (0.002685546875 * index) + 0.0001220703125;
@@ -30,9 +30,9 @@ vec4 getLightData2(in float index) {
 	return vec4(texture1D(data, texCoord + 0.00048828125).r, texture1D(data, texCoord + 0.000732421875).r, texture1D(data, texCoord + 0.0009765625).r, texture1D(data, texCoord + 0.00146484375).r * norm2.y);
 }
 
-// [POINT] x = unused (8)  |  y = unused (9)  |  z = unused (10)
-// [LINE] x = position2.x (8)  |  y = position2.y (9)  |  z = unused (10)
-// [CONE] x = arcStart (8)  |  y = arcEnd (9)  |  z = unused (10)
+// [POINT] x = specularIntensity (8)  |  y = unused (9)  |  z = height (10)
+// [LINE] x = position2.x (8)  |  y = position2.y (9)  |  z = height (10)
+// [CONE] x = arcStart (8)  |  y = arcEnd (9)  |  z = height (10)
 // [DIRECTION] x = direction.z (8)  |  y = unused (9)  |  z = unused (10)
 vec2 getLightData3(in float index) {
 	// This is equivalent to: float texCoord = (11.0 * index + 0.5) / 4096.0;
@@ -106,7 +106,9 @@ void main() {
 
 				if (distance < lightData1.z * lightData1.z) {
 					lightData2 = getLightData2(float(i));
-					float magnitude = lightData2.w * (lightData1.z - sqrt(distance)) / lightData1.z;
+					lightData3 = getLightData3(float(i));
+					float specularFactor = specmult * dot(color2.rgb, vec3(0.3333333)) * lightData3.x;
+					float magnitude = ((specularFactor * 0.75 + lightData2.w) * 0.571428571429) * (lightData1.z - sqrt(distance)) / lightData1.z;
 					illum += magnitude * lightData2.rgb;
 				}
 			} else if (lightData1.w < 0.5) {

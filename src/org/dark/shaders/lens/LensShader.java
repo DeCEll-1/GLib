@@ -2,6 +2,7 @@ package org.dark.shaders.lens;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
@@ -84,10 +85,10 @@ public class LensShader implements ShaderAPI {
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, rippleTex);
         if (ShaderLib.useBufferCore()) {
             GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,
-                              (java.nio.ByteBuffer) null);
+                    (java.nio.ByteBuffer) null);
         } else {
             GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 64, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,
-                              (java.nio.ByteBuffer) null);
+                    (java.nio.ByteBuffer) null);
         }
 
         GL20.glUseProgram(program);
@@ -263,12 +264,16 @@ public class LensShader implements ShaderAPI {
         dataBufferPre.flip();
         for (int i = 0; i < lenses * 3; i++) {
             int pos = i % 3;
-            if (pos == 0) {
-                dataBuffer.put((dataBufferPre.get() - normX.y) / normX.x);
-            } else if (pos == 1) {
-                dataBuffer.put((dataBufferPre.get() - normY.y) / normY.x);
-            } else {
-                dataBuffer.put(dataBufferPre.get() / normS.x);
+            switch (pos) {
+                case 0:
+                    dataBuffer.put((dataBufferPre.get() - normX.y) / normX.x);
+                    break;
+                case 1:
+                    dataBuffer.put((dataBufferPre.get() - normY.y) / normY.x);
+                    break;
+                default:
+                    dataBuffer.put(dataBufferPre.get() / normS.x);
+                    break;
             }
         }
 
@@ -321,6 +326,16 @@ public class LensShader implements ShaderAPI {
 
         dataBuffer.clear();
         dataBufferPre.clear();
+    }
+
+    @Override
+    public CombatEngineLayers getCombatLayer() {
+        return CombatEngineLayers.JUST_BELOW_WIDGETS;
+    }
+
+    @Override
+    public boolean isCombat() {
+        return true;
     }
 
     private static final class LocalData {

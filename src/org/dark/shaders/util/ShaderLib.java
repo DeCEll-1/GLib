@@ -1069,7 +1069,7 @@ public final class ShaderLib {
      * <p>
      * @return TextureEntry corresponding to the given ship/type, or null if not found.
      * <p>
-     * @since 1.3.2
+     * @since 1.4.0
      */
     public static TextureEntry getShipTexture(ShipAPI ship, TextureDataType type) {
         TextureEntry entry = null;
@@ -1109,7 +1109,7 @@ public final class ShaderLib {
      * @param ship Ship to override ID for.
      * @param id New ID to use.
      * <p>
-     * @since 1.3.2
+     * @since 1.4.0
      */
     public static void overrideShipTexture(ShipAPI ship, String id) {
         CombatEngineAPI engine = Global.getCombatEngine();

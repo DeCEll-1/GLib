@@ -4,6 +4,7 @@ afflictor_d_pirates,ship,,,material,graphics/shaders/material/ships/afflictor/af
 apogee,ship,,,material,graphics/shaders/material/ships/apogee/apogee_material.png
 astral,ship,,,material,graphics/shaders/material/ships/astral/astral_material.png
 atlas,ship,,,material,graphics/shaders/material/ships/atlas_af_material.png
+atlas2,ship,,,material,graphics/shaders/material/ships/atlas/atlas_mk2_base_material.png
 aurora,ship,,,material,graphics/shaders/material/ships/aurora_ca_material.png
 bastillon,ship,,,material,graphics/shaders/material/ships/derelict/derelict_bastillon_material.png
 berserker,ship,,,material,graphics/shaders/material/ships/derelict/derelict_berserker_material.png
@@ -156,6 +157,7 @@ picket,ship,,,material,graphics/shaders/material/ships/derelict/derelict_picket_
 piranha,ship,,,material,graphics/shaders/material/ships/piranha_bmb_material.png
 platform1,ship,,,material,graphics/shaders/material/ships/stations/station_module_generic_material.png
 prometheus,ship,,,material,graphics/shaders/material/ships/tanker_large_material.png
+prometheus2,ship,,,material,graphics/shaders/material/ships/prometheus/prometheus2_base_material.png
 radiant,ship,,,material,graphics/shaders/material/ships/remnants/remnant_battleship_material.png
 rampart,ship,,,material,graphics/shaders/material/ships/derelict/derelict_rampart_material.png
 ravelin,ship,,,material,graphics/shaders/material/ships/stations/ravelin2_material.png
@@ -177,6 +179,7 @@ shade,ship,,,material,graphics/shaders/material/ships/phase/phase_assault_ff_mat
 shade_d_pirates,ship,,,material,graphics/shaders/material/ships/shade/shade_d_pirates_material.png
 shepherd,ship,,,material,graphics/shaders/material/ships/drone_tender_material.png
 shrike,ship,,,material,graphics/shaders/material/ships/shrike/shrike_base_material.png
+shrike_pirates,ship,,,material,graphics/shaders/material/ships/shrike/shrike_p_material.png
 shuttlepod,ship,,,material,graphics/shaders/material/ships/shuttle_material.png
 spark,ship,,,material,graphics/shaders/material/ships/remnants/spark_material.png
 starliner,ship,,,material,graphics/shaders/material/ships/starliner/starliner_material.png
@@ -217,6 +220,7 @@ afflictor_d_pirates,ship,,1,normal,graphics/shaders/normal/ships/afflictor/affli
 apogee,ship,,1,normal,graphics/shaders/normal/ships/apogee/apogee_normal.png
 astral,ship,,1,normal,graphics/shaders/normal/ships/astral/astral_normal.png
 atlas,ship,,1,normal,graphics/shaders/normal/ships/atlas_af_normal.png
+atlas2,ship,,1,normal,graphics/shaders/normal/ships/atlas/atlas_mk2_base_normal.png
 aurora,ship,,1,normal,graphics/shaders/normal/ships/aurora_ca_normal.png
 bastillon,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_bastillon_normal.png
 berserker,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_berserker_normal.png
@@ -369,6 +373,7 @@ picket,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_picket_nor
 piranha,ship,,1,normal,graphics/shaders/normal/ships/piranha_bmb_normal.png
 platform1,ship,,1,normal,graphics/shaders/normal/ships/stations/station_module_generic_normal.png
 prometheus,ship,,1,normal,graphics/shaders/normal/ships/tanker_large_normal.png
+prometheus2,ship,,1,normal,graphics/shaders/normal/ships/prometheus/prometheus2_base_normal.png
 radiant,ship,,1,normal,graphics/shaders/normal/ships/remnants/remnant_battleship_normal.png
 rampart,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_rampart_normal.png
 ravelin,ship,,1,normal,graphics/shaders/normal/ships/stations/ravelin2_normal.png
@@ -390,6 +395,7 @@ shade,ship,,1,normal,graphics/shaders/normal/ships/phase/phase_assault_ff_normal
 shade_d_pirates,ship,,1,normal,graphics/shaders/normal/ships/shade/shade_d_pirates_normal.png
 shepherd,ship,,1,normal,graphics/shaders/normal/ships/drone_tender_normal.png
 shrike,ship,,1,normal,graphics/shaders/normal/ships/shrike/shrike_base_normal.png
+shrike_pirates,ship,,1,normal,graphics/shaders/normal/ships/shrike/shrike_p_normal.png
 shuttlepod,ship,,1,normal,graphics/shaders/normal/ships/shuttle_normal.png
 spark,ship,,1,normal,graphics/shaders/normal/ships/remnants/spark_normal.png
 starliner,ship,,1,normal,graphics/shaders/normal/ships/starliner/starliner_normal.png
@@ -430,6 +436,7 @@ afflictor_d_pirates,ship,,,surface,graphics/shaders/surface/ships/afflictor/affl
 apogee,ship,,,surface,graphics/shaders/surface/ships/apogee/apogee_surface.png
 astral,ship,,,surface,graphics/shaders/surface/ships/astral/astral_surface.png
 atlas,ship,,,surface,graphics/shaders/surface/ships/atlas_af_surface.png
+atlas2,ship,,,surface,graphics/shaders/surface/ships/atlas/atlas_mk2_base_surface.png
 aurora,ship,,,surface,graphics/shaders/surface/ships/aurora_ca_surface.png
 bastillon,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_bastillon_surface.png
 berserker,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_berserker_surface.png
@@ -582,6 +589,7 @@ picket,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_picket_su
 piranha,ship,,,surface,graphics/shaders/surface/ships/piranha_bmb_surface.png
 platform1,ship,,,surface,graphics/shaders/surface/ships/stations/station_module_generic_surface.png
 prometheus,ship,,,surface,graphics/shaders/surface/ships/tanker_large_surface.png
+prometheus2,ship,,,surface,graphics/shaders/surface/ships/prometheus/prometheus2_base_surface.png
 radiant,ship,,,surface,graphics/shaders/surface/ships/remnants/remnant_battleship_surface.png
 rampart,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_rampart_surface.png
 ravelin,ship,,,surface,graphics/shaders/surface/ships/stations/ravelin2_surface.png
@@ -603,6 +611,7 @@ shade,ship,,,surface,graphics/shaders/surface/ships/phase/phase_assault_ff_surfa
 shade_d_pirates,ship,,,surface,graphics/shaders/surface/ships/shade/shade_d_pirates_surface.png
 shepherd,ship,,,surface,graphics/shaders/surface/ships/drone_tender_surface.png
 shrike,ship,,,surface,graphics/shaders/surface/ships/shrike/shrike_base_surface.png
+shrike_pirates,ship,,,surface,graphics/shaders/surface/ships/shrike/shrike_p_surface.png
 shuttlepod,ship,,,surface,graphics/shaders/surface/ships/shuttle_surface.png
 spark,ship,,,surface,graphics/shaders/surface/ships/remnants/spark_surface.png
 starliner,ship,,,surface,graphics/shaders/surface/ships/starliner/starliner_surface.png

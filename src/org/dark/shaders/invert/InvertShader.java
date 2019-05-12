@@ -1,6 +1,7 @@
 package org.dark.shaders.invert;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import java.io.IOException;
@@ -133,5 +134,15 @@ public class InvertShader implements ShaderAPI {
         ShaderLib.screenDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
         ShaderLib.exitDraw();
+    }
+
+    @Override
+    public CombatEngineLayers getCombatLayer() {
+        return CombatEngineLayers.JUST_BELOW_WIDGETS;
+    }
+
+    @Override
+    public boolean isCombat() {
+        return false;
     }
 }

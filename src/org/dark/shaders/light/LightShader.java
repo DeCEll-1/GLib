@@ -5,6 +5,7 @@ import com.fs.starfarer.api.combat.BeamAPI;
 import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.CombatAsteroidAPI;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.MissileAPI;
@@ -1088,6 +1089,7 @@ public class LightShader implements ShaderAPI {
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
                     final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    final float specularIntensity = Math.max(light.getSpecularMult() * light.getIntensity() * lightMultiplier, 0f);
                     if (maxCoords == null || minCoords == null) {
                         maxCoords = new Vector2f(coords);
                         minCoords = new Vector2f(coords);
@@ -1104,18 +1106,13 @@ public class LightShader implements ShaderAPI {
                         }
                     }
                     if (maxCoords2 == null || minCoords2 == null) {
-                        maxCoords2 = new Vector2f(coords);
-                        minCoords2 = new Vector2f(coords);
+                        maxCoords2 = new Vector2f(specularIntensity, 0.5f);
+                        minCoords2 = new Vector2f(specularIntensity, 0.5f);
                     } else {
-                        if (coords.x > maxCoords2.x) {
-                            maxCoords2.x = coords.x;
-                        } else if (coords.x < minCoords2.x) {
-                            minCoords2.x = coords.x;
-                        }
-                        if (coords.y > maxCoords2.y) {
-                            maxCoords2.y = coords.y;
-                        } else if (coords.y < minCoords2.y) {
-                            minCoords2.y = coords.y;
+                        if (specularIntensity > maxCoords2.x) {
+                            maxCoords2.x = specularIntensity;
+                        } else if (specularIntensity < minCoords2.x) {
+                            minCoords2.x = specularIntensity;
                         }
                     }
                     if (size > maxSize) {
@@ -1137,7 +1134,7 @@ public class LightShader implements ShaderAPI {
                     bufferPut[5] = size;
                     bufferPut[6] = intensity;
                     bufferPut[7] = 0f;
-                    //bufferPut[8] = 0f;
+                    bufferPut[8] = specularIntensity;
                     //bufferPut[9] = 0f;
                     bufferPut[10] = height;
                     dataBufferPre.put(bufferPut);
@@ -2726,6 +2723,16 @@ public class LightShader implements ShaderAPI {
         lightDepth = (float) settings.getDouble("lightDepth");
         flashHeight = (float) settings.getDouble("weaponFlashHeight");
         standardHeight = (float) settings.getDouble("weaponLightHeight");
+    }
+
+    @Override
+    public CombatEngineLayers getCombatLayer() {
+        return CombatEngineLayers.ABOVE_SHIPS_AND_MISSILES_LAYER;
+    }
+
+    @Override
+    public boolean isCombat() {
+        return true;
     }
 
     private static final class LocalData {

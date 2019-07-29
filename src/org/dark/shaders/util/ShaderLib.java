@@ -80,7 +80,7 @@ public final class ShaderLib {
                     return 1; // ship2 first
                 } else {
                     final List<ShipAPI> children = ship1.getParentStation().getChildModulesCopy();
-                    return Integer.compare(children.indexOf(ship2), children.indexOf(ship1));
+                    return Integer.compare(children.indexOf(ship1), children.indexOf(ship2));
                 }
             }
             return ship1.getHullSpec().getHullId().compareTo(ship2.getHullSpec().getHullId()); // alphabetical order

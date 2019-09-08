@@ -1,4 +1,4 @@
-Version 1.4.1 (Unreleased):
+Version 1.4.1 (September 8, 2019):
 - Render order fix for layered modules
 
 Version 1.4.0 (May 17, 2019):

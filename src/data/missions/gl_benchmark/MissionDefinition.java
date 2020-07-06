@@ -66,9 +66,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         FACTIONS.add("diableavionics");
         FACTIONS.add("ORA");
 
-        ROLES.add(ShipRoles.FAST_ATTACK);
-        ROLES.add(ShipRoles.ESCORT_SMALL);
-        ROLES.add(ShipRoles.ESCORT_MEDIUM);
         ROLES.add(ShipRoles.COMBAT_SMALL);
         ROLES.add(ShipRoles.COMBAT_MEDIUM);
         ROLES.add(ShipRoles.COMBAT_LARGE);

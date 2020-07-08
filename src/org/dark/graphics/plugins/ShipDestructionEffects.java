@@ -197,7 +197,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         final LocalData localData = (LocalData) engine.getCustomData().get(DATA_KEY);
         final Set<ShipAPI> deadShips = localData.deadShips;
         final List<ExplodingShip> explodingShips = localData.explodingShips;
-        final Map<String, Boolean> suppressEffects = localData.suppressEffects;
+        final Map<ShipAPI, Boolean> suppressEffects = localData.suppressEffects;
 
         interval.advance(amount);
 
@@ -219,7 +219,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     float shipRadius = effectiveRadius(ship);
                     HullSize shipHullSize = ship.getHullSize();
 
-                    boolean suppressed = suppressEffects.containsKey(ship.getId());
+                    boolean suppressed = suppressEffects.containsKey(ship);
 
                     String style = ship.getHullStyleId();
                     if (EXPLOSION_COLORS.get(style) == null) {
@@ -319,7 +319,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                         style = "MIDLINE";
                     }
 
-                    boolean suppressed = suppressEffects.containsKey(ship.getId());
+                    boolean suppressed = suppressEffects.containsKey(ship);
 
                     if ((engine.isInCampaign() || engine.isInCampaignSim() || engine.isSimulation() || engine.getPlayerShip() == null
                             || !engine.getPlayerShip().getHullSpec().getHullId().contentEquals("swp_arcade_superhyperion")
@@ -463,7 +463,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                 style = "MIDLINE";
             }
 
-            boolean suppressed = suppressEffects.containsKey(exploder.ship.getId());
+            boolean suppressed = suppressEffects.containsKey(exploder.ship);
 
             // Draw fire contrails from our burning wrecks
             Iterator<FlamePoint> iter3 = exploder.flamePoints.iterator();
@@ -621,12 +621,12 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         }
 
         // Stop suppressing effects if the user called for one frame only
-        Iterator<Map.Entry<String, Boolean>> iter3 = suppressEffects.entrySet().iterator();
+        Iterator<Map.Entry<ShipAPI, Boolean>> iter3 = suppressEffects.entrySet().iterator();
         while (iter3.hasNext()) {
-            Map.Entry<String, Boolean> entry = iter3.next();
+            Map.Entry<ShipAPI, Boolean> entry = iter3.next();
             boolean oneFrame = entry.getValue();
             if (oneFrame) {
-                iter.remove();
+                iter3.remove();
             }
         }
     }
@@ -660,9 +660,9 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         }
 
         if (suppress) {
-            localData.suppressEffects.put(ship.getId(), oneFrame);
+            localData.suppressEffects.put(ship, oneFrame);
         } else {
-            localData.suppressEffects.remove(ship.getId());
+            localData.suppressEffects.remove(ship);
         }
     }
 
@@ -724,6 +724,6 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
         final Set<ShipAPI> deadShips = new LinkedHashSet<>(100);
         final List<ExplodingShip> explodingShips = new LinkedList<>();
-        final Map<String, Boolean> suppressEffects = new LinkedHashMap<>(100);
+        final Map<ShipAPI, Boolean> suppressEffects = new LinkedHashMap<>(100);
     }
 }

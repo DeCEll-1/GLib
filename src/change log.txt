@@ -1,4 +1,4 @@
-Version 1.4.2 (Unreleased):
+Version 1.4.2 (July 8, 2020):
 - Added global function suppressEffects() to ShipDestructionEffects to suppress spawning effects for a particular ship
 - Migrated version file to BitBucket
 

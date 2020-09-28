@@ -1,3 +1,8 @@
+Version 1.4.3 (September 28, 2020):
+- Fixed the Benchmark progress indicator
+- Fixed normal map scaling when flipped
+- Migrated version file to custom host (sigh)
+
 Version 1.4.2 (July 8, 2020):
 - Added global function suppressEffects() to ShipDestructionEffects to suppress spawning effects for a particular ship
 - Migrated version file to BitBucket

@@ -172,6 +172,8 @@ public class LightShader implements ShaderAPI {
     private final int[] indexBloom3 = new int[3];
     private float lastAngle;
     private float lastFlatness;
+    private float lastFlipHorizontal;
+    private float lastFlipVertical;
     private float lightDepth = 0.2f;
     private float lightMultiplier = 1f;
     private float lightSizeMultiplier = 1f;
@@ -1632,8 +1634,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final boolean hasNormal;
-            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP,
-                    ObjectType.ASTEROID, 0);
+            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP, ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
             float depth = 1f;
             if (entry != null) {
@@ -1651,10 +1652,14 @@ public class LightShader implements ShaderAPI {
 
             float uniformAngle = asteroidSprite.getAngle();
             float uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-            if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+            float uniformFlipHorizontal = (asteroidSprite.getWidth() < 0f) ? -1f : 1f;
+            float uniformFlipVertical = (asteroidSprite.getHeight() < 0f) ? -1f : 1f;
+            if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                 lastAngle = uniformAngle;
                 lastFlatness = uniformFlatness;
-                GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                lastFlipHorizontal = uniformFlipHorizontal;
+                lastFlipVertical = uniformFlipVertical;
+                GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
             }
 
             if (!validatedAux) {
@@ -1720,10 +1725,14 @@ public class LightShader implements ShaderAPI {
 
             float uniformAngle = originalSprite.getAngle();
             float uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-            if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+            float uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+            float uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+            if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                 lastAngle = uniformAngle;
                 lastFlatness = uniformFlatness;
-                GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                lastFlipHorizontal = uniformFlipHorizontal;
+                lastFlipVertical = uniformFlipVertical;
+                GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
             }
 
             if (!validatedAux) {
@@ -1795,8 +1804,7 @@ public class LightShader implements ShaderAPI {
                 if (!emptySlots.remove(weapon.getSlot())) {
                     for (Iterator<WeaponSlotAPI> iter = emptySlots.iterator(); iter.hasNext();) {
                         final WeaponSlotAPI slot = iter.next();
-                        final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset,
-                                new Vector2f());
+                        final Vector2f slotLocation = Vector2f.add(slot.computePosition(ship), renderOffset, new Vector2f());
                         final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
                         if (MathUtils.getDistance(slotLocation, weaponLocation) <= 1f) {
                             iter.remove();
@@ -1872,10 +1880,14 @@ public class LightShader implements ShaderAPI {
 
                     uniformAngle = originalSprite.getAngle();
                     uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                    if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                    uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                    uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                    if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                         lastAngle = uniformAngle;
                         lastFlatness = uniformFlatness;
-                        GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                        lastFlipHorizontal = uniformFlipHorizontal;
+                        lastFlipVertical = uniformFlipVertical;
+                        GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                     }
 
                     sprite.renderAtCenter(slotLocation.x, slotLocation.y);
@@ -1923,10 +1935,14 @@ public class LightShader implements ShaderAPI {
 
                         uniformAngle = originalSprite.getAngle();
                         uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                        if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                        uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                        uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                        if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                             lastAngle = uniformAngle;
                             lastFlatness = uniformFlatness;
-                            GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                            lastFlipHorizontal = uniformFlipHorizontal;
+                            lastFlipVertical = uniformFlipVertical;
+                            GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                         }
 
                         sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
@@ -1966,14 +1982,17 @@ public class LightShader implements ShaderAPI {
 
                         uniformAngle = originalSprite.getAngle();
                         uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                        if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                        uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                        uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                        if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                             lastAngle = uniformAngle;
                             lastFlatness = uniformFlatness;
-                            GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                            lastFlipHorizontal = uniformFlipHorizontal;
+                            lastFlipVertical = uniformFlipVertical;
+                            GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation,
-                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
                     if (weapon.getSprite() != null) {
@@ -2012,10 +2031,14 @@ public class LightShader implements ShaderAPI {
 
                         uniformAngle = originalSprite.getAngle();
                         uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                        if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                        uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                        uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                        if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                             lastAngle = uniformAngle;
                             lastFlatness = uniformFlatness;
-                            GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                            lastFlipHorizontal = uniformFlipHorizontal;
+                            lastFlipVertical = uniformFlipVertical;
+                            GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                         }
 
                         sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
@@ -2055,14 +2078,17 @@ public class LightShader implements ShaderAPI {
 
                         uniformAngle = originalSprite.getAngle();
                         uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                        if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                        uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                        uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                        if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                             lastAngle = uniformAngle;
                             lastFlatness = uniformFlatness;
-                            GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                            lastFlipHorizontal = uniformFlipHorizontal;
+                            lastFlipVertical = uniformFlipVertical;
+                            GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                         }
 
-                        weapon.renderBarrel(sprite, weaponLocation,
-                                Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                        weapon.renderBarrel(sprite, weaponLocation, Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                     }
 
                     if (weapon.getMissileRenderData() != null && !weapon.getMissileRenderData().isEmpty()
@@ -2085,9 +2111,7 @@ public class LightShader implements ShaderAPI {
                                 sprite.setAngle(msl.getMissileFacing() - 90f);
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                                sprite.setAlphaMult(
-                                        Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult())
-                                        * msl.getBrightness());
+                                sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
                                 depth = entry.magnitude;
                                 hasNormal = true;
                             } else {
@@ -2097,14 +2121,17 @@ public class LightShader implements ShaderAPI {
 
                             uniformAngle = msl.getMissileFacing() - 90f;
                             uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-                            if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+                            uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+                            uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+                            if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                                 lastAngle = uniformAngle;
                                 lastFlatness = uniformFlatness;
-                                GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                                lastFlipHorizontal = uniformFlipHorizontal;
+                                lastFlipVertical = uniformFlipVertical;
+                                GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
                             }
 
-                            sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                    missileLocation.y + renderOffset.y);
+                            sprite.renderAtCenter(missileLocation.x + renderOffset.x, missileLocation.y + renderOffset.y);
                         }
                     }
                 }
@@ -2146,10 +2173,14 @@ public class LightShader implements ShaderAPI {
 
             float uniformAngle = originalSprite.getAngle();
             float uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
-            if (uniformAngle != lastAngle || uniformFlatness != lastFlatness) {
+            float uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
+            float uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
+            if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
                 lastAngle = uniformAngle;
                 lastFlatness = uniformFlatness;
-                GL20.glUniform2f(indexAux[1], uniformAngle, uniformFlatness); // data
+                lastFlipHorizontal = uniformFlipHorizontal;
+                lastFlipVertical = uniformFlipVertical;
+                GL20.glUniform4f(indexAux[1], uniformAngle, uniformFlatness, uniformFlipHorizontal, uniformFlipVertical); // data
             }
 
             if (!validatedAux) {

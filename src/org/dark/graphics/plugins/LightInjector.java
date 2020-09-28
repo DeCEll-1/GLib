@@ -11,6 +11,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI;
 import com.fs.starfarer.api.combat.ShipSystemAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.util.Misc;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -499,7 +500,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             magnitude = Math.min(Math.max(magnitude, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
             Vector2f horizontal = new Vector2f(((float) Math.random() + 0.0001f) * 2f - 1f, ((float) Math.random()
                     + 0.0001f) * 2f - 1f);
-            horizontal.normalise();
+            Misc.normalise(horizontal);
             baseDirection = new Vector3f(horizontal.x, horizontal.y, -0.4f);
             baseDirection.normalise();
             hyper = new StandardLight(baseDirection);

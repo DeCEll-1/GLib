@@ -217,23 +217,17 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 if (ship.isFighter()) {
                     continue;
                 }
-                if (ship.getLocation().x <= -25000f || ship.getLocation().x >= 25000f || ship.getLocation().y <= -40000f ||
-                        ship.getLocation().y >= 40000f) {
-                    Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true,
-                                                         false, ship);
+                if (ship.getLocation().x <= -25000f || ship.getLocation().x >= 25000f || ship.getLocation().y <= -40000f || ship.getLocation().y >= 40000f) {
+                    Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 10000f, DamageType.OTHER, 0f, true, false, ship);
                 }
                 if (ship.isAlive()) {
                     if (ship.getOwner() == 0) {
-                        DeployedFleetMemberAPI deployed =
-                                               Global.getCombatEngine().getFleetManager(0).getDeployedFleetMemberEvenIfDisabled(
-                                                       ship);
+                        DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(0).getDeployedFleetMemberEvenIfDisabled(ship);
                         if (deployed != null) {
                             playerDP += deployed.getMember().getDeploymentCostSupplies();
                         }
                     } else if (ship.getOwner() == 1) {
-                        DeployedFleetMemberAPI deployed =
-                                               Global.getCombatEngine().getFleetManager(1).getDeployedFleetMemberEvenIfDisabled(
-                                                       ship);
+                        DeployedFleetMemberAPI deployed = Global.getCombatEngine().getFleetManager(1).getDeployedFleetMemberEvenIfDisabled(ship);
                         if (deployed != null) {
                             enemyDP += deployed.getMember().getDeploymentCostSupplies();
                         }
@@ -256,9 +250,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 FleetMemberAPI member = Global.getCombatEngine().getFleetManager(0).getReservesCopy().get(0);
                 playerDP += member.getDeploymentCostSupplies();
                 log.info(String.format("Spawning %s", member.getSpecId()));
-                ShipAPI ship = Global.getCombatEngine().getFleetManager(0).spawnFleetMember(member, new Vector2f(
-                                                                                            clearancePlayer, -3000f),
-                                                                                            90f, 1f);
+                ShipAPI ship = Global.getCombatEngine().getFleetManager(0).spawnFleetMember(member, new Vector2f(clearancePlayer, -3000f), 90f, 1f);
                 Global.getCombatEngine().getFleetManager(0).removeFromReserves(member);
                 if (clearanceRightPlayer) {
                     clearancePlayer += ship.getCollisionRadius() * 3f;
@@ -278,13 +270,10 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 if (Global.getCombatEngine().getFleetManager(1).getReservesCopy().isEmpty()) {
                     break;
                 }
-                FleetMemberAPI member = Global.getCombatEngine().getFleetManager(1).getReservesCopy().get(
-                               Global.getCombatEngine().getFleetManager(1).getReservesCopy().size() - 1);
+                FleetMemberAPI member = Global.getCombatEngine().getFleetManager(1).getReservesCopy().get(Global.getCombatEngine().getFleetManager(1).getReservesCopy().size() - 1);
                 enemyDP += member.getDeploymentCostSupplies();
                 log.info(String.format("Spawning %s", member.getSpecId()));
-                ShipAPI ship = Global.getCombatEngine().getFleetManager(1).spawnFleetMember(member, new Vector2f(
-                                                                                            clearanceEnemy, 3000f), 270f,
-                                                                                            1f);
+                ShipAPI ship = Global.getCombatEngine().getFleetManager(1).spawnFleetMember(member, new Vector2f(clearanceEnemy, 3000f), 270f, 1f);
                 Global.getCombatEngine().getFleetManager(1).removeFromReserves(member);
                 if (clearanceRightEnemy) {
                     clearanceEnemy += ship.getCollisionRadius() * 3f;
@@ -301,10 +290,10 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 }
             }
 
-            if (Global.getCombatEngine().getFleetManager(FleetSide.ENEMY).getTaskManager(false).isInFullRetreat() ||
-                    Global.getCombatEngine().getFleetManager(FleetSide.PLAYER).getTaskManager(false).isInFullRetreat() ||
-                    Global.getCombatEngine().getFleetManager(0).getReservesCopy().isEmpty() ||
-                    Global.getCombatEngine().getFleetManager(1).getReservesCopy().isEmpty()) {
+            if (Global.getCombatEngine().getFleetManager(FleetSide.ENEMY).getTaskManager(false).isInFullRetreat()
+                    || Global.getCombatEngine().getFleetManager(FleetSide.PLAYER).getTaskManager(false).isInFullRetreat()
+                    || Global.getCombatEngine().getFleetManager(0).getReservesCopy().isEmpty()
+                    || Global.getCombatEngine().getFleetManager(1).getReservesCopy().isEmpty()) {
                 if (!ended) {
                     ended = true;
                     double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
@@ -313,8 +302,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     double variancesAvg = variances / (intervalAvg / 10.0);
                     double gameSpeed = advanced / intervalAvg;
                     log.info(String.format("********************************"));
-                    log.info(String.format("Benchmark Results (%.1f minute run):",
-                                           (System.currentTimeMillis() - epoch) / 60000.0));
+                    log.info(String.format("Benchmark Results (%.1f minute run):", (System.currentTimeMillis() - epoch) / 60000.0));
                     log.info(String.format("  Average FPS: %.1f", fpsAvg));
                     log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                     log.info(String.format("  Average Frame Variance: %.2fms", variancesAvg));
@@ -323,9 +311,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     log.info(String.format("********************************"));
                     Global.getSoundPlayer().playUISound("cr_playership_critical", 1f, 2f);
                 }
-                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f),
-                                                         String.format("Recommended Battle Size: %d", battleSize - 200),
-                                                         200f, Color.yellow, null, 1f, 0f);
+                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f), String.format("Recommended Battle Size: %d", battleSize - 200), 200f, Color.yellow, null, 1f, 0f);
                 return;
             }
 
@@ -351,29 +337,19 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             if (orderedStuff == 0) {
                 for (BattleObjectiveAPI objective : Global.getCombatEngine().getObjectives()) {
                     if (objective.getLocation().x <= 500f && objective.getLocation().y <= 500f) {
-                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(
-                                CombatAssignmentType.ASSAULT,
-                                (AssignmentTargetAPI) objective, false);
-                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(
-                                CombatAssignmentType.ASSAULT,
-                                (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(CombatAssignmentType.ASSAULT, (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(CombatAssignmentType.ASSAULT, (AssignmentTargetAPI) objective, false);
                     } else {
-                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(
-                                CombatAssignmentType.CAPTURE,
-                                (AssignmentTargetAPI) objective, false);
-                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(
-                                CombatAssignmentType.CAPTURE,
-                                (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(0).getTaskManager(false).createAssignment(CombatAssignmentType.CAPTURE, (AssignmentTargetAPI) objective, false);
+                        Global.getCombatEngine().getFleetManager(1).getTaskManager(false).createAssignment(CombatAssignmentType.CAPTURE, (AssignmentTargetAPI) objective, false);
                     }
                 }
             }
 
-            if ((System.currentTimeMillis() - epochSize >= 1000 * 30) && (System.currentTimeMillis() - epoch >= 1000 *
-                                                                          60 * 2)) {
+            if ((System.currentTimeMillis() - epochSize >= 1000 * 30) && (System.currentTimeMillis() - epoch >= 1000 * 60 * 2)) {
                 double intervalSize = (System.currentTimeMillis() - epochSize) / 1000.0;
                 double currentFPSAvg = framesSize / intervalSize;
-                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
-                       (double) (maxDP - battleSize);
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize / 2, enemyTotalDP - battleSize / 2) / (double) (maxDP - battleSize / 2);
                 double scale = 1.0 - progress * 0.9;
 
                 if (currentFPSAvg > 30.0 + 10.0 * scale) {
@@ -389,30 +365,19 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             if (System.currentTimeMillis() - epochShort >= 1000) {
                 double interval = (System.currentTimeMillis() - epochShort) / 1000.0;
                 double fps = framesShort / interval;
-                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
-                       (double) (maxDP - battleSize);
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize / 2, enemyTotalDP - battleSize / 2) / (double) (maxDP - battleSize / 2);
                 double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
                 double fpsAvg = frames / intervalAvg;
-                double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) /
-                       (1073741824.0);
+                double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1073741824.0);
                 memsGB += usedMemGB;
-                log.info(String.format("Benchmark [%s] - %.1f FPS - %.2fGB Memory Used",
-                                       new SimpleDateFormat("HH.mm.ss").format(new Date()), fps, usedMemGB));
-                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 87.5f),
-                                                         String.format("Progress: %d%%", (int) (progress * 100.0)),
-                                                         75f, Color.yellow, null, 1f, 0f);
-                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f),
-                                                         String.format("Average FPS: %.1f", fpsAvg),
-                                                         100f, Color.yellow, null, 1f, 0f);
-                Global.getCombatEngine().addFloatingText(new Vector2f(0f, -75f),
-                                                         String.format("Battle Size: %d", battleSize - 200),
-                                                         50f, Color.yellow, null, 1f, 0f);
+                log.info(String.format("Benchmark [%s] - %.1f FPS - %.2fGB Memory Used", new SimpleDateFormat("HH.mm.ss").format(new Date()), fps, usedMemGB));
+                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 87.5f), String.format("Progress: %d%%", (int) (progress * 100.0)), 75f, Color.yellow, null, 1f, 0f);
+                Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f), String.format("Average FPS: %.1f", fpsAvg), 100f, Color.yellow, null, 1f, 0f);
+                Global.getCombatEngine().addFloatingText(new Vector2f(0f, -75f), String.format("Battle Size: %d", battleSize - 200), 50f, Color.yellow, null, 1f, 0f);
                 if (progress > 0.0 && System.currentTimeMillis() - epoch >= 1000 * 60 * 2) {
                     double speed = progress / ((System.currentTimeMillis() - epoch) / 60000.0);
                     double eta = (1.0 - progress) / speed;
-                    Global.getCombatEngine().addFloatingText(new Vector2f(0f, -125f),
-                                                             String.format("Time Remaining: %d minutes", Math.round(eta)),
-                                                             50f, Color.yellow, null, 1f, 0f);
+                    Global.getCombatEngine().addFloatingText(new Vector2f(0f, -125f), String.format("Time Remaining: %d minutes", Math.round(eta)), 50f, Color.yellow, null, 1f, 0f);
                 }
 
                 epochShort = System.currentTimeMillis();
@@ -420,9 +385,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
                 for (ShipAPI ship : ships) {
                     if (!ship.isAlive()) {
-                        Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 0.025f * ship.getMaxHitpoints(),
-                                                             DamageType.HIGH_EXPLOSIVE, 0f, true,
-                                                             false, ship);
+                        Global.getCombatEngine().applyDamage(ship, ship.getLocation(), 0.025f * ship.getMaxHitpoints(), DamageType.HIGH_EXPLOSIVE, 0f, true, false, ship);
                     }
                 }
             }
@@ -449,13 +412,11 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 double fpsAvg = frames / intervalAvg;
                 double minimumFPS = minimums / (intervalAvg / 10.0);
                 double variancesAvg = variances / (intervalAvg / 10.0);
-                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) /
-                       (double) (maxDP - battleSize);
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) / (double) (maxDP - battleSize);
                 double memoryAvg = memsGB / intervalAvg;
                 double intervalInfo = (System.currentTimeMillis() - epochInfo) / 1000.0;
                 double gameSpeed = advancedShort / intervalInfo;
-                log.info(String.format("Benchmark Stats [%s] (Progress: %d%%):",
-                                       new SimpleDateFormat("HH:mm:ss").format(new Date()), (int) (progress * 100.0)));
+                log.info(String.format("Benchmark Stats [%s] (Progress: %d%%):", new SimpleDateFormat("HH:mm:ss").format(new Date()), (int) (progress * 100.0)));
                 log.info(String.format("  Average FPS: %.1f", fpsAvg));
                 log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                 log.info(String.format("  Frame Variance: %.2fms", stdevMs));

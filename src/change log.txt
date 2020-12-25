@@ -1,3 +1,9 @@
+Version 1.4.4 (December 25, 2020):
+- Possible surface map transparency fix?
+- Fixed version file HTTPS redirect
+- Overload EMP colors now match the default overlay (or any special overload colors that might be scripted in)
+  * Added "useVentColorsForOverloadArcs" option for old behavior
+
 Version 1.4.3 (September 28, 2020):
 - Fixed the Benchmark progress indicator
 - Fixed normal map scaling when flipped

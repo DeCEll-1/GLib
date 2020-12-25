@@ -412,7 +412,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 double fpsAvg = frames / intervalAvg;
                 double minimumFPS = minimums / (intervalAvg / 10.0);
                 double variancesAvg = variances / (intervalAvg / 10.0);
-                double progress = 1.0 - Math.min(playerTotalDP - battleSize, enemyTotalDP - battleSize) / (double) (maxDP - battleSize);
+                double progress = 1.0 - Math.min(playerTotalDP - battleSize / 2, enemyTotalDP - battleSize / 2) / (double) (maxDP - battleSize / 2);
                 double memoryAvg = memsGB / intervalAvg;
                 double intervalInfo = (System.currentTimeMillis() - epochInfo) / 1000.0;
                 double gameSpeed = advancedShort / intervalInfo;

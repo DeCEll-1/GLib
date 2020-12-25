@@ -8,9 +8,11 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Level;
+import org.dark.graphics.util.ShipColors;
 import org.dark.shaders.util.ShaderLib;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,14 +28,15 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
 
     private static boolean enabled = true;
+    private static boolean useVentColors = false;
     private static boolean offscreen = false;
 
     static {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load performance settings: " +
-                                                            e.getMessage());
+            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load performance settings: "
+                    + e.getMessage());
             enabled = false;
         }
     }
@@ -42,6 +45,7 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
         JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
 
         enabled = settings.getBoolean("enableOverloadArcs");
+        useVentColors = settings.getBoolean("useVentColorsForOverloadArcs");
         offscreen = settings.getBoolean("drawOffscreenParticles");
     }
 
@@ -70,20 +74,28 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                 }
 
                 if (ship.getFluxTracker().isOverloaded()) {
-                    if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius() *
-                                                          OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                    if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius()
+                            * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
                         int arcs = 1;
-                        if (ship.getHullSize() == ShipAPI.HullSize.FIGHTER) {
-                            arcs = 0;
-                        } else if (ship.getHullSize() == ShipAPI.HullSize.FRIGATE || ship.getHullSize() ==
-                                ShipAPI.HullSize.DEFAULT) {
-                            arcs = 1;
-                        } else if (ship.getHullSize() == ShipAPI.HullSize.DESTROYER) {
-                            arcs = 1;
-                        } else if (ship.getHullSize() == ShipAPI.HullSize.CRUISER) {
-                            arcs = 2;
-                        } else if (ship.getHullSize() == ShipAPI.HullSize.CAPITAL_SHIP) {
-                            arcs = 3;
+                        switch (ship.getHullSize()) {
+                            case FIGHTER:
+                                arcs = 0;
+                                break;
+                            case FRIGATE:
+                            case DEFAULT:
+                                arcs = 1;
+                                break;
+                            case DESTROYER:
+                                arcs = 1;
+                                break;
+                            case CRUISER:
+                                arcs = 2;
+                                break;
+                            case CAPITAL_SHIP:
+                                arcs = 3;
+                                break;
+                            default:
+                                break;
                         }
 
                         ShipAPI empTarget = ship;
@@ -100,9 +112,28 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                             VectorUtils.rotate(add, angle, add);
                             Vector2f.add(add, point, point);
 
-                            engine.spawnEmpArc(ship, point, empTarget, empTarget, DamageType.OTHER, 0f, 0f,
-                                               ship.getCollisionRadius(), null, 12f,
-                                               ship.getVentFringeColor(), ship.getVentCoreColor());
+                            if (ship.getOverloadColor() != null) {
+                                Color core;
+                                Color fringe;
+                                if (useVentColors) {
+                                    core = ship.getVentCoreColor();
+                                    fringe = ship.getVentFringeColor();
+                                } else {
+                                    core = new Color(
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getRed() * 0.75f) + 63.75f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getGreen() * 0.75f) + 63.75f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getBlue() * 0.75f) + 63.75f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getAlpha() * 0.5f) + 127.5f)));
+                                    fringe = new Color(
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getRed() * 0.9f) + 25.5f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getGreen() * 0.9f) + 25.5f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getBlue() * 0.9f) + 25.5f)),
+                                            ShipColors.clamp255(Math.round((ship.getOverloadColor().getAlpha() * 0.75f) + 63.75f)));
+                                }
+                                engine.spawnEmpArc(ship, point, empTarget, empTarget, DamageType.OTHER, 0f, 0f,
+                                        ship.getCollisionRadius(), null, 12f,
+                                        fringe, core);
+                            }
                         }
                     }
                 }

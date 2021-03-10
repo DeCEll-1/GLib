@@ -1878,7 +1878,7 @@ public class LightShader implements ShaderAPI {
                         hasNormal = false;
                     }
 
-                    uniformAngle = originalSprite.getAngle();
+                    uniformAngle = slot.getAngle() + ship.getFacing() - 90f;
                     uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
                     uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                     uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;

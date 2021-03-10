@@ -20,7 +20,7 @@ void main(void) {
 		float cs = cos(data.x * -0.0174533);
 		float sn = sin(data.x * -0.0174533);
 
-		vc.xy *= data.za;
+		vc.xy *= data.zw;
 		vc = vec3((vc.x * cs) - (vc.y * sn), (vc.x * sn) + (vc.y * cs), vc.z);
 		vc.xy *= (1.0 - data.y);
 		vc = normalize(vc);
@@ -34,7 +34,7 @@ void main(void) {
 		float cs = cos(data.x * -0.0174533);
 		float sn = sin(data.x * -0.0174533);
 
-		vc *= data.za;
+		vc *= data.zw;
 		vc = vec2((vc.x * cs) - (vc.y * sn), (vc.x * sn) + (vc.y * cs));
 
 		vc = (vc * 0.5) + 0.5;

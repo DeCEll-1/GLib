@@ -217,8 +217,8 @@ public final class ShaderLib {
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
@@ -529,7 +529,7 @@ public final class ShaderLib {
 
         Global.getLogger(ShaderLib.class).setLevel(Level.ERROR);
 
-        displayWidth = (int) Global.getSettings().getScreenWidth();
+        displayWidth = (int) Global.getSettings().getScreenWidthPixels();
         if (displayWidth <= 1024) {
             RTTSizeX = 1024;
         } else if (displayWidth <= 2048) {
@@ -545,7 +545,7 @@ public final class ShaderLib {
         }
         texCXRatio = (RTTSizeX - displayWidth) / (double) RTTSizeX;
 
-        displayHeight = (int) Global.getSettings().getScreenHeight();
+        displayHeight = (int) Global.getSettings().getScreenHeightPixels();
         if (displayHeight <= 1024) {
             RTTSizeY = 1024;
         } else if (displayHeight <= 2048) {
@@ -910,7 +910,7 @@ public final class ShaderLib {
     /**
      * Transforms relative screen coordinates to UV texture coordinates.
      * <p>
-     * @param screenCoords The relative screen coordinates to transform.
+     * @param screenCoords The relative unscaled screen coordinates to transform.
      * <p>
      * @return The UV texture coordinates corresponding to the given relative screen coordinates.
      */
@@ -922,7 +922,7 @@ public final class ShaderLib {
     }
 
     /**
-     * Transforms absolute world coordinates to relative screen coordinates.
+     * Transforms absolute world coordinates to relative screen coordinates, unscaled.
      * <p>
      * @param worldCoords The absolute world coordinates to transform.
      * <p>
@@ -930,8 +930,8 @@ public final class ShaderLib {
      */
     public static Vector2f transformWorldToScreen(Vector2f worldCoords) {
         final Vector2f tempVec = new Vector2f();
-        tempVec.x = Global.getCombatEngine().getViewport().convertWorldXtoScreenX(worldCoords.x);
-        tempVec.y = Global.getCombatEngine().getViewport().convertWorldYtoScreenY(worldCoords.y);
+        tempVec.x = Global.getCombatEngine().getViewport().convertWorldXtoScreenX(worldCoords.x) * Global.getSettings().getScreenScaleMult();
+        tempVec.y = Global.getCombatEngine().getViewport().convertWorldYtoScreenY(worldCoords.y) * Global.getSettings().getScreenScaleMult();
         return tempVec;
     }
 
@@ -1136,8 +1136,8 @@ public final class ShaderLib {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, foregroundBufferId);
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
@@ -1564,8 +1564,8 @@ public final class ShaderLib {
         }
         GL11.glPopAttrib();
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
 
         isForegroundEmpty = objectCount <= 0;
         isForegroundRendered = true;

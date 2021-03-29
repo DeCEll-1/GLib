@@ -758,6 +758,7 @@ public class LightShader implements ShaderAPI {
         int size = allProjectiles.size();
         for (int i = 0; i < size; i++) {
             final DamagingProjectileAPI proj = allProjectiles.get(i);
+
             if (proj.didDamage() || proj.getElapsed() > 0.1f) {
                 continue;
             }
@@ -1593,8 +1594,8 @@ public class LightShader implements ShaderAPI {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, normalBufferId);
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                (int) (Global.getSettings().getScreenHeight()
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                (int) (Global.getSettings().getScreenHeightPixels()
                 * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -1683,8 +1684,8 @@ public class LightShader implements ShaderAPI {
                     }
                     GL11.glPopAttrib();
 
-                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                            (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -1756,8 +1757,8 @@ public class LightShader implements ShaderAPI {
                     }
                     GL11.glPopAttrib();
 
-                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                            (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -2205,8 +2206,8 @@ public class LightShader implements ShaderAPI {
                     }
                     GL11.glPopAttrib();
 
-                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                            (int) (Global.getSettings().getScreenHeight() * Display.getPixelScaleFactor()));
+                    GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                            (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
                     return;
@@ -2245,8 +2246,8 @@ public class LightShader implements ShaderAPI {
                     ShaderLib.getAuxiliaryBufferId());
         }
 
-        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidth() * Display.getPixelScaleFactor()),
-                (int) (Global.getSettings().getScreenHeight()
+        GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                (int) (Global.getSettings().getScreenHeightPixels()
                 * Display.getPixelScaleFactor()));
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);

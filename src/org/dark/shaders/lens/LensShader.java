@@ -114,11 +114,17 @@ public class LensShader implements ShaderAPI {
             return;
         }
 
-        /*
-         for (InputEventAPI event : events) { if (event.isConsumed()) { continue; }
+        for (InputEventAPI event : events) {
+            if (event.isConsumed()) {
+                continue;
+            }
 
-         if (event.isKeyDownEvent() && event.getEventValue() == org.lwjgl.input.Keyboard.KEY_COMMA) { active = !active; event.consume(); break; } }
-         */
+            if (event.isKeyDownEvent() && event.getEventValue() == org.lwjgl.input.Keyboard.KEY_COMMA) {
+                active = !active;
+                event.consume();
+                break;
+            }
+        }
     }
 
     @Override
@@ -194,11 +200,11 @@ public class LensShader implements ShaderAPI {
 
         if (!ships.isEmpty()) {
             Collections.sort(ships, ENTITYSIZE);
-            drawRipples(viewport);
+            drawRipples();
         }
     }
 
-    private void drawRipples(ViewportAPI viewport) {
+    private void drawRipples() {
         ShaderLib.beginDraw(program);
 
         CombatEngineAPI engine = Global.getCombatEngine();

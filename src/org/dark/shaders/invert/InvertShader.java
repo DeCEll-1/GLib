@@ -62,11 +62,17 @@ public class InvertShader implements ShaderAPI {
             return;
         }
 
-        /*
-         for (InputEventAPI event : events) { if (event.isConsumed()) { continue; }
+        for (InputEventAPI event : events) {
+            if (event.isConsumed()) {
+                continue;
+            }
 
-         if (event.isKeyDownEvent() && event.getEventValue() == org.lwjgl.input.Keyboard.KEY_PERIOD) { active = !active; event.consume(); break; } }
-         */
+            if (event.isKeyDownEvent() && event.getEventValue() == org.lwjgl.input.Keyboard.KEY_PERIOD) {
+                active = !active;
+                event.consume();
+                break;
+            }
+        }
     }
 
     @Override
@@ -108,10 +114,10 @@ public class InvertShader implements ShaderAPI {
             return;
         }
 
-        invertScreen(viewport);
+        invertScreen();
     }
 
-    private void invertScreen(ViewportAPI viewport) {
+    private void invertScreen() {
         ShaderLib.beginDraw(program);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);

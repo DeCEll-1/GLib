@@ -4,14 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
-import com.fs.starfarer.api.combat.DamageAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.MissileAPI;
-import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.WeaponAPI;
-import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.hullmods.TEM_LatticeShield;
 import java.io.IOException;
@@ -271,33 +267,32 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
         DistortionShader.addDistortion(ripple);
     }
 
-    private float getAdjustedDamage(DamagingProjectileAPI proj, float baseDamage, boolean shields) {
-        DamageAPI damage = proj.getDamage();
-        MutableShipStatsAPI stats = damage.getStats();
-        WeaponAPI weapon = proj.getWeapon();
-        float dmg = baseDamage;
-
-        if (weapon == null) {
-            return dmg;
-        }
-
-        if (proj instanceof MissileAPI || weapon.getType() == WeaponType.MISSILE) {
-            dmg *= stats.getMissileWeaponDamageMult().getModifiedValue();
-        }
-
-        if (weapon.getType() == WeaponType.BALLISTIC) {
-            dmg *= stats.getBallisticWeaponDamageMult().getModifiedValue();
-        }
-        if (weapon.getType() == WeaponType.ENERGY) {
-            dmg *= stats.getEnergyWeaponDamageMult().getModifiedValue();
-        }
-        if (shields) {
-            dmg *= stats.getDamageToTargetShieldsMult().getModifiedValue();
-        }
-
-        return dmg;
-    }
-
+//    private float getAdjustedDamage(DamagingProjectileAPI proj, float baseDamage, boolean shields) {
+//        DamageAPI damage = proj.getDamage();
+//        MutableShipStatsAPI stats = damage.getStats();
+//        WeaponAPI weapon = proj.getWeapon();
+//        float dmg = baseDamage;
+//
+//        if (weapon == null) {
+//            return dmg;
+//        }
+//
+//        if (proj instanceof MissileAPI || weapon.getType() == WeaponType.MISSILE) {
+//            dmg *= stats.getMissileWeaponDamageMult().getModifiedValue();
+//        }
+//
+//        if (weapon.getType() == WeaponType.BALLISTIC) {
+//            dmg *= stats.getBallisticWeaponDamageMult().getModifiedValue();
+//        }
+//        if (weapon.getType() == WeaponType.ENERGY) {
+//            dmg *= stats.getEnergyWeaponDamageMult().getModifiedValue();
+//        }
+//        if (shields) {
+//            dmg *= stats.getDamageToTargetShieldsMult().getModifiedValue();
+//        }
+//
+//        return dmg;
+//    }
     private static final class LocalData {
 
         final Map<DamagingProjectileAPI, ProjectileInfo> projectiles = new LinkedHashMap<>(1000);

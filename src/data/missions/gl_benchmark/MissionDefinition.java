@@ -9,11 +9,13 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DeployedFleetMemberAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.ShipRoles;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.mission.FleetSide;
@@ -108,11 +110,27 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     continue;
                 }
                 for (RoleEntryAPI roleEntry : roleEntries) {
+                    try {
+                        ShipVariantAPI variant = Global.getSettings().getVariant(roleEntry.getVariantId());
+                        if (variant.getHullSpec().hasTag(Tags.RESTRICTED) && !Global.getSettings().isDevMode()) {
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        continue;
+                    }
                     variants.add(roleEntry.getVariantId());
                 }
             }
             List<RoleEntryAPI> roleEntries = Global.getSettings().getDefaultEntriesForRole(role);
             for (RoleEntryAPI roleEntry : roleEntries) {
+                try {
+                    ShipVariantAPI variant = Global.getSettings().getVariant(roleEntry.getVariantId());
+                    if (variant.getHullSpec().hasTag(Tags.RESTRICTED) && !Global.getSettings().isDevMode()) {
+                        continue;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
                 variants.add(roleEntry.getVariantId());
             }
         }
@@ -437,7 +455,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             engine.getContext().setStandoffRange(8000f);
             engine.getContext().setInitialDeploymentBurnDuration(0.5f);
             engine.getContext().setNormalDeploymentBurnDuration(0.5f);
-            float ratio = Global.getSettings().getScreenWidth() / Global.getSettings().getScreenHeight();
+            float ratio = Global.getSettings().getScreenWidthPixels() / Global.getSettings().getScreenHeightPixels();
             if (ratio < 1f) {
                 width *= ratio;
             } else {

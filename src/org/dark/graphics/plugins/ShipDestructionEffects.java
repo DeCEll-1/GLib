@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Level;
-import org.dark.graphics.util.AnamorphicFlare;
 import org.dark.graphics.util.ShipColors;
 import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.distortion.RippleDistortion;
@@ -181,8 +180,6 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
     private CombatEngineAPI engine;
     private IntervalUtil interval;
 
-    /* TODO: We need some kind of interface in here for suppressing explosions programmatically */
-
  /* We're not going to bother with per-ship time manipulation applying to this.  Chances are a dead ship won't be warping time. */
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
@@ -226,13 +223,12 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                         style = "MIDLINE";
                     }
 
-                    if (explosionEnabled && !suppressed && shipHullSize != ShipAPI.HullSize.FIGHTER && !ship.isDrone() && !ship.isPiece()) {
-                        float intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 10f;
-                        float intensity2 = FLARE_THICKNESS.get(shipHullSize) / 3f;
-                        AnamorphicFlare.createFlare(ship, new Vector2f(shipLoc), engine, intensity, intensity2, 0f, 15f,
-                                1f, EXPLOSION_COLORS.get(style), COLOR_WHITE1);
-                    }
-
+//                    if (explosionEnabled && !suppressed && shipHullSize != ShipAPI.HullSize.FIGHTER && !ship.isDrone() && !ship.isPiece()) {
+//                        float intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 10f;
+//                        float intensity2 = FLARE_THICKNESS.get(shipHullSize) / 3f;
+//                        AnamorphicFlare.createFlare(ship, new Vector2f(shipLoc), engine, intensity, intensity2, 0f, 15f,
+//                                1f, EXPLOSION_COLORS.get(style), COLOR_WHITE1);
+//                    }
                     if (shockwaveEnabled && !suppressed && !ship.isFighter() && !ship.isPiece()) {
                         RippleDistortion ripple = new RippleDistortion(shipLoc, shipVel);
                         ripple.setSize(shipRadius * 4.5f);
@@ -300,6 +296,11 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                         explodingShips.add(exploder);
                     }
                 }
+
+                /* Don't play full-destruction effects for Omega */
+                if (ship.getVariant().hasHullMod("shard_spawner")) {
+                    suppressEffects(ship, true, false);
+                }
             }
         }
 
@@ -330,17 +331,17 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                             Color color = ShipColors.colorJitter(ShipColors.colorBlend(EXPLOSION_COLORS.get(style), COLOR_BLACK1, 0.2f), 50f);
                             engine.spawnExplosion(shipLoc, ZERO, color, shipRadius * 3f, (shipRadius / 20f) * ((float) Math.random() * 0.25f + 1f));
                         }
-                        float intensity;
-                        float intensity2;
-                        if (ship.isPiece()) {
-                            intensity = FLARE_BRIGHTNESS.get(HullSize.FRIGATE) / 10f;
-                            intensity2 = FLARE_THICKNESS.get(HullSize.FRIGATE) / 3f;
-                        } else {
-                            intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 10f;
-                            intensity2 = FLARE_THICKNESS.get(shipHullSize) / 3f;
-                        }
-                        AnamorphicFlare.createFlare(ship, new Vector2f(shipLoc), engine, intensity, intensity2, 0f, 15f,
-                                1f, EXPLOSION_COLORS.get(style), COLOR_WHITE1);
+//                        float intensity;
+//                        float intensity2;
+//                        if (ship.isPiece()) {
+//                            intensity = FLARE_BRIGHTNESS.get(HullSize.FRIGATE) / 10f;
+//                            intensity2 = FLARE_THICKNESS.get(HullSize.FRIGATE) / 3f;
+//                        } else {
+//                            intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 10f;
+//                            intensity2 = FLARE_THICKNESS.get(shipHullSize) / 3f;
+//                        }
+//                        AnamorphicFlare.createFlare(ship, new Vector2f(shipLoc), engine, intensity, intensity2, 0f, 15f,
+//                                1f, EXPLOSION_COLORS.get(style), COLOR_WHITE1);
                     }
 
                     if (!suppressed) {
@@ -587,10 +588,10 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
                             if (!suppressed) {
                                 if (BOSS_SHIPS.containsKey(shipHullId)) {
-                                    float intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 50f;
-                                    float intensity2 = FLARE_THICKNESS.get(shipHullSize) * 2f;
-                                    AnamorphicFlare.createFlare(ship, point, engine, intensity, intensity2, 0f, 15f, 1f,
-                                            color, color3);
+//                                    float intensity = FLARE_BRIGHTNESS.get(shipHullSize) / 50f;
+//                                    float intensity2 = FLARE_THICKNESS.get(shipHullSize) * 2f;
+//                                    AnamorphicFlare.createFlare(ship, point, engine, intensity, intensity2, 0f, 15f, 1f,
+//                                            color, color3);
 
                                     RippleDistortion ripple = new RippleDistortion(point, shipVel);
                                     ripple.setSize(size * 1f);

@@ -65,7 +65,7 @@ public class AnamorphicFlare {
             Color fringeColorP = new Color(fringeColor.getRed(), fringeColor.getGreen(), fringeColor.getBlue(), clamp255(alphaf));
             Color coreColorP = new Color(coreColor.getRed(), coreColor.getGreen(), coreColor.getBlue(), clamp255(alpha));
 
-            engine.spawnEmpArc(origin, location, null, new SimpleEntity(location),
+            engine.spawnEmpArc(origin, point, new SimpleEntity(point), new SimpleEntity(location),
                     DamageType.ENERGY,
                     0.0f,
                     0.0f, // emp

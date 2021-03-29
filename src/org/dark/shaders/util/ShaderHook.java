@@ -3,6 +3,7 @@ package org.dark.shaders.util;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEngineLayers;
+import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.CombatLayeredRenderingPlugin;
 import com.fs.starfarer.api.combat.EveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
@@ -168,7 +169,7 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
     static class ShaderCombatLayerHook implements CombatLayeredRenderingPlugin {
 
         @Override
-        public void init() {
+        public void init(CombatEntityAPI entity) {
         }
 
         @Override

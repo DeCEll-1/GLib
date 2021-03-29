@@ -391,6 +391,58 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                             }
                         }
                         break;
+                    case "microburn_omega":
+                        if (system.isActive()) {
+                            Vector2f location = null;
+                            if (ship.getEngineController() == null) {
+                                break;
+                            }
+                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
+                            int num = 0;
+                            int enginesSize = engines.size();
+                            for (int j = 0; j < enginesSize; j++) {
+                                ShipEngineAPI eng = engines.get(j);
+                                if (eng.isActive() && !eng.isDisabled()) {
+                                    num++;
+                                    if (location == null) {
+                                        location = new Vector2f(eng.getLocation());
+                                    } else {
+                                        Vector2f.add(location, eng.getLocation(), location);
+                                    }
+                                }
+                            }
+                            if (location == null) {
+                                break;
+                            }
+
+                            location.scale(1f / num);
+
+                            if (lights.containsKey(ship)) {
+                                StandardLight light = lights.get(ship);
+
+                                light.setLocation(location);
+
+                                if ((system.isActive() && !system.isOn()) || system.isChargedown()) {
+                                    if (!light.isFadingOut()) {
+                                        light.fadeOut(0.5f);
+                                    }
+                                }
+                            } else {
+                                StandardLight light = new StandardLight(location, ZERO, ZERO, null);
+                                float intensity = (float) Math.sqrt(shipRadius) / 10f;
+                                float size = intensity * 200f;
+
+                                light.setIntensity(intensity);
+                                light.setSize(size);
+                                Color color = new Color(100, 255, 100, 255);
+                                light.setColor(color);
+                                light.fadeIn(0.5f);
+
+                                lights.put(ship, light);
+                                LightShader.addLight(light);
+                            }
+                        }
+                        break;
                     case "emp":
                         if (system.isActive()) {
                             Vector2f location = ship.getLocation();

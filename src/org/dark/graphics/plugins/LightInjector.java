@@ -521,8 +521,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             if (engine.isInCampaign()) {
                 List<NearbyPlanetData> stars = getNearbyStars(Global.getSector().getPlayerFleet());
                 for (NearbyPlanetData data : stars) {
-                    engine.addPlugin(
-                            new SunPlugin(data.offset.length(), data.offset.normalise(data.offset), data.planet));
+                    engine.addPlugin(new SunPlugin(data.offset.length(), data.offset.normalise(data.offset), data.planet, 5f / (float) Math.sqrt(stars.size())));
                 }
             }
         }
@@ -619,14 +618,14 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         private boolean started = false;
         private final StandardLight sun;
 
-        public SunPlugin(float distance, Vector2f offset, PlanetAPI star) {
-            this(distance, offset, star.getSpec().getCoronaColor(), star.getRadius());
+        public SunPlugin(float distance, Vector2f offset, PlanetAPI star, float scale) {
+            this(distance, offset, star.getSpec().getCoronaColor(), star.getRadius(), scale);
         }
 
-        public SunPlugin(float distance, Vector2f offset, Color color, float radius) {
+        public SunPlugin(float distance, Vector2f offset, Color color, float radius, float scale) {
             float magnitude = (float) Math.sqrt(radius / 500f) * radius / (distance + radius)
                     * Global.getSettings().getFloat("sunLightBrightnessScale");
-            magnitude = Math.min(Math.max(magnitude * 5f, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
+            magnitude = Math.min(Math.max(magnitude * scale, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
             Vector3f direction = new Vector3f(offset.x, offset.y, -MathUtils.getRandomNumberInRange(
                     Global.getSettings().getFloat("sunLightZComponentMin"),
                     Global.getSettings().getFloat("sunLightZComponentMax")));

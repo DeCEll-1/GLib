@@ -30,8 +30,8 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
         try {
             loadSettings();
         } catch (IOException | JSONException e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: " +
-                                                            e.getMessage());
+            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: "
+                    + e.getMessage());
             enabled = false;
         }
     }
@@ -91,11 +91,11 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
                 } else {
                     if (flagship) {
                         int level = captain.getStats().getLevel();
-                        if (level < 6) {
+                        if (level < 3) {
                             tier = CaptainTier.TIER_1;
-                        } else if (level < 11) {
+                        } else if (level < 5) {
                             tier = CaptainTier.TIER_2;
-                        } else if (level < 16) {
+                        } else if (level < 7) {
                             tier = CaptainTier.TIER_3;
                         } else {
                             tier = CaptainTier.TIER_4;
@@ -103,11 +103,11 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
                     } else {
                         if (!captain.isDefault()) {
                             int level = captain.getStats().getLevel();
-                            if (level < 6) {
+                            if (level < 3) {
                                 tier = CaptainTier.TIER_1_OFFICER;
-                            } else if (level < 11) {
+                            } else if (level < 5) {
                                 tier = CaptainTier.TIER_2_OFFICER;
-                            } else if (level < 16) {
+                            } else if (level < 7) {
                                 tier = CaptainTier.TIER_3_OFFICER;
                             } else {
                                 tier = CaptainTier.TIER_4_OFFICER;
@@ -118,14 +118,10 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
 
                 if (tier != null) {
                     List<Vector2f> corners = new ArrayList<>(4);
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() *
-                                             0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() *
-                                             0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() *
-                                             -0.5f));
-                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() *
-                                             -0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() * 0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() * 0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * 0.5f, ship.getSpriteAPI().getHeight() * -0.5f));
+                    corners.add(new Vector2f(ship.getSpriteAPI().getWidth() * -0.5f, ship.getSpriteAPI().getHeight() * -0.5f));
                     corners = VectorUtils.rotate(corners, ship.getFacing() - 90f);
                     for (Vector2f corner : corners) {
                         Vector2f.add(ship.getLocation(), corner, corner);
@@ -151,17 +147,17 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
                     float border = 18f;
                     float radius = ship.getCollisionRadius() / viewport.getViewMult();
                     Vector2f shipLoc = new Vector2f(viewport.convertWorldXtoScreenX(ship.getLocation().x),
-                                                    viewport.convertWorldYtoScreenY(ship.getLocation().y));
+                            viewport.convertWorldYtoScreenY(ship.getLocation().y));
                     Vector2f loc = new Vector2f(x, y);
                     Vector2f alternate = MathUtils.getPointOnCircumference(shipLoc, radius + border,
-                                                                           VectorUtils.getAngleStrict(shipLoc, loc));
+                            VectorUtils.getAngleStrict(shipLoc, loc));
                     x = alternate.x;
                     y = alternate.y;
 
                     CaptainTier.insignias.renderRegionAtCenter(x + tier.offsetX, y + tier.offsetY, tier.uvLeft,
-                                                               tier.uvBottom,
-                                                               (tier.uvRight - tier.uvLeft),
-                                                               (tier.uvTop - tier.uvBottom));
+                            tier.uvBottom,
+                            (tier.uvRight - tier.uvLeft),
+                            (tier.uvTop - tier.uvBottom));
                 }
             }
         }

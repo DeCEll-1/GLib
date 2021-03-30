@@ -554,24 +554,26 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        try {
-            vertShader = Global.getSettings().loadText("data/shaders/post/post.vert");
-            fragShader = Global.getSettings().loadText("data/shaders/post/post.frag");
-        } catch (IOException ex) {
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
-                    "Post Process post-shader loading error!  Post Processing disabled!"
-                    + ex.getMessage());
-            enabled = false;
-            return;
-        }
+        if (!ShaderLib.isAACompatMode()) {
+            try {
+                vertShader = Global.getSettings().loadText("data/shaders/post/post.vert");
+                fragShader = Global.getSettings().loadText("data/shaders/post/post.frag");
+            } catch (IOException ex) {
+                Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                        "Post Process post-shader loading error!  Post Processing disabled!"
+                        + ex.getMessage());
+                enabled = false;
+                return;
+            }
 
-        programPost = ShaderLib.loadShader(vertShader, fragShader);
+            programPost = ShaderLib.loadShader(vertShader, fragShader);
 
-        if (programPost == 0) {
-            enabled = false;
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR,
-                    "Post Process post-shader compile error!  Post Processing disabled!");
-            return;
+            if (programPost == 0) {
+                enabled = false;
+                Global.getLogger(PostProcessShader.class).log(Level.ERROR,
+                        "Post Process post-shader compile error!  Post Processing disabled!");
+                return;
+            }
         }
 
         GL20.glUseProgram(programPre);
@@ -612,43 +614,45 @@ public class PostProcessShader implements ShaderAPI {
         GL20.glUniform1f(indexPre[17], 1f / ShaderLib.getInternalHeight());
         GL20.glUseProgram(0);
 
-        GL20.glUseProgram(programPost);
-        indexPost[0] = GL20.glGetUniformLocation(programPost, "screen");
-        indexPost[1] = GL20.glGetUniformLocation(programPost, "time");
-        indexPost[2] = GL20.glGetUniformLocation(programPost, "hueshift");
-        indexPost[3] = GL20.glGetUniformLocation(programPost, "saturation");
-        indexPost[4] = GL20.glGetUniformLocation(programPost, "expdesaturation");
-        indexPost[5] = GL20.glGetUniformLocation(programPost, "lightness");
-        indexPost[6] = GL20.glGetUniformLocation(programPost, "expdarkness");
-        indexPost[7] = GL20.glGetUniformLocation(programPost, "redhsl");
-        indexPost[8] = GL20.glGetUniformLocation(programPost, "yellowhsl");
-        indexPost[9] = GL20.glGetUniformLocation(programPost, "greenhsl");
-        indexPost[10] = GL20.glGetUniformLocation(programPost, "tealhsl");
-        indexPost[11] = GL20.glGetUniformLocation(programPost, "bluehsl");
-        indexPost[12] = GL20.glGetUniformLocation(programPost, "magentahsl");
-        indexPost[13] = GL20.glGetUniformLocation(programPost, "contrast");
-        indexPost[14] = GL20.glGetUniformLocation(programPost, "noise");
-        indexPost[15] = GL20.glGetUniformLocation(programPost, "scanlines");
-        indexPost[16] = GL20.glGetUniformLocation(programPost, "scanint");
-        indexPost[17] = GL20.glGetUniformLocation(programPost, "scanwidth");
-        GL20.glUniform1i(indexPost[0], 0);
-        GL20.glUniform1f(indexPost[2], 0f);
-        GL20.glUniform1f(indexPost[3], 1f);
-        GL20.glUniform1i(indexPost[4], 0);
-        GL20.glUniform1f(indexPost[5], 1f);
-        GL20.glUniform1i(indexPost[6], 0);
-        GL20.glUniform3f(indexPost[7], 0f, 1f, 1f);
-        GL20.glUniform3f(indexPost[8], 0f, 1f, 1f);
-        GL20.glUniform3f(indexPost[9], 0f, 1f, 1f);
-        GL20.glUniform3f(indexPost[10], 0f, 1f, 1f);
-        GL20.glUniform3f(indexPost[11], 0f, 1f, 1f);
-        GL20.glUniform3f(indexPost[12], 0f, 1f, 1f);
-        GL20.glUniform1f(indexPost[13], 1f);
-        GL20.glUniform1f(indexPost[14], 0f);
-        GL20.glUniform1f(indexPost[15], 0f);
-        GL20.glUniform1f(indexPost[16], 3f / ShaderLib.getInternalHeight());
-        GL20.glUniform1f(indexPost[17], 1f / ShaderLib.getInternalHeight());
-        GL20.glUseProgram(0);
+        if (!ShaderLib.isAACompatMode()) {
+            GL20.glUseProgram(programPost);
+            indexPost[0] = GL20.glGetUniformLocation(programPost, "screen");
+            indexPost[1] = GL20.glGetUniformLocation(programPost, "time");
+            indexPost[2] = GL20.glGetUniformLocation(programPost, "hueshift");
+            indexPost[3] = GL20.glGetUniformLocation(programPost, "saturation");
+            indexPost[4] = GL20.glGetUniformLocation(programPost, "expdesaturation");
+            indexPost[5] = GL20.glGetUniformLocation(programPost, "lightness");
+            indexPost[6] = GL20.glGetUniformLocation(programPost, "expdarkness");
+            indexPost[7] = GL20.glGetUniformLocation(programPost, "redhsl");
+            indexPost[8] = GL20.glGetUniformLocation(programPost, "yellowhsl");
+            indexPost[9] = GL20.glGetUniformLocation(programPost, "greenhsl");
+            indexPost[10] = GL20.glGetUniformLocation(programPost, "tealhsl");
+            indexPost[11] = GL20.glGetUniformLocation(programPost, "bluehsl");
+            indexPost[12] = GL20.glGetUniformLocation(programPost, "magentahsl");
+            indexPost[13] = GL20.glGetUniformLocation(programPost, "contrast");
+            indexPost[14] = GL20.glGetUniformLocation(programPost, "noise");
+            indexPost[15] = GL20.glGetUniformLocation(programPost, "scanlines");
+            indexPost[16] = GL20.glGetUniformLocation(programPost, "scanint");
+            indexPost[17] = GL20.glGetUniformLocation(programPost, "scanwidth");
+            GL20.glUniform1i(indexPost[0], 0);
+            GL20.glUniform1f(indexPost[2], 0f);
+            GL20.glUniform1f(indexPost[3], 1f);
+            GL20.glUniform1i(indexPost[4], 0);
+            GL20.glUniform1f(indexPost[5], 1f);
+            GL20.glUniform1i(indexPost[6], 0);
+            GL20.glUniform3f(indexPost[7], 0f, 1f, 1f);
+            GL20.glUniform3f(indexPost[8], 0f, 1f, 1f);
+            GL20.glUniform3f(indexPost[9], 0f, 1f, 1f);
+            GL20.glUniform3f(indexPost[10], 0f, 1f, 1f);
+            GL20.glUniform3f(indexPost[11], 0f, 1f, 1f);
+            GL20.glUniform3f(indexPost[12], 0f, 1f, 1f);
+            GL20.glUniform1f(indexPost[13], 1f);
+            GL20.glUniform1f(indexPost[14], 0f);
+            GL20.glUniform1f(indexPost[15], 0f);
+            GL20.glUniform1f(indexPost[16], 3f / ShaderLib.getInternalHeight());
+            GL20.glUniform1f(indexPost[17], 1f / ShaderLib.getInternalHeight());
+            GL20.glUseProgram(0);
+        }
 
         enabled = true;
     }
@@ -659,7 +663,9 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        draw(true);
+        if (!ShaderLib.isAACompatMode()) {
+            draw(true);
+        }
     }
 
     @Override
@@ -717,6 +723,10 @@ public class PostProcessShader implements ShaderAPI {
     }
 
     private void draw(boolean post) {
+        if (ShaderLib.isAACompatMode() && post) {
+            return;
+        }
+
         if (post) {
             ShaderLib.beginDraw(programPost);
         } else {

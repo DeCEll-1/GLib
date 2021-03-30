@@ -163,6 +163,7 @@ public final class ShaderLib {
     private static boolean useFramebufferARB = false;
     private static boolean useFramebufferCore = false;
     private static boolean useFramebufferEXT = false;
+    private static boolean aaCompatMode = false;
     static boolean enabled = false;
     static boolean extraClear = false;
     static boolean initialized = false;
@@ -200,6 +201,17 @@ public final class ShaderLib {
      */
     public static boolean areShadersAllowed() {
         return shadersAllowed;
+    }
+
+    /**
+     * Returns the state of the antialiasing compatibility mode option.
+     * <p>
+     * @return The current "aaCompatMode" setting.
+     * <p>
+     * @since v1.5.1
+     */
+    public static boolean isAACompatMode() {
+        return aaCompatMode;
     }
 
     /**
@@ -1041,6 +1053,7 @@ public final class ShaderLib {
         reloadKey = settings.getInt("reloadKey");
         auxiliaryBuffer64Bit = settings.getBoolean("use64BitBuffer");
         extraClear = settings.getBoolean("extraScreenClear");
+        aaCompatMode = settings.getBoolean("aaCompatMode");
 
         if (!enabled) {
             shadersAllowed = false;

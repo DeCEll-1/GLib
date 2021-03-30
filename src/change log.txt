@@ -1,3 +1,15 @@
+Version 1.5.1 (March 30, 2021):
+- Made sun-generated lights less extreme when multiple stars are in system
+- Insignia icons are scaled to the new range of officer levels
+  * Tier 1: Level 1-2 (freshly hired officers)
+  * Tier 2: Level 3-4
+  * Tier 3: Level 5-6 (max for trainable/mercenary/NPC officers)
+  * Tier 4: Level 7+ (max for procgen officers, NPC commanders, and AI or unique officers)
+- Added "aaCompatMode" to GRAPHICS_OPTIONS.ini
+  * Prevents GraphicsLib from crashing out at the start if you have antialiasing enabled
+  * Disables the second pass of the post processing shader
+  * You'll have antialiased sharpness in the campaign and the combat interface, but the actual in-battle ships/weapons/effects will be as blurry as if you weren't using antialiasing
+
 Version 1.5.0 (March 29, 2021):
 - Updated for Starsector 0.95a
 - Now works with screen scaling
@@ -15,6 +27,7 @@ Version 1.5.0 (March 29, 2021):
     - I personally use a 1440p monitor and can play fine at 100% scaling, but your mileage may vary
 - Added shader maps for new vanilla content
 - Added lights definitions for new vanilla content
+- Ship explosions no longer create cinematic anamorphic flares
 
 Version 1.4.5 (March 10, 2021):
 - Slot cover normal map fix

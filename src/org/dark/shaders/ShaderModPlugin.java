@@ -85,9 +85,11 @@ public final class ShaderModPlugin extends BaseModPlugin {
         MissileSelfDestruct.loadSettings();
 
         if (ShaderLib.areShadersAllowed()) {
-            if (Global.getSettings().getAASamples() > 1) {
-                throw new RuntimeException("GraphicsLib shaders do not work with antialiasing! Please set Antialiasing to \"Off\" in the launcher options.\n\n"
-                        + "If you truly need antialiasing, you can disable shaders by setting \"enableShaders\" to \"false\" in GRAPHICS_OPTIONS.ini.\n");
+            if ((Global.getSettings().getAASamples() > 1) && !ShaderLib.isAACompatMode()) {
+                throw new RuntimeException("GraphicsLib shaders are not fully compatible with antialiasing! You have three options...\n\n"
+                        + "A) Set Antialiasing to \"Off\" in the launcher options.\n\n"
+                        + "B) Use partial antialiasing by setting \"aaCompatMode\" to \"true\" in GRAPHICS_OPTIONS.ini.\n\n"
+                        + "C) Disable shaders by setting \"enableShaders\" to \"false\" in GRAPHICS_OPTIONS.ini.\n");
             }
         }
 

@@ -62,6 +62,8 @@ enforcer,ship,,,material,graphics/shaders/material/ships/enforcer/enforcer_base_
 enforcer_d,ship,,,material,graphics/shaders/material/ships/enforcer/enforcer_d_material.png
 enforcer_d_pirates,ship,,,material,graphics/shaders/material/ships/enforcer/enforcer_pirates_material.png
 enforcer_xiv,ship,,,material,graphics/shaders/material/ships/enforcer/enforcer_hegemony_material.png
+eradicator,ship,,,material,graphics/shaders/material/ships/eradicator/eradicator_base_material.png
+eradicator_pirates,ship,,,material,graphics/shaders/material/ships/eradicator/eradicator_pirate_material.png
 facet,ship,,,material,graphics/shaders/material/ships/omega/omega_destroyer1_material.png
 falcon,ship,,,material,graphics/shaders/material/ships/falcon/falcon_base_material.png
 falcon_d,ship,,,material,graphics/shaders/material/ships/falcon/falcon_damaged_material.png
@@ -109,6 +111,8 @@ legion_xiv,ship,,,material,graphics/shaders/material/ships/legion/legion_xiv_mat
 longbow,ship,,,material,graphics/shaders/material/ships/longbow_intg_material.png
 lumen,ship,,,material,graphics/shaders/material/ships/remnants/remnant_frigate2_material.png
 lux,ship,,,material,graphics/shaders/material/ships/remnants/lux_material.png
+manticore,ship,,,material,graphics/shaders/material/ships/manticore/manticore_base_material.png
+manticore_pirates,ship,,,material,graphics/shaders/material/ships/manticore/manticore_pirate_material.png
 medusa,ship,,,material,graphics/shaders/material/ships/medusa_material.png
 mercury,ship,,,material,graphics/shaders/material/ships/mercury/mercury_base_material.png
 mercury_d,ship,,,material,graphics/shaders/material/ships/mercury/mercury_substandard_material.png
@@ -212,7 +216,9 @@ tempest,ship,,,material,graphics/shaders/material/ships/tempest_material.png
 tesseract,ship,,,material,graphics/shaders/material/ships/omega/omega_cruiser_material.png
 thunder,ship,,,material,graphics/shaders/material/ships/thunder2_material.png
 trident,ship,,,material,graphics/shaders/material/ships/trident_material.png
-valkyrie,ship,,,material,graphics/shaders/material/ships/valkyrie_ap_material.png
+valkyrie,ship,,,material,graphics/shaders/material/ships/valkyrie/valkyrie_ap_material.png
+vanguard,ship,,,material,graphics/shaders/material/ships/vanguard/vanguard_base_material.png
+vanguard_pirates,ship,,,material,graphics/shaders/material/ships/vanguard/vanguard_pirate_material.png
 venture,ship,,,material,graphics/shaders/material/ships/venture/venture_material.png
 vigilance,ship,,,material,graphics/shaders/material/ships/vigilance_material.png
 warden,ship,,,material,graphics/shaders/material/ships/derelict/derelict_warden_material.png
@@ -288,6 +294,8 @@ enforcer,ship,,1,normal,graphics/shaders/normal/ships/enforcer/enforcer_base_nor
 enforcer_d,ship,,1,normal,graphics/shaders/normal/ships/enforcer/enforcer_d_normal.png
 enforcer_d_pirates,ship,,1,normal,graphics/shaders/normal/ships/enforcer/enforcer_pirates_normal.png
 enforcer_xiv,ship,,1,normal,graphics/shaders/normal/ships/enforcer/enforcer_hegemony_normal.png
+eradicator,ship,,1,normal,graphics/shaders/normal/ships/eradicator/eradicator_base_normal.png
+eradicator_pirates,ship,,1,normal,graphics/shaders/normal/ships/eradicator/eradicator_pirate_normal.png
 facet,ship,,1,normal,graphics/shaders/normal/ships/omega/omega_destroyer1_normal.png
 falcon,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_base_normal.png
 falcon_d,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_damaged_normal.png
@@ -335,6 +343,8 @@ legion_xiv,ship,,1,normal,graphics/shaders/normal/ships/legion/legion_xiv_normal
 longbow,ship,,1,normal,graphics/shaders/normal/ships/longbow_intg_normal.png
 lumen,ship,,1,normal,graphics/shaders/normal/ships/remnants/remnant_frigate2_normal.png
 lux,ship,,1,normal,graphics/shaders/normal/ships/remnants/lux_normal.png
+manticore,ship,,1,normal,graphics/shaders/normal/ships/manticore/manticore_base_normal.png
+manticore_pirates,ship,,1,normal,graphics/shaders/normal/ships/manticore/manticore_pirate_normal.png
 medusa,ship,,1,normal,graphics/shaders/normal/ships/medusa_normal.png
 mercury,ship,,1,normal,graphics/shaders/normal/ships/mercury/mercury_base_normal.png
 mercury_d,ship,,1,normal,graphics/shaders/normal/ships/mercury/mercury_substandard_normal.png
@@ -438,7 +448,9 @@ tempest,ship,,1,normal,graphics/shaders/normal/ships/tempest_normal.png
 tesseract,ship,,1,normal,graphics/shaders/normal/ships/omega/omega_cruiser_normal.png
 thunder,ship,,1,normal,graphics/shaders/normal/ships/thunder2_normal.png
 trident,ship,,1,normal,graphics/shaders/normal/ships/trident_normal.png
-valkyrie,ship,,1,normal,graphics/shaders/normal/ships/valkyrie_ap_normal.png
+valkyrie,ship,,1,normal,graphics/shaders/normal/ships/valkyrie/valkyrie_ap_normal.png
+vanguard,ship,,1,normal,graphics/shaders/normal/ships/vanguard/vanguard_base_normal.png
+vanguard_pirates,ship,,1,normal,graphics/shaders/normal/ships/vanguard/vanguard_pirate_normal.png
 venture,ship,,1,normal,graphics/shaders/normal/ships/venture/venture_normal.png
 vigilance,ship,,1,normal,graphics/shaders/normal/ships/vigilance_normal.png
 warden,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_warden_normal.png
@@ -514,6 +526,8 @@ enforcer,ship,,,surface,graphics/shaders/surface/ships/enforcer/enforcer_base_su
 enforcer_d,ship,,,surface,graphics/shaders/surface/ships/enforcer/enforcer_d_surface.png
 enforcer_d_pirates,ship,,,surface,graphics/shaders/surface/ships/enforcer/enforcer_pirates_surface.png
 enforcer_xiv,ship,,,surface,graphics/shaders/surface/ships/enforcer/enforcer_hegemony_surface.png
+eradicator,ship,,,surface,graphics/shaders/surface/ships/eradicator/eradicator_base_surface.png
+eradicator_pirates,ship,,,surface,graphics/shaders/surface/ships/eradicator/eradicator_pirate_surface.png
 facet,ship,,,surface,graphics/shaders/surface/ships/omega/omega_destroyer1_surface.png
 falcon,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_base_surface.png
 falcon_d,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_damaged_surface.png
@@ -561,6 +575,8 @@ legion_xiv,ship,,,surface,graphics/shaders/surface/ships/legion/legion_xiv_surfa
 longbow,ship,,,surface,graphics/shaders/surface/ships/longbow_intg_surface.png
 lumen,ship,,,surface,graphics/shaders/surface/ships/remnants/remnant_frigate2_surface.png
 lux,ship,,,surface,graphics/shaders/surface/ships/remnants/lux_surface.png
+manticore,ship,,,surface,graphics/shaders/surface/ships/manticore/manticore_base_surface.png
+manticore_pirates,ship,,,surface,graphics/shaders/surface/ships/manticore/manticore_pirate_surface.png
 medusa,ship,,,surface,graphics/shaders/surface/ships/medusa_surface.png
 mercury,ship,,,surface,graphics/shaders/surface/ships/mercury/mercury_base_surface.png
 mercury_d,ship,,,surface,graphics/shaders/surface/ships/mercury/mercury_substandard_surface.png
@@ -664,7 +680,9 @@ tempest,ship,,,surface,graphics/shaders/surface/ships/tempest_surface.png
 tesseract,ship,,,surface,graphics/shaders/surface/ships/omega/omega_cruiser_surface.png
 thunder,ship,,,surface,graphics/shaders/surface/ships/thunder2_surface.png
 trident,ship,,,surface,graphics/shaders/surface/ships/trident_surface.png
-valkyrie,ship,,,surface,graphics/shaders/surface/ships/valkyrie_ap_surface.png
+valkyrie,ship,,,surface,graphics/shaders/surface/ships/valkyrie/valkyrie_ap_surface.png
+vanguard,ship,,,surface,graphics/shaders/surface/ships/vanguard/vanguard_base_surface.png
+vanguard_pirates,ship,,,surface,graphics/shaders/surface/ships/vanguard/vanguard_pirate_surface.png
 venture,ship,,,surface,graphics/shaders/surface/ships/venture/venture_surface.png
 vigilance,ship,,,surface,graphics/shaders/surface/ships/vigilance_surface.png
 warden,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_warden_surface.png
@@ -868,6 +886,8 @@ phasebeam,turret,,,material,graphics/shaders/material/weapons/phase_beam_turret_
 phasebeam,hardpoint,,,material,graphics/shaders/material/weapons/phase_beam_hardpoint_material.png
 phasecl,turret,,,material,graphics/shaders/material/weapons/phase_charge_launcher_turret_base_material.png
 phasecl,hardpoint,,,material,graphics/shaders/material/weapons/phase_charge_launcher_hardpoint_base_material.png
+phasecl_bomber,turret,,,material,graphics/shaders/material/weapons/phase_charge_launcher_turret_base_material.png
+phasecl_bomber,hardpoint,,,material,graphics/shaders/material/weapons/phase_charge_launcher_hardpoint_base_material.png
 pilum,turret,,,material,graphics/shaders/material/weapons/pilum_lrm_launcher_turret_base_material.png
 pilum,hardpoint,,,material,graphics/shaders/material/weapons/pilum_lrm_launcher_hardpoint_base_material.png
 plasma,turret,,,material,graphics/shaders/material/weapons/plasma_cannon_turret_base_material.png
@@ -880,6 +900,8 @@ reaper,turret,,,material,graphics/shaders/material/weapons/light_reaper_launcher
 reaper,hardpoint,,,material,graphics/shaders/material/weapons/light_reaper_launcher_hardpoint_base_material.png
 sabot,turret,,,material,graphics/shaders/material/weapons/missile_rack_m_3x_turret_base_material.png
 sabot,hardpoint,,,material,graphics/shaders/material/weapons/missile_rack_m_3x_hardpoint_base_material.png
+sabot_fighter,turret,,,material,graphics/shaders/material/weapons/missile_rack_1x_turret_base_material.png
+sabot_fighter,hardpoint,,,material,graphics/shaders/material/weapons/missile_rack_1x_hardpoint_base_material.png
 sabot_single,turret,,,material,graphics/shaders/material/weapons/missile_rack_1x_turret_base_material.png
 sabot_single,hardpoint,,,material,graphics/shaders/material/weapons/missile_rack_1x_hardpoint_base_material.png
 sabotpod,turret,,,material,graphics/shaders/material/weapons/launcher_m3_2x_turret_base_material.png
@@ -1132,6 +1154,8 @@ phasebeam,turret,,1,normal,graphics/shaders/normal/weapons/phase_beam_turret_nor
 phasebeam,hardpoint,,1,normal,graphics/shaders/normal/weapons/phase_beam_hardpoint_normal.png
 phasecl,turret,,1,normal,graphics/shaders/normal/weapons/phase_charge_launcher_turret_base_normal.png
 phasecl,hardpoint,,1,normal,graphics/shaders/normal/weapons/phase_charge_launcher_hardpoint_base_normal.png
+phasecl_bomber,turret,,1,normal,graphics/shaders/normal/weapons/phase_charge_launcher_turret_base_normal.png
+phasecl_bomber,hardpoint,,1,normal,graphics/shaders/normal/weapons/phase_charge_launcher_hardpoint_base_normal.png
 pilum,turret,,1,normal,graphics/shaders/normal/weapons/pilum_lrm_launcher_turret_base_normal.png
 pilum,hardpoint,,1,normal,graphics/shaders/normal/weapons/pilum_lrm_launcher_hardpoint_base_normal.png
 plasma,turret,,1,normal,graphics/shaders/normal/weapons/plasma_cannon_turret_base_normal.png
@@ -1144,6 +1168,8 @@ reaper,turret,,1,normal,graphics/shaders/normal/weapons/light_reaper_launcher_tu
 reaper,hardpoint,,1,normal,graphics/shaders/normal/weapons/light_reaper_launcher_hardpoint_base_normal.png
 sabot,turret,,1,normal,graphics/shaders/normal/weapons/missile_rack_m_3x_turret_base_normal.png
 sabot,hardpoint,,1,normal,graphics/shaders/normal/weapons/missile_rack_m_3x_hardpoint_base_normal.png
+sabot_fighter,turret,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_turret_base_normal.png
+sabot_fighter,hardpoint,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_hardpoint_base_normal.png
 sabot_single,turret,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_turret_base_normal.png
 sabot_single,hardpoint,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_hardpoint_base_normal.png
 sabotpod,turret,,1,normal,graphics/shaders/normal/weapons/launcher_m3_2x_turret_base_normal.png
@@ -1396,6 +1422,8 @@ phasebeam,turret,,,surface,graphics/shaders/surface/weapons/phase_beam_turret_su
 phasebeam,hardpoint,,,surface,graphics/shaders/surface/weapons/phase_beam_hardpoint_surface.png
 phasecl,turret,,,surface,graphics/shaders/surface/weapons/phase_charge_launcher_turret_base_surface.png
 phasecl,hardpoint,,,surface,graphics/shaders/surface/weapons/phase_charge_launcher_hardpoint_base_surface.png
+phasecl_bomber,turret,,,surface,graphics/shaders/surface/weapons/phase_charge_launcher_turret_base_surface.png
+phasecl_bomber,hardpoint,,,surface,graphics/shaders/surface/weapons/phase_charge_launcher_hardpoint_base_surface.png
 pilum,turret,,,surface,graphics/shaders/surface/weapons/pilum_lrm_launcher_turret_base_surface.png
 pilum,hardpoint,,,surface,graphics/shaders/surface/weapons/pilum_lrm_launcher_hardpoint_base_surface.png
 plasma,turret,,,surface,graphics/shaders/surface/weapons/plasma_cannon_turret_base_surface.png
@@ -1408,6 +1436,8 @@ reaper,turret,,,surface,graphics/shaders/surface/weapons/light_reaper_launcher_t
 reaper,hardpoint,,,surface,graphics/shaders/surface/weapons/light_reaper_launcher_hardpoint_base_surface.png
 sabot,turret,,,surface,graphics/shaders/surface/weapons/missile_rack_m_3x_turret_base_surface.png
 sabot,hardpoint,,,surface,graphics/shaders/surface/weapons/missile_rack_m_3x_hardpoint_base_surface.png
+sabot_fighter,turret,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_turret_base_surface.png
+sabot_fighter,hardpoint,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_hardpoint_base_surface.png
 sabot_single,turret,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_turret_base_surface.png
 sabot_single,hardpoint,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_hardpoint_base_surface.png
 sabotpod,turret,,,surface,graphics/shaders/surface/weapons/launcher_m3_2x_turret_base_surface.png
@@ -1482,6 +1512,7 @@ heatseeker_mrm,missile,,,material,graphics/shaders/material/missiles/missile_sal
 type_1_srm,missile,,,material,graphics/shaders/material/missiles/missile_SRM_material.png
 reaper_torp,missile,,,material,graphics/shaders/material/missiles/missile_torpedo_compact_material.png
 phase_charge,missile,,,material,graphics/shaders/material/missiles/phase_charge_base_material.png
+phase_charge_bomber,missile,,,material,graphics/shaders/material/missiles/phase_charge_base_material.png
 atropos_torp,missile,,,material,graphics/shaders/material/missiles/torpedo_guided2_material.png
 bomb_proj,missile,,,material,graphics/shaders/material/missiles/bomb_HE_material.png
 clusterbomb_proj,missile,,,material,graphics/shaders/material/missiles/bomblet0_material.png
@@ -1492,6 +1523,9 @@ squall_rocket,missile,,,material,graphics/shaders/material/missiles/missile_squa
 minelayer_mine,missile,,,material,graphics/shaders/material/missiles/heavy_mine2_material.png
 minelayer_mine_heavy,missile,,,material,graphics/shaders/material/missiles/heavy_mine3_material.png
 breach_srm,missile,,,material,graphics/shaders/material/missiles/breach_srm_material.png
+canister_flak_proj,missile,,,material,graphics/shaders/material/missiles/canister_flak_material.png
+pilum_second_stage,missile,,,material,graphics/shaders/material/missiles/pilum_stage2_material.png
+terminator_missile_proj,missile,,,material,graphics/shaders/material/ships/drones/drone_terminatorB_material.png
 amsrm_srm,missile,,,material,graphics/shaders/blank.png
 resonatormrm_shot,missile,,,material,graphics/shaders/blank.png
 rift_torp,missile,,,material,graphics/shaders/blank.png
@@ -1506,6 +1540,7 @@ heatseeker_mrm,missile,,1,normal,graphics/shaders/normal/missiles/missile_salama
 type_1_srm,missile,,1,normal,graphics/shaders/normal/missiles/missile_SRM_normal.png
 reaper_torp,missile,,1,normal,graphics/shaders/normal/missiles/missile_torpedo_compact_normal.png
 phase_charge,missile,,1,normal,graphics/shaders/normal/missiles/phase_charge_base_normal.png
+phase_charge_bomber,missile,,1,normal,graphics/shaders/normal/missiles/phase_charge_base_normal.png
 atropos_torp,missile,,1,normal,graphics/shaders/normal/missiles/torpedo_guided2_normal.png
 bomb_proj,missile,,1,normal,graphics/shaders/normal/missiles/bomb_HE_normal.png
 clusterbomb_proj,missile,,1,normal,graphics/shaders/normal/missiles/bomblet0_normal.png
@@ -1516,6 +1551,9 @@ squall_rocket,missile,,1,normal,graphics/shaders/normal/missiles/missile_squall_
 minelayer_mine,missile,,1,normal,graphics/shaders/normal/missiles/heavy_mine2_normal.png
 minelayer_mine_heavy,missile,,1,normal,graphics/shaders/normal/missiles/heavy_mine3_normal.png
 breach_srm,missile,,1,normal,graphics/shaders/normal/missiles/breach_srm_normal.png
+canister_flak_proj,missile,,1,normal,graphics/shaders/normal/missiles/canister_flak_normal.png
+pilum_second_stage,missile,,1,normal,graphics/shaders/normal/missiles/pilum_stage2_normal.png
+terminator_missile_proj,missile,,1,normal,graphics/shaders/normal/ships/drones/drone_terminatorB_normal.png
 amsrm_srm,missile,,1,normal,graphics/shaders/blank.png
 resonatormrm_shot,missile,,1,normal,graphics/shaders/blank.png
 rift_torp,missile,,1,normal,graphics/shaders/blank.png
@@ -1530,6 +1568,7 @@ heatseeker_mrm,missile,,,surface,graphics/shaders/surface/missiles/missile_salam
 type_1_srm,missile,,,surface,graphics/shaders/surface/missiles/missile_SRM_surface.png
 reaper_torp,missile,,,surface,graphics/shaders/surface/missiles/missile_torpedo_compact_surface.png
 phase_charge,missile,,,surface,graphics/shaders/surface/missiles/phase_charge_base_surface.png
+phase_charge_bomber,missile,,,surface,graphics/shaders/surface/missiles/phase_charge_base_surface.png
 atropos_torp,missile,,,surface,graphics/shaders/surface/missiles/torpedo_guided2_surface.png
 bomb_proj,missile,,,surface,graphics/shaders/surface/missiles/bomb_HE_surface.png
 clusterbomb_proj,missile,,,surface,graphics/shaders/surface/missiles/bomblet0_surface.png
@@ -1540,6 +1579,9 @@ squall_rocket,missile,,,surface,graphics/shaders/surface/missiles/missile_squall
 minelayer_mine,missile,,,surface,graphics/shaders/surface/missiles/heavy_mine2_surface.png
 minelayer_mine_heavy,missile,,,surface,graphics/shaders/surface/missiles/heavy_mine3_surface.png
 breach_srm,missile,,,surface,graphics/shaders/surface/missiles/breach_srm_surface.png
+canister_flak_proj,missile,,,surface,graphics/shaders/surface/missiles/canister_flak_surface.png
+pilum_second_stage,missile,,,surface,graphics/shaders/surface/missiles/pilum_stage2_surface.png
+terminator_missile_proj,missile,,,surface,graphics/shaders/surface/ships/drones/drone_terminatorB_surface.png
 amsrm_srm,missile,,,surface,graphics/shaders/blank.png
 resonatormrm_shot,missile,,,surface,graphics/shaders/blank.png
 rift_torp,missile,,,surface,graphics/shaders/blank.png

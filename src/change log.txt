@@ -1,3 +1,6 @@
+Version 1.6.0 (Unreleased):
+- Updated for Starsector 0.95.1a
+
 Version 1.5.1 (March 30, 2021):
 - Made sun-generated lights less extreme when multiple stars are in system
 - Insignia icons are scaled to the new range of officer levels

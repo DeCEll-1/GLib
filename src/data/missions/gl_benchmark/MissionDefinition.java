@@ -53,6 +53,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         FACTIONS.add(Factions.PERSEAN);
         FACTIONS.add(Factions.DERELICT);
         FACTIONS.add(Factions.REMNANTS);
+        FACTIONS.add(Factions.OMEGA);
         FACTIONS.add("cabal");
         FACTIONS.add("interstellarimperium");
         FACTIONS.add("blackrock_driveyards");

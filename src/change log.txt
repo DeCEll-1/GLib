@@ -1,4 +1,8 @@
-Version 1.6.0 (Unreleased):
+Version 1.6.1 (January 5, 2022):
+- Fixed arc attenuation for distortion effects
+- Updated for Starsector 0.95.1a RC6
+
+Version 1.6.0 (December 12, 2021):
 - Updated for Starsector 0.95.1a
 
 Version 1.5.1 (March 30, 2021):

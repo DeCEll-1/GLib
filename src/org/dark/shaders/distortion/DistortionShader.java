@@ -343,8 +343,7 @@ public class DistortionShader implements ShaderAPI {
             final Vector2f location = distortion.getLocation();
             final SpriteAPI sprite = distortion.getSprite();
 
-            if (location == null || sprite == null || !ShaderLib.isOnScreen(location, Math.max(sprite.getHeight(),
-                    sprite.getWidth()))) {
+            if (location == null || sprite == null || !ShaderLib.isOnScreen(location, Math.max(sprite.getHeight(), sprite.getWidth()))) {
                 continue;
             }
 
@@ -354,8 +353,7 @@ public class DistortionShader implements ShaderAPI {
             GL20.glUniform1f(indexAux[2], scale); // scale
             GL20.glUniform2f(indexAux[3], normS.x, normS.y); // norm
             GL20.glUniform1f(indexAux[4], distortion.isFlipped() ? -1f : 1f); // flip
-            GL20.glUniform2f(indexAux[5], (float) Math.toRadians(distortion.getArcStart()), (float) Math.toRadians(
-                    distortion.getArcEnd())); // arc
+            GL20.glUniform2f(indexAux[5], (float) Math.toRadians(distortion.getArcStart()), (float) Math.toRadians(distortion.getArcEnd())); // arc
             GL20.glUniform1f(indexAux[6], (float) Math.toRadians(distortion.getArcAttenuationWidth())); // attwidth
 
             if (!validatedAux) {

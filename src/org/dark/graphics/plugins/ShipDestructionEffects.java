@@ -544,7 +544,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
             if (exploder.count <= 0) {
                 if (BOSS_SHIPS.containsKey(shipHullId)) {
                     engine.applyDamage(exploder.ship, shipLoc, 1000000f, DamageType.ENERGY, 0f, true, true,
-                            exploder.ship);
+                            exploder.ship, false);
                 }
                 continue;
             }

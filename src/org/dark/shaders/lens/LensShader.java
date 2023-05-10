@@ -311,7 +311,9 @@ public class LensShader implements ShaderAPI {
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, rippleTex);
 
         if (!validated) {
-            validated = true;
+            if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                validated = true;
+            }
 
             // This stuff here is for AMD compatability, normally it would be way back in the shader loader
             GL20.glValidateProgram(program);

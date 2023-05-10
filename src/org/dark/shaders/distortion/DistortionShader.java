@@ -357,7 +357,9 @@ public class DistortionShader implements ShaderAPI {
             GL20.glUniform1f(indexAux[6], (float) Math.toRadians(distortion.getArcAttenuationWidth())); // attwidth
 
             if (!validatedAux) {
-                validatedAux = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedAux = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programAux);
@@ -402,7 +404,9 @@ public class DistortionShader implements ShaderAPI {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, ShaderLib.getAuxiliaryBufferTexture());
 
         if (!validated) {
-            validated = true;
+            if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                validated = true;
+            }
 
             // This stuff here is for AMD compatability, normally it would be way back in the shader loader
             GL20.glValidateProgram(program);

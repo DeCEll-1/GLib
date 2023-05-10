@@ -17,6 +17,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.ShotBehaviorSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import java.awt.Color;
 import java.io.IOException;
@@ -64,7 +65,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class LightShader implements ShaderAPI {
 
-    private static final String DATA_KEY = "shaderlib_LightShader";
+    static final String DATA_KEY = "shaderlib_LightShader";
 
     private static final Comparator<LightAPI> LIGHTSIZE = new Comparator<LightAPI>() {
         @Override
@@ -88,6 +89,8 @@ public class LightShader implements ShaderAPI {
 
     private static final int MAX_LIGHTS = 372;
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
+    static float FIGHTER_LIGHT_MULTIPLIER = 1f;
+    static float STANDARD_HEIGHT = 100f;
 
     private static final Vector2f ZERO = new Vector2f();
 
@@ -156,7 +159,6 @@ public class LightShader implements ShaderAPI {
     private final FloatBuffer dataBufferPre = BufferUtils.createFloatBuffer(4096);
 
     private boolean enabled = false;
-    private float fighterLightMultiplier = 1f;
     private float flashHeight = 150f;
     private float flatness = 0f;
     private int hdrBuffer2Id = 0;
@@ -190,7 +192,6 @@ public class LightShader implements ShaderAPI {
     private int programBloom3 = 0;
     private float specularHardness = 0.4f;
     private float specularMultiplier = 5f;
-    private float standardHeight = 100f;
     private boolean validated = false;
     private boolean validatedAux = false;
     private boolean validatedBloom1 = false;
@@ -203,7 +204,8 @@ public class LightShader implements ShaderAPI {
             return;
         }
 
-        Global.getLogger(LightShader.class).setLevel(Level.ERROR);
+        Global.getLogger(LightShader.class).setLevel(Level.INFO);
+        Global.getLogger(LightShader.class).log(Level.INFO, "Instantiating Light Shader");
 
         try {
             loadSettings();
@@ -740,6 +742,8 @@ public class LightShader implements ShaderAPI {
     public void renderInScreenCoords(ViewportAPI viewport) {
     }
 
+    public static final String LS_PROX_DETECTOR_NAME = LSProxDetector.class.getCanonicalName();
+
     @Override
     public void renderInWorldCoords(ViewportAPI viewport) {
         if (!enabled) {
@@ -759,7 +763,7 @@ public class LightShader implements ShaderAPI {
         for (int i = 0; i < size; i++) {
             final DamagingProjectileAPI proj = allProjectiles.get(i);
 
-            if (proj.didDamage() || proj.getElapsed() > 0.1f) {
+            if (proj.didDamage() || (proj.getElapsed() > 0.1f)) {
                 continue;
             }
 
@@ -777,18 +781,16 @@ public class LightShader implements ShaderAPI {
                 if (data.hasStandard) {
                     if ((float) Math.random() <= data.chance) {
                         final StandardLight light;
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
-                                && data.fighterDim) {
-                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity
-                                    * fighterLightMultiplier, data.standardSize
-                                    * fighterLightMultiplier);
+                        if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
+                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity * FIGHTER_LIGHT_MULTIPLIER,
+                                    data.standardSize * FIGHTER_LIGHT_MULTIPLIER);
                         } else {
                             light = new StandardLight(ZERO, ZERO, new Vector2f(-data.standardOffset, 0f), proj,
                                     data.standardIntensity, data.standardSize);
                         }
                         light.setColor(data.standardColor);
                         light.setAutoFadeOutTime(data.standardFadeout);
-                        light.setHeight(standardHeight);
+                        light.setHeight(STANDARD_HEIGHT);
                         lights.add(light);
                     }
                 }
@@ -810,10 +812,9 @@ public class LightShader implements ShaderAPI {
                         } else {
                             light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
                         }
-                        if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
-                                && data.fighterDim) {
-                            light.setIntensity(data.flashIntensity * fighterLightMultiplier);
-                            light.setSize(data.flashSize * fighterLightMultiplier);
+                        if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
+                            light.setIntensity(data.flashIntensity * FIGHTER_LIGHT_MULTIPLIER);
+                            light.setSize(data.flashSize * FIGHTER_LIGHT_MULTIPLIER);
                         } else {
                             light.setIntensity(data.flashIntensity);
                             light.setSize(data.flashSize);
@@ -822,6 +823,30 @@ public class LightShader implements ShaderAPI {
                         light.fadeOut(data.flashFadeout);
                         light.setHeight(flashHeight);
                         lights.add(light);
+                    }
+                }
+
+                // Special handling for prox fuse projectiles
+                if (data.hasHit) {
+                    ShotBehaviorSpecAPI behaviorSpec = null;
+                    if (proj instanceof MissileAPI) {
+                        MissileAPI missile = (MissileAPI) proj;
+                        if ((missile.getSpec() != null) && (missile.getSpec().getBehaviorSpec() != null)) {
+                            behaviorSpec = missile.getSpec().getBehaviorSpec();
+                        }
+                    } else if ((proj.getProjectileSpec() != null) && (proj.getProjectileSpec().getBehaviorSpec() != null)) {
+                        behaviorSpec = proj.getProjectileSpec().getBehaviorSpec();
+                    }
+                    if (behaviorSpec != null) {
+                        if (behaviorSpec.getOnExplosionClassName() == null) {
+                            LSProxDetector.ORIGINAL_EFFECTS.remove(proj.getProjectileSpecId());
+                            System.out.print("null " + LS_PROX_DETECTOR_NAME + "\n");
+                            behaviorSpec.setOnExplosionClassName(LS_PROX_DETECTOR_NAME);
+                        } else if ((behaviorSpec.getOnExplosionClassName() != null) && !behaviorSpec.getOnExplosionClassName().contentEquals(LS_PROX_DETECTOR_NAME)) {
+                            LSProxDetector.ORIGINAL_EFFECTS.put(proj.getProjectileSpecId(), behaviorSpec.getOnProximityExplosionEffect());
+                            System.out.print(behaviorSpec.getOnExplosionClassName() + " " + LS_PROX_DETECTOR_NAME + "\n");
+                            behaviorSpec.setOnExplosionClassName(LS_PROX_DETECTOR_NAME);
+                        }
                     }
                 }
             }
@@ -839,17 +864,21 @@ public class LightShader implements ShaderAPI {
                 MissileAPI missile = (MissileAPI) proj;
                 if (missile.isMine()) {
                     isMine = true;
-                    if ((missile.getUntilMineExplosion() <= (1f / 30f)) && !engine.isEntityInPlay(missile)) {
-                        boom = true;
-                    }
+//                    if ((missile.getUntilMineExplosion() <= (1f / 30f)) && !engine.isEntityInPlay(missile)) {
+//                        boom = true;
+//                    }
                 }
             }
 
             if (!entry.getValue()) {
-                if ((proj.isFading() && !isMine) || (!engine.isEntityInPlay(proj) && !boom)
+                if ((proj.isFading() && !isMine)
+                        || (!engine.isEntityInPlay(proj) && !boom)
                         || (proj instanceof MissileAPI && ((MissileAPI) proj).isFizzling() && !isMine)) {
                     entry.setValue(true);
 
+                    /* This could be made slightly faster by keeping a hash map of linked lists of lights that a
+                     * projectile is attached to, but it might not be that much faster than this simple loop (due to
+                     * all the overhead) */
                     for (LightAPI light : lights) {
                         if (light instanceof StandardLight) {
                             final StandardLight sLight = (StandardLight) light;
@@ -876,6 +905,8 @@ public class LightShader implements ShaderAPI {
                 boolean hadAttachment = false;
                 float currentFactor = 1f;
 
+                /* This could be made slightly faster by keeping a hash map of linked lists of lights that a projectile
+                 * is attached to, but it might not be that much faster than this simple loop (due to all the overhead) */
                 final Iterator<LightAPI> iter2 = lights.iterator();
                 while (iter2.hasNext()) {
                     final LightAPI light = iter2.next();
@@ -886,7 +917,7 @@ public class LightShader implements ShaderAPI {
                         if (sLight.getAttachment() == proj) {
                             hadAttachment = true;
 
-                            if (data == null || !data.hasHit) {
+                            if ((data == null) || !data.hasHit) {
                                 // Fadeout light
                                 sLight.unattach();
                                 sLight.setLocation(proj.getLocation());
@@ -908,17 +939,16 @@ public class LightShader implements ShaderAPI {
                     if (data.hasHit) {
                         if ((((float) Math.random() <= data.chance) || hadAttachment) && ((proj.getDamageTarget() != null) || isMine)) {
                             final StandardLight light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
-                            if (proj.getSource() != null && proj.getSource().getHullSize() == HullSize.FIGHTER
-                                    && data.fighterDim) {
-                                light.setIntensity(data.hitIntensity * fighterLightMultiplier * currentFactor);
-                                light.setSize(data.hitSize * fighterLightMultiplier * currentFactor);
+                            if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
+                                light.setIntensity(data.hitIntensity * FIGHTER_LIGHT_MULTIPLIER * currentFactor);
+                                light.setSize(data.hitSize * FIGHTER_LIGHT_MULTIPLIER * currentFactor);
                             } else {
                                 light.setIntensity(data.hitIntensity * currentFactor);
                                 light.setSize(data.hitSize * currentFactor);
                             }
                             light.setColor(data.hitColor);
                             light.fadeOut(data.hitFadeout * currentFactor);
-                            light.setHeight(standardHeight);
+                            light.setHeight(STANDARD_HEIGHT);
                             lights.add(light);
                         }
                     }
@@ -959,14 +989,14 @@ public class LightShader implements ShaderAPI {
                         final StandardLight light = new StandardLight(ZERO, ZERO, ZERO, ZERO, beam);
                         if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
                                 && data.fighterDim) {
-                            light.setIntensity(data.standardIntensity * fighterLightMultiplier);
-                            light.setSize(data.standardSize * fighterLightMultiplier);
+                            light.setIntensity(data.standardIntensity * FIGHTER_LIGHT_MULTIPLIER);
+                            light.setSize(data.standardSize * FIGHTER_LIGHT_MULTIPLIER);
                         } else {
                             light.setIntensity(data.standardIntensity);
                             light.setSize(data.standardSize);
                         }
                         light.setColor(data.standardColor);
-                        light.setHeight(standardHeight);
+                        light.setHeight(STANDARD_HEIGHT);
                         light.makePermanent();
                         lights.add(light);
                     }
@@ -976,8 +1006,8 @@ public class LightShader implements ShaderAPI {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, false);
                         if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
                                 && data.fighterDim) {
-                            light.setIntensity(data.flashIntensity * fighterLightMultiplier);
-                            light.setSize(data.flashSize * fighterLightMultiplier);
+                            light.setIntensity(data.flashIntensity * FIGHTER_LIGHT_MULTIPLIER);
+                            light.setSize(data.flashSize * FIGHTER_LIGHT_MULTIPLIER);
                         } else {
                             light.setIntensity(data.flashIntensity);
                             light.setSize(data.flashSize);
@@ -993,14 +1023,14 @@ public class LightShader implements ShaderAPI {
                         final StandardLight light = new StandardLight(ZERO, ZERO, beam, true);
                         if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER
                                 && data.fighterDim) {
-                            light.setIntensity(data.hitIntensity * fighterLightMultiplier);
-                            light.setSize(data.hitSize * fighterLightMultiplier);
+                            light.setIntensity(data.hitIntensity * FIGHTER_LIGHT_MULTIPLIER);
+                            light.setSize(data.hitSize * FIGHTER_LIGHT_MULTIPLIER);
                         } else {
                             light.setIntensity(data.hitIntensity);
                             light.setSize(data.hitSize);
                         }
                         light.setColor(data.hitColor);
-                        light.setHeight(standardHeight);
+                        light.setHeight(STANDARD_HEIGHT);
                         light.makePermanent();
                         lights.add(light);
                     }
@@ -1420,7 +1450,9 @@ public class LightShader implements ShaderAPI {
         }
 
         if (!validated) {
-            validated = true;
+            if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                validated = true;
+            }
 
             // This stuff here is for AMD compatability, normally it would be way back in the shader loader
             GL20.glValidateProgram(program);
@@ -1470,7 +1502,9 @@ public class LightShader implements ShaderAPI {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex);
 
             if (!validatedBloom1) {
-                validatedBloom1 = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedBloom1 = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programBloom1);
@@ -1513,7 +1547,9 @@ public class LightShader implements ShaderAPI {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex2);
 
             if (!validatedBloom2) {
-                validatedBloom2 = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedBloom2 = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programBloom2);
@@ -1555,7 +1591,9 @@ public class LightShader implements ShaderAPI {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex3);
 
             if (!validatedBloom3) {
-                validatedBloom3 = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedBloom3 = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programBloom3);
@@ -1664,7 +1702,9 @@ public class LightShader implements ShaderAPI {
             }
 
             if (!validatedAux) {
-                validatedAux = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedAux = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programAux);
@@ -1737,7 +1777,9 @@ public class LightShader implements ShaderAPI {
             }
 
             if (!validatedAux) {
-                validatedAux = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedAux = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programAux);
@@ -1898,7 +1940,11 @@ public class LightShader implements ShaderAPI {
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
                 if (!weapon.getSlot().isHidden()) {
-                    final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                    Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                    if (weapon.isDecorative() && weapon.isBeam() && (weapon.getRenderOffsetForDecorativeBeamWeaponsOnly() != null)) {
+                        final Vector2f additionalOffset = VectorUtils.rotate(weapon.getRenderOffsetForDecorativeBeamWeaponsOnly(), ship.getFacing(), new Vector2f());
+                        weaponLocation = Vector2f.add(weaponLocation, additionalOffset, new Vector2f());
+                    }
 
                     if (weapon.getUnderSpriteAPI() != null) {
                         if (weapon.getSlot().isHardpoint()) {
@@ -2185,7 +2231,9 @@ public class LightShader implements ShaderAPI {
             }
 
             if (!validatedAux) {
-                validatedAux = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedAux = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programAux);
@@ -2468,7 +2516,11 @@ public class LightShader implements ShaderAPI {
             for (int j = 0; j < weaponSize; j++) {
                 final WeaponAPI weapon = weapons.get(j);
                 if (!weapon.getSlot().isHidden()) {
-                    final Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                    Vector2f weaponLocation = Vector2f.add(weapon.getLocation(), renderOffset, new Vector2f());
+                    if (weapon.isDecorative() && weapon.isBeam() && (weapon.getRenderOffsetForDecorativeBeamWeaponsOnly() != null)) {
+                        final Vector2f additionalOffset = VectorUtils.rotate(weapon.getRenderOffsetForDecorativeBeamWeaponsOnly(), ship.getFacing(), new Vector2f());
+                        weaponLocation = Vector2f.add(weaponLocation, additionalOffset, new Vector2f());
+                    }
 
                     if (weapon.getUnderSpriteAPI() != null) {
                         if (weapon.getSlot().isHardpoint()) {
@@ -2742,7 +2794,7 @@ public class LightShader implements ShaderAPI {
         maxLineLights = settings.getInt("maximumLineLights");
         lightMultiplier = (float) settings.getDouble("intensityScale");
         lightSizeMultiplier = (float) settings.getDouble("sizeScale");
-        fighterLightMultiplier = (float) settings.getDouble("fighterBrightnessScale");
+        FIGHTER_LIGHT_MULTIPLIER = (float) settings.getDouble("fighterBrightnessScale");
         bloomEnabled = settings.getBoolean("enableBloom");
         bloomQuality = Math.max(Math.min(settings.getInt("bloomQuality"), 5), 1);
         bloomMips = Math.max(Math.min(settings.getInt("bloomMips"), 5), 1);
@@ -2754,7 +2806,7 @@ public class LightShader implements ShaderAPI {
         flatness = (float) settings.getDouble("normalFlatness");
         lightDepth = (float) settings.getDouble("lightDepth");
         flashHeight = (float) settings.getDouble("weaponFlashHeight");
-        standardHeight = (float) settings.getDouble("weaponLightHeight");
+        STANDARD_HEIGHT = (float) settings.getDouble("weaponLightHeight");
     }
 
     @Override
@@ -2767,7 +2819,7 @@ public class LightShader implements ShaderAPI {
         return true;
     }
 
-    private static final class LocalData {
+    static final class LocalData {
 
         final Set<BeamAPI> beams = new LinkedHashSet<>(200);
         final List<LightAPI> lights = new LinkedList<>();

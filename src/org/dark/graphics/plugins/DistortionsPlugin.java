@@ -1,6 +1,7 @@
 package org.dark.graphics.plugins;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
@@ -11,10 +12,12 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.hullmods.TEM_LatticeShield;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.log4j.Level;
 import org.dark.shaders.ShaderModPlugin;
 import org.dark.shaders.distortion.DistortionAPI;
@@ -22,6 +25,7 @@ import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.distortion.RippleDistortion;
 import org.dark.shaders.distortion.WaveDistortion;
 import org.dark.shaders.util.ShaderLib;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
@@ -30,9 +34,12 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
 
+    private static final Set<String> EXCLUDED_PROJECTILES = new HashSet<>(20);
+
     private static final String DATA_KEY = "GLib_Distortions";
 
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
+    private static final String SETTINGS_SPREADSHEET = "data/config/glib/no_shield_ripple.csv";
 
     private static final Vector2f ZERO = new Vector2f();
 
@@ -51,6 +58,20 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
     }
 
     private static void loadSettings() throws IOException, JSONException {
+        for (ModSpecAPI mod : Global.getSettings().getModManager().getEnabledModsCopy()) {
+            JSONArray rows;
+            try {
+                rows = Global.getSettings().getMergedSpreadsheetDataForMod("id", SETTINGS_SPREADSHEET, mod.getId());
+            } catch (RuntimeException e) {
+                continue;
+            }
+
+            for (int i = 0; i < rows.length(); i++) {
+                String id = rows.getJSONObject(i).getString("id");
+                EXCLUDED_PROJECTILES.add(id);
+            }
+        }
+
         JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
 
         shieldEnabled = settings.getBoolean("enableShieldRipples");
@@ -82,15 +103,14 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             }
 
             if (!projectiles.containsKey(projectile)) {
-                if (projectile.getProjectileSpecId() != null && projectile.getProjectileSpecId().contentEquals(
-                        "mjolnir_shot") && mjolnirEnabled) {
+                if ((projectile.getProjectileSpecId() != null) && projectile.getProjectileSpecId().contentEquals("mjolnir_shot") && mjolnirEnabled) {
                     WaveDistortion wave = new WaveDistortion(projectile.getLocation(), ZERO);
                     wave.setIntensity(5f);
                     wave.setSize(50f);
                     wave.flip(true);
                     DistortionShader.addDistortion(wave);
                     projectiles.put(projectile, new ProjectileInfo(wave, projectile.getDamageAmount()));
-                } else if (shieldEnabled) {
+                } else if (shieldEnabled && ((projectile.getProjectileSpecId() == null) || !EXCLUDED_PROJECTILES.contains(projectile.getProjectileSpecId()))) {
                     projectiles.put(projectile, new ProjectileInfo(projectile.getDamageAmount()));
                 }
             }

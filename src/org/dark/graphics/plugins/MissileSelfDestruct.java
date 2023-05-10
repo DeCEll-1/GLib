@@ -8,6 +8,7 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.ShotBehaviorSpecAPI;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -61,11 +62,20 @@ public class MissileSelfDestruct extends BaseEveryFrameCombatPlugin {
         int size = missiles.size();
         for (int i = 0; i < size; i++) {
             MissileAPI missile = missiles.get(i);
-            if (missile.isFading() && !missile.isFlare() && !missile.isMine() && missile.getCollisionClass() != CollisionClass.NONE
-                    && (float) Math.random() > 0.75f) {
-                if (missile.getProjectileSpecId() == null || !EXCLUDED_MISSILES.contains(missile.getProjectileSpecId())) {
-                    engine.applyDamage(missile, missile.getLocation(), missile.getHitpoints() * 2f,
-                            DamageType.FRAGMENTATION, 0f, false, false, missile, false);
+            if (missile.isFading() && !missile.isFlare() && !missile.isMine() && (missile.getCollisionClass() != CollisionClass.NONE) && ((float) Math.random() > 0.75f)) {
+                if ((missile.getProjectileSpecId() == null) || !EXCLUDED_MISSILES.contains(missile.getProjectileSpecId())) {
+                    boolean isProx = false;
+                    if ((missile.getSpec() != null) && (missile.getSpec().getBehaviorSpec() != null)) {
+                        ShotBehaviorSpecAPI behaviorSpec = missile.getSpec().getBehaviorSpec();
+                        if (behaviorSpec.getBehavorString().contentEquals("PROXIMITY_FUSE")) {
+                            System.out.print("!!!\n");
+                            isProx = true;
+                        }
+                    }
+                    if (!isProx) {
+                        engine.applyDamage(missile, missile.getLocation(), missile.getHitpoints() * 2f,
+                                DamageType.FRAGMENTATION, 0f, false, false, missile, false);
+                    }
                 }
             }
         }

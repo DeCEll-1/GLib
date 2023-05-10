@@ -746,7 +746,9 @@ public class PostProcessShader implements ShaderAPI {
 
         if (post) {
             if (!validatedPost) {
-                validatedPost = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedPost = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programPost);
@@ -759,7 +761,9 @@ public class PostProcessShader implements ShaderAPI {
             }
         } else {
             if (!validatedPre) {
-                validatedPre = true;
+                if (!ShaderLib.VALIDATE_EVERY_FRAME) {
+                    validatedPre = true;
+                }
 
                 // This stuff here is for AMD compatability, normally it would be way back in the shader loader
                 GL20.glValidateProgram(programPre);

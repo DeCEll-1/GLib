@@ -18,7 +18,7 @@ chance: Probability of a light source being associated with the projectile when 
 fighter dim: Whether the light should be attenuated when the source is a fighter or drone.  True by default.
 
 TEXTURE DATA
-id: HullID, WeaponID, ProjectileID, or HullStyleID (whichever applies) from the hull/weapon/projectile/hullstyle file.
+id: hullid, hullid_STYLE, weaponid, projectileid, or STYLEID (whichever applies) from the hull/weapon/projectile/hullstyle file.
 type: 'ship', 'turret', 'turretbarrel', 'turretunder', 'hardpoint', 'hardpointbarrel', 'hardpointunder', 'missile', 'turretcoversmall', 'turretcovermedium', 'turretcoverlarge', 'hardpointcoversmall', 'hardpointcovermedium', or 'hardpointcoverlarge'.
 frame: The frame of animation for an animated weapon.
 magnitude: The relative depth of a normal map.  The default is 1.0.

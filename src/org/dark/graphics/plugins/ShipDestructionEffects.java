@@ -63,6 +63,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
     private static boolean enabled = true;
     private static boolean explosionEnabled = true;
+    private static boolean fullExplosionEnabled = true;
     private static boolean offscreen = false;
     private static boolean shockwaveEnabled = true;
     private static float trailScale = 1f;
@@ -166,6 +167,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
 
         explosionEnabled = settings.getBoolean("enableExplosionEffects");
+        fullExplosionEnabled = settings.getBoolean("enableFullExplosionEffects");
         offscreen = settings.getBoolean("drawOffscreenParticles");
         shockwaveEnabled = settings.getBoolean("enableExplosionShockwave");
         trailsEnabled = settings.getBoolean("enableExplosionTrails");
@@ -247,27 +249,29 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     if (explosionEnabled && !suppressed) {
                         engine.addHitParticle(shipLoc, ZERO, shipRadius * 10f, 0.75f, shipRadius / 50f, COLOR_WHITE1);
                         engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 7.5f, 0.25f, shipRadius / 35f, COLOR_WHITE2);
-                        if (offscreen || ShaderLib.isOnScreen(shipLoc, shipRadius * 2f * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
-                            Color color = ShipColors.colorJitter(ShipColors.colorBlend(explosionColor, COLOR_BLACK1, 0.2f), 50f);
-                            engine.spawnExplosion(shipLoc, shipVel, color, shipRadius * 2f, (shipRadius / 60f) * ((float) Math.random() * 0.25f + 1f));
-                        }
-                        if (!ship.isPiece()) {
-                            switch (ship.getHullSize()) {
-                                case FIGHTER:
-                                    engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 12f, 0.5f, 0.05f, COLOR_WHITE1);
-                                    break;
-                                case FRIGATE:
-                                    engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.05f, COLOR_WHITE1);
-                                    break;
-                                case DESTROYER:
-                                    engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.075f, COLOR_WHITE1);
-                                    break;
-                                case CRUISER:
-                                    engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.1f, COLOR_WHITE1);
-                                    break;
-                                default:
-                                    engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.125f, COLOR_WHITE1);
-                                    break;
+                        if (fullExplosionEnabled || ship.isPiece()) {
+                            if (offscreen || ShaderLib.isOnScreen(shipLoc, shipRadius * 2f * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                                Color color = ShipColors.colorJitter(ShipColors.colorBlend(explosionColor, COLOR_BLACK1, 0.2f), 50f);
+                                engine.spawnExplosion(shipLoc, shipVel, color, shipRadius * 2f, (shipRadius / 60f) * ((float) Math.random() * 0.25f + 1f));
+                            }
+                            if (!ship.isPiece()) {
+                                switch (ship.getHullSize()) {
+                                    case FIGHTER:
+                                        engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 12f, 0.5f, 0.05f, COLOR_WHITE1);
+                                        break;
+                                    case FRIGATE:
+                                        engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.05f, COLOR_WHITE1);
+                                        break;
+                                    case DESTROYER:
+                                        engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.075f, COLOR_WHITE1);
+                                        break;
+                                    case CRUISER:
+                                        engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.1f, COLOR_WHITE1);
+                                        break;
+                                    default:
+                                        engine.addSmoothParticle(shipLoc, ZERO, shipRadius * 15f, 1f, 0.125f, COLOR_WHITE1);
+                                        break;
+                                }
                             }
                         }
                         StandardLight light = new StandardLight(shipLoc, shipVel, ZERO, null);
@@ -301,8 +305,8 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     }
                 }
 
-                /* Don't play full-destruction effects for Omega */
-                if (ship.getVariant().hasHullMod("shard_spawner")) {
+                /* Don't play full-destruction effects for Omega or DEMs */
+                if (ship.getVariant().hasHullMod("shard_spawner") || ship.getHullSpec().getHullId().contentEquals("dem_drone")) {
                     suppressEffects(ship, true, false);
                 }
             }

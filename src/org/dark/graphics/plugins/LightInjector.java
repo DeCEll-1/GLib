@@ -108,7 +108,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
             float shipRadius = effectiveRadius(ship);
 
-            if (ship.getTravelDrive().isActive() && !ship.isFighter()) {
+            if (!ship.isFighter() && !ship.isDrone() && (ship.getTravelDrive() != null) && ship.getTravelDrive().isActive()) {
                 Vector2f location = null;
                 if (ship.getEngineController() == null) {
                     break;

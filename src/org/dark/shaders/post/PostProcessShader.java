@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL43;
 
 /**
  * This implementation of ShaderAPI contains the general full-screen post-process shader. Do not modify.
@@ -532,6 +533,10 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         String vertShader;
         String fragShader;
         try {
@@ -542,6 +547,9 @@ public class PostProcessShader implements ShaderAPI {
                     "Post Process pre-shader loading error!  Post Processing disabled!"
                     + ex.getMessage());
             enabled = false;
+            if (ShaderLib.DEBUG_CALLBACK) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -551,6 +559,9 @@ public class PostProcessShader implements ShaderAPI {
             enabled = false;
             Global.getLogger(PostProcessShader.class).log(Level.ERROR,
                     "Post Process pre-shader compile error!  Post Processing disabled!");
+            if (ShaderLib.DEBUG_CALLBACK) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -563,6 +574,9 @@ public class PostProcessShader implements ShaderAPI {
                         "Post Process post-shader loading error!  Post Processing disabled!"
                         + ex.getMessage());
                 enabled = false;
+                if (ShaderLib.DEBUG_CALLBACK) {
+                    GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                }
                 return;
             }
 
@@ -572,6 +586,9 @@ public class PostProcessShader implements ShaderAPI {
                 enabled = false;
                 Global.getLogger(PostProcessShader.class).log(Level.ERROR,
                         "Post Process post-shader compile error!  Post Processing disabled!");
+                if (ShaderLib.DEBUG_CALLBACK) {
+                    GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                }
                 return;
             }
         }
@@ -654,6 +671,10 @@ public class PostProcessShader implements ShaderAPI {
             GL20.glUseProgram(0);
         }
 
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         enabled = true;
     }
 
@@ -670,6 +691,14 @@ public class PostProcessShader implements ShaderAPI {
 
     @Override
     public void destroy() {
+        if (!enabled) {
+            return;
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         if (programPre != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
             ByteBuffer shadersbb = ByteBuffer.allocateDirect(8);
@@ -691,6 +720,10 @@ public class PostProcessShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programPost);
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
     }
 
@@ -725,6 +758,10 @@ public class PostProcessShader implements ShaderAPI {
     private void draw(boolean post) {
         if (ShaderLib.isAACompatMode() && post) {
             return;
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
 
         if (post) {
@@ -776,9 +813,14 @@ public class PostProcessShader implements ShaderAPI {
             }
         }
         GL11.glDisable(GL11.GL_BLEND);
+
         ShaderLib.screenDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
         ShaderLib.exitDraw();
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
     }
 
     private void loadSettings() throws IOException, JSONException {
@@ -789,6 +831,14 @@ public class PostProcessShader implements ShaderAPI {
     }
 
     private void setDefaultSettings() {
+        if (!enabled) {
+            return;
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         GL20.glUseProgram(programPost);
         switch (colorBlindness) {
             case 1: // Protanomaly (hard to see red)
@@ -908,6 +958,10 @@ public class PostProcessShader implements ShaderAPI {
         GL20.glUniform1f(indexPre[16], 3f / ShaderLib.getInternalHeight()); // scanint
         GL20.glUniform1f(indexPre[17], 1f / ShaderLib.getInternalHeight()); // scanwidth
         GL20.glUseProgram(0);
+
+        if (ShaderLib.DEBUG_CALLBACK) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
     }
 
     @Override

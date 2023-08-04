@@ -16,9 +16,9 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class StandardLight implements LightAPI {
 
-    private static final Vector2f ZERO = new Vector2f();
+    protected static final Vector2f ZERO = new Vector2f();
 
-    private static Vector2f computeOffset(Vector2f location, Vector2f offset, float angle) {
+    protected static Vector2f computeOffset(Vector2f location, Vector2f offset, float angle) {
         final float angleRads = (float) Math.toRadians(angle);
         final float cos = (float) ShaderLib.fastCos(angleRads);
         final float sin = (float) ShaderLib.fastSin(angleRads);
@@ -27,34 +27,34 @@ public class StandardLight implements LightAPI {
         return dest;
     }
 
-    private float arcEnd = 0f;
-    private float arcStart = 0f;
-    private CombatEntityAPI attach = null;
-    private float autoFadeOutTime = 1f;
-    private BeamAPI beamAttach = null;
-    private BeamAPI beamLink = null;
-    private final Vector3f color = new Vector3f(1f, 1f, 1f);
-    private final Deque<Boolean> damageFrames = new ArrayDeque<>(4);
-    private boolean damageInLastFewFrames = false;
-    private final Vector3f direction;
-    private float height = 200f;
-    private float intensity = 0f;
-    private float intensityFade = 0f;
-    private float intensityMax = 0f;
-    private boolean isFadingIn = false;
-    private boolean isFadingOut = false;
-    private float lifetime = -1f;
-    private boolean linkToEnd = false;
-    private final Vector2f location;
-    private final Vector2f location2;
-    private final Vector2f offset;
-    private float size = 0f;
-    private float specularIntensity = 0f;
-    private float specularMultiplier = 1f;
-    private float superLifetime = 60f;
-    private int type;
-    private final Vector2f velocity;
-    private final Vector2f velocity2;
+    protected float arcEnd = 0f;
+    protected float arcStart = 0f;
+    protected CombatEntityAPI attach = null;
+    protected float autoFadeOutTime = 1f;
+    protected BeamAPI beamAttach = null;
+    protected BeamAPI beamLink = null;
+    protected final Vector3f color = new Vector3f(1f, 1f, 1f);
+    protected final Deque<Boolean> damageFrames = new ArrayDeque<>(4);
+    protected boolean damageInLastFewFrames = false;
+    protected final Vector3f direction;
+    protected float height = 200f;
+    protected float intensity = 0f;
+    protected float intensityFade = 0f;
+    protected float intensityMax = 0f;
+    protected boolean isFadingIn = false;
+    protected boolean isFadingOut = false;
+    protected float lifetime = -1f;
+    protected boolean linkToEnd = false;
+    protected final Vector2f location;
+    protected final Vector2f location2;
+    protected final Vector2f offset;
+    protected float size = 0f;
+    protected float specularIntensity = 0f;
+    protected float specularMultiplier = 1f;
+    protected float superLifetime = 60f;
+    protected int type;
+    protected final Vector2f velocity;
+    protected final Vector2f velocity2;
 
     /**
      * Constructs a generic light. Note that the light begins with an initial size and intensity of 0.
@@ -1005,6 +1005,61 @@ public class StandardLight implements LightAPI {
         attach = null;
         beamAttach = null;
         beamLink = null;
+    }
+
+    /**
+     * Gets the change in intensity over time.
+     * <p>
+     * @return The rate of change of the intensity of the light.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getIntensityFade() {
+        return intensityFade;
+    }
+
+    /**
+     * Sets the change in intensity over time.
+     * <p>
+     * @param intensityFade The rate of change of intensity to apply to the light. Positive for fade-in, negative for
+     * fade-out, zero for no fading.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setIntensityFade(float intensityFade) {
+        this.intensityFade = Math.abs(intensityFade);
+        if (Float.compare(intensityFade, 0f) == 0) {
+            isFadingIn = false;
+            isFadingOut = false;
+        } else if (intensityFade > 0f) {
+            isFadingIn = true;
+            isFadingOut = false;
+        } else {
+            isFadingIn = false;
+            isFadingOut = true;
+        }
+    }
+
+    /**
+     * Gets the maximum intensity to reach.
+     * <p>
+     * @return The maximum intensity that the light can reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getIntensityMax() {
+        return intensityMax;
+    }
+
+    /**
+     * Sets the maximum intensity to reach.
+     * <p>
+     * @param intensityMax The maximum intensity that the light should reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setIntensityMax(float intensityMax) {
+        this.intensityMax = intensityMax;
     }
 
     private void pAttachTo(CombatEntityAPI attach) {

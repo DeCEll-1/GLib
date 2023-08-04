@@ -22,8 +22,8 @@ public class RippleDistortion implements DistortionAPI {
     public static final int FRAMES = 60;
 
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-    private static final SpriteAPI[] animation = new SpriteAPI[60];
-    private static boolean useLargeRipple = false;
+    protected static final SpriteAPI[] animation = new SpriteAPI[60];
+    protected static boolean useLargeRipple = false;
 
     static boolean pathsSet = false;
 
@@ -65,25 +65,25 @@ public class RippleDistortion implements DistortionAPI {
         }
     }
 
-    private float arcAttenWidth = 0f;
-    private float arcEnd = 0f;
-    private float arcStart = 0f;
-    private float autoAnimateFrameRate = 0f;
-    private float autoAnimateFrameStart = 0f;
-    private float autoFadeIntensityTime = 0f;
-    private float autoFadeSizeTime = 0f;
-    private float deltaIntensity = 0f;
-    private float deltaSize = 0f;
-    private boolean flipped = false;
-    private float frame = 0f;
-    private float frameRate = 0f;
-    private float intensity = 20f;
-    private float lifetime = -1f;
-    private final Vector2f location;
-    private float maxIntensity = 20f;
-    private float maxSize = 100f;
-    private float size = 100f;
-    private final Vector2f velocity;
+    protected float arcAttenWidth = 0f;
+    protected float arcEnd = 0f;
+    protected float arcStart = 0f;
+    protected float autoAnimateFrameRate = 0f;
+    protected float autoAnimateFrameStart = 0f;
+    protected float autoFadeIntensityTime = 0f;
+    protected float autoFadeSizeTime = 0f;
+    protected float deltaIntensity = 0f;
+    protected float deltaSize = 0f;
+    protected boolean flipped = false;
+    protected float frame = 0f;
+    protected float frameRate = 0f;
+    protected float intensity = 20f;
+    protected float lifetime = -1f;
+    protected final Vector2f location;
+    protected float maxIntensity = 20f;
+    protected float maxSize = 100f;
+    protected float size = 100f;
+    protected final Vector2f velocity;
 
     public RippleDistortion() {
         if (!pathsSet) {
@@ -601,5 +601,93 @@ public class RippleDistortion implements DistortionAPI {
     public void setAutoAnimateFrameRate(float frameRate, float frameStart) {
         this.autoAnimateFrameRate = frameRate;
         this.autoAnimateFrameStart = frameStart;
+    }
+
+    /**
+     * Gets the change in size over time.
+     * <p>
+     * @return The rate of change of the size of the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getDeltaSize() {
+        return deltaSize;
+    }
+
+    /**
+     * Sets the change in size over time.
+     * <p>
+     * @param deltaSize The rate of change of size to apply to the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setDeltaSize(float deltaSize) {
+        this.deltaSize = deltaSize;
+    }
+
+    /**
+     * Gets the maximum size to reach.
+     * <p>
+     * @return The maximum size that the distortion can reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getMaxSize() {
+        return maxSize;
+    }
+
+    /**
+     * Sets the maximum size to reach.
+     * <p>
+     * @param maxSize The maximum size that the distortion should reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setMaxSize(float maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    /**
+     * Gets the change in intensity over time.
+     * <p>
+     * @return The rate of change of the intensity of the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getDeltaIntensity() {
+        return deltaIntensity;
+    }
+
+    /**
+     * Sets the change in intensity over time.
+     * <p>
+     * @param deltaIntensity The rate of change of intensity to apply to the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setDeltaIntensity(float deltaIntensity) {
+        this.deltaIntensity = deltaIntensity;
+    }
+
+    /**
+     * Gets the maximum intensity to reach.
+     * <p>
+     * @return The maximum intensity that the distortion can reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getMaxIntensity() {
+        return maxIntensity;
+    }
+
+    /**
+     * Sets the maximum intensity to reach.
+     * <p>
+     * @param maxIntensity The maximum intensity that the distortion should reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setMaxIntensity(float maxIntensity) {
+        this.maxIntensity = maxIntensity;
     }
 }

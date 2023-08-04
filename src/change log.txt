@@ -1,3 +1,9 @@
+Version 1.8.0 (Unreleased)
+- Updated for Starsector 0.96a RC10
+- No more '!!!'
+- API expansion for RippleDistortion and WaveDistortion
+- Various private variables in RippleDistortion, WaveDistortion, and StandardLight changed to protected
+
 Version 1.7.0 (May 9, 2023)
 - Updated for Starsector 0.96a
 - Added new option in settings: "enableFullExplosionEffects"

@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class WaveDistortion implements DistortionAPI {
 
-    private static SpriteAPI sprite;
+    protected static SpriteAPI sprite;
 
     static boolean pathsSet = false;
 
@@ -22,21 +22,21 @@ public class WaveDistortion implements DistortionAPI {
         sprite = Global.getSettings().getSprite(path);
     }
 
-    private float arcAttenWidth = 0f;
-    private float arcEnd = 0f;
-    private float arcStart = 0f;
-    private float autoFadeIntensityTime = 0f;
-    private float autoFadeSizeTime = 0f;
-    private float deltaIntensity = 0f;
-    private float deltaSize = 0f;
-    private boolean flipped = false;
-    private float intensity = 20f;
-    private float lifetime = -1f;
-    private final Vector2f location;
-    private float maxIntensity = 20f;
-    private float maxSize = 100f;
-    private float size = 100f;
-    private final Vector2f velocity;
+    protected float arcAttenWidth = 0f;
+    protected float arcEnd = 0f;
+    protected float arcStart = 0f;
+    protected float autoFadeIntensityTime = 0f;
+    protected float autoFadeSizeTime = 0f;
+    protected float deltaIntensity = 0f;
+    protected float deltaSize = 0f;
+    protected boolean flipped = false;
+    protected float intensity = 20f;
+    protected float lifetime = -1f;
+    protected final Vector2f location;
+    protected float maxIntensity = 20f;
+    protected float maxSize = 100f;
+    protected float size = 100f;
+    protected final Vector2f velocity;
 
     public WaveDistortion() {
         if (!pathsSet) {
@@ -465,5 +465,93 @@ public class WaveDistortion implements DistortionAPI {
         if (arcEnd < 0f) {
             arcEnd += 360f;
         }
+    }
+
+    /**
+     * Gets the change in size over time.
+     * <p>
+     * @return The rate of change of the size of the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getDeltaSize() {
+        return deltaSize;
+    }
+
+    /**
+     * Sets the change in size over time.
+     * <p>
+     * @param deltaSize The rate of change of size to apply to the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setDeltaSize(float deltaSize) {
+        this.deltaSize = deltaSize;
+    }
+
+    /**
+     * Gets the maximum size to reach.
+     * <p>
+     * @return The maximum size that the distortion can reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getMaxSize() {
+        return maxSize;
+    }
+
+    /**
+     * Sets the maximum size to reach.
+     * <p>
+     * @param maxSize The maximum size that the distortion should reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setMaxSize(float maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    /**
+     * Gets the change in intensity over time.
+     * <p>
+     * @return The rate of change of the intensity of the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getDeltaIntensity() {
+        return deltaIntensity;
+    }
+
+    /**
+     * Sets the change in intensity over time.
+     * <p>
+     * @param deltaIntensity The rate of change of intensity to apply to the distortion.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setDeltaIntensity(float deltaIntensity) {
+        this.deltaIntensity = deltaIntensity;
+    }
+
+    /**
+     * Gets the maximum intensity to reach.
+     * <p>
+     * @return The maximum intensity that the distortion can reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public float getMaxIntensity() {
+        return maxIntensity;
+    }
+
+    /**
+     * Sets the maximum intensity to reach.
+     * <p>
+     * @param maxIntensity The maximum intensity that the distortion should reach.
+     * <p>
+     * @since 1.8.0
+     */
+    public void setMaxIntensity(float maxIntensity) {
+        this.maxIntensity = maxIntensity;
     }
 }

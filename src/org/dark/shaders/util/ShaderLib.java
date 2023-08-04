@@ -43,7 +43,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.KHRDebugCallback;
+import org.lwjgl.opengl.KHRDebugCallback.Handler;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -141,6 +144,7 @@ public final class ShaderLib {
     };
 
     public static final boolean VALIDATE_EVERY_FRAME = false;
+    public static final boolean DEBUG_CALLBACK = false;
 
     private static int RTTSizeX = 2048;
     private static int RTTSizeY = 2048;
@@ -544,7 +548,12 @@ public final class ShaderLib {
             return;
         }
 
-        Global.getLogger(ShaderLib.class).setLevel(Level.ERROR);
+        if (DEBUG_CALLBACK) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+            GL43.glDebugMessageCallback(new KHRDebugCallback(new QuickHandler()));
+        }
+
+        Global.getLogger(ShaderLib.class).setLevel(Level.INFO);
 
         displayWidth = (int) Global.getSettings().getScreenWidthPixels();
         if (displayWidth <= 1024) {
@@ -584,10 +593,13 @@ public final class ShaderLib {
                 || GLContext.getCapabilities().GL_ARB_framebuffer_object) {
             if (GLContext.getCapabilities().OpenGL30) {
                 useFramebufferCore = true;
+                Global.getLogger(ShaderLib.class).log(Level.INFO, "Using Core framebuffer.");
             } else if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
                 useFramebufferARB = true;
+                Global.getLogger(ShaderLib.class).log(Level.INFO, "Using ARB framebuffer.");
             } else {
                 useFramebufferEXT = true;
+                Global.getLogger(ShaderLib.class).log(Level.INFO, "Using Extension framebuffer.");
             }
             buffersAllowed = true;
         } else {
@@ -703,7 +715,25 @@ public final class ShaderLib {
             }
         }
 
+        if (DEBUG_CALLBACK) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         initialized = true;
+    }
+
+    // TODO: more error handling like parsing the i, i1, i3...
+    public static class QuickHandler implements Handler {
+
+        @Override
+        public void handleMessage(int i, int i1, int i2, int i3, String string) {
+            String trace = "\n";
+            StackTraceElement stes[] = new Throwable().getStackTrace();
+            for (StackTraceElement ste : stes) {
+                trace += ste + "\n";
+            }
+            Global.getLogger(ShaderLib.class).log(Level.ERROR, "QuickHandler: " + i + ", " + i1 + ", " + i2 + ", " + i3 + ", " + string + trace);
+        }
     }
 
     /**

@@ -68,7 +68,6 @@ public class MissileSelfDestruct extends BaseEveryFrameCombatPlugin {
                     if ((missile.getSpec() != null) && (missile.getSpec().getBehaviorSpec() != null)) {
                         ShotBehaviorSpecAPI behaviorSpec = missile.getSpec().getBehaviorSpec();
                         if (behaviorSpec.getBehavorString().contentEquals("PROXIMITY_FUSE")) {
-                            System.out.print("!!!\n");
                             isProx = true;
                         }
                     }

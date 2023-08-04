@@ -216,6 +216,10 @@ public class DistortionShader implements ShaderAPI {
 
     @Override
     public void destroy() {
+        if (!enabled) {
+            return;
+        }
+
         if (program != 0) {
             final ByteBuffer countbb = ByteBuffer.allocateDirect(4);
             final ByteBuffer shadersbb = ByteBuffer.allocateDirect(8);

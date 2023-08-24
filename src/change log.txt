@@ -1,6 +1,8 @@
 Version 1.8.0 (Unreleased)
 - Updated for Starsector 0.96a RC10
 - No more '!!!'
+- Adjusted/fixed behavior of dead ships regarding surface maps
+- Added 'optimizeNormals' option to the settings for slightly better performance in some situations
 - API expansion for RippleDistortion and WaveDistortion
 - Various private variables in RippleDistortion, WaveDistortion, and StandardLight changed to protected
 

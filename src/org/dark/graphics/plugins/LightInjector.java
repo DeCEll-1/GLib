@@ -523,6 +523,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                 for (NearbyPlanetData data : stars) {
                     engine.addPlugin(new SunPlugin(data.offset.length(), data.offset.normalise(data.offset), data.planet, 5f / (float) Math.sqrt(stars.size())));
                 }
+            } else {
+                engine.addPlugin(new SunPlugin());
             }
         }
     }
@@ -617,6 +619,22 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
         private boolean started = false;
         private final StandardLight sun;
+
+        public SunPlugin() {
+            float magnitude = 1f * Global.getSettings().getFloat("sunLightBrightnessScale");
+            magnitude = Math.min(Math.max(magnitude, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
+            Vector3f direction = new Vector3f(-1f, -1f, -MathUtils.getRandomNumberInRange(
+                    Global.getSettings().getFloat("sunLightZComponentMin"),
+                    Global.getSettings().getFloat("sunLightZComponentMax")));
+            sun = new StandardLight();
+            sun.setType(3);
+            sun.setDirection(direction);
+            sun.setIntensity(magnitude);
+            sun.setSpecularIntensity(magnitude * Global.getSettings().getFloat("sunLightSpecularFactor"));
+            sun.setColor(1f, 1f, 1f);
+            sun.makePermanent();
+            LightShader.addLight(sun);
+        }
 
         public SunPlugin(float distance, Vector2f offset, PlanetAPI star, float scale) {
             this(distance, offset, star.getSpec().getCoronaColor(), star.getRadius(), scale);

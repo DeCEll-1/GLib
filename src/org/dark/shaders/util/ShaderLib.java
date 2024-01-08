@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.Tessellate;
 import org.dark.shaders.ShaderModPlugin;
+import org.dark.shaders.light.LightShader;
 import org.dark.shaders.util.TextureData.ObjectType;
 import org.dark.shaders.util.TextureData.TextureDataType;
 import org.json.JSONException;
@@ -1279,8 +1280,11 @@ public final class ShaderLib {
         int size = asteroids.size();
         for (int i = 0; i < size; i++) {
             final CombatEntityAPI asteroid = asteroids.get(i);
-            final Vector2f asteroidLocation = asteroid.getLocation();
+            if (asteroid.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
+                continue;
+            }
 
+            final Vector2f asteroidLocation = asteroid.getLocation();
             if (!isOnScreen(asteroidLocation, 100f)) { // You can't trust asteroid collision radius.
                 continue;
             }
@@ -1316,8 +1320,11 @@ public final class ShaderLib {
         size = ships.size();
         for (int i = 0; i < size; i++) {
             final ShipAPI ship = ships.get(i);
-            final Vector2f shipLocation = ship.getLocation();
+            if (ship.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
+                continue;
+            }
 
+            final Vector2f shipLocation = ship.getLocation();
             if (!isOnScreen(shipLocation, 1.25f * ship.getCollisionRadius())) {
                 continue;
             }
@@ -1338,8 +1345,6 @@ public final class ShaderLib {
 
             BoundsAPI bounds = ship.getVisualBounds();
             if (bounds != null) {
-                bounds.update(ship.getLocation(), ship.getFacing());
-
                 GL11.glEnable(GL11.GL_STENCIL_TEST);
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
                 GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -1350,7 +1355,7 @@ public final class ShaderLib {
                 GL11.glClearStencil(0);
                 GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer
 
-                Tessellate.render(bounds, 1f, 1f, 1f, ship.getId());
+                Tessellate.render(bounds, 1f, 1f, 1f, ship);
 
                 GL11.glColorMask(true, true, true, true);
                 GL11.glStencilFunc(GL11.GL_EQUAL, 16, 0xFF); // Pass test if stencil value is 16
@@ -1603,8 +1608,11 @@ public final class ShaderLib {
         size = missiles.size();
         for (int i = 0; i < size; i++) {
             final MissileAPI missile = missiles.get(i);
-            final Vector2f shipLocation = missile.getLocation();
+            if (missile.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
+                continue;
+            }
 
+            final Vector2f shipLocation = missile.getLocation();
             if (!isOnScreen(shipLocation, 1.25f * missile.getCollisionRadius())) {
                 continue;
             }

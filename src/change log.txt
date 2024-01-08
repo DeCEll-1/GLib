@@ -1,4 +1,4 @@
-Version 1.8.0 (Unreleased)
+Version 1.8.0 (January 7, 2024)
 - Updated for Starsector 0.96a RC10
 - No more '!!!'
 - Adjusted/fixed behavior of dead ships regarding surface maps
@@ -6,6 +6,8 @@ Version 1.8.0 (Unreleased)
 - API expansion for RippleDistortion and WaveDistortion
 - A default white directional sun-light is now visible in non-campaign battles (simulator, missions)
 - Various private variables in RippleDistortion, WaveDistortion, and StandardLight changed to protected
+- Improved performance of ship chunks (vanilla tessellation issue solved via caching)
+- Added "shaderlib_do_not_render" custom data key, which applies to anything that has custom data, to completely ignore that entity for lighting purposes (improves performance, especially for ships)
 
 Version 1.7.0 (May 9, 2023)
 - Updated for Starsector 0.96a

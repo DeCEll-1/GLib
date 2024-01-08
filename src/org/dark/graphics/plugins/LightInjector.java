@@ -510,6 +510,9 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         this.engine = engine;
         engine.getCustomData().put(DATA_KEY, new LocalData());
 
+        if (engine.getCustomData().containsKey("noSunPlugin")) {
+            return;
+        }
         if (hyperEnabled) {
             if (engine.isInCampaign()) {
                 if (Global.getSector().getHyperspace() == Global.getSector().getPlayerFleet().getContainingLocation()) {
@@ -586,7 +589,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
-            if (!started) {
+            if (!started && (Global.getCombatEngine() != null) && !Global.getCombatEngine().getCustomData().containsKey("noSunPlugin")) {
                 started = true;
                 LightShader.addLight(hyper);
             }
@@ -621,7 +624,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         private final StandardLight sun;
 
         public SunPlugin() {
-            float magnitude = 1f * Global.getSettings().getFloat("sunLightBrightnessScale");
+            float magnitude = 0.35f * Global.getSettings().getFloat("sunLightBrightnessScale");
             magnitude = Math.min(Math.max(magnitude, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
             Vector3f direction = new Vector3f(-1f, -1f, -MathUtils.getRandomNumberInRange(
                     Global.getSettings().getFloat("sunLightZComponentMin"),
@@ -641,7 +644,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         }
 
         public SunPlugin(float distance, Vector2f offset, Color color, float radius, float scale) {
-            float magnitude = (float) Math.sqrt(radius / 500f) * radius / (distance + radius)
+            float magnitude = (float) Math.sqrt(radius / 500f) * (radius + 350f) / (distance + (radius + 350f))
                     * Global.getSettings().getFloat("sunLightBrightnessScale");
             magnitude = Math.min(Math.max(magnitude * scale, 0f), Global.getSettings().getFloat("sunLightBrightnessMax"));
             Vector3f direction = new Vector3f(offset.x, offset.y, -MathUtils.getRandomNumberInRange(
@@ -657,7 +660,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
-            if (!started) {
+            if (!started && (Global.getCombatEngine() != null) && !Global.getCombatEngine().getCustomData().containsKey("noSunPlugin")) {
                 started = true;
                 LightShader.addLight(sun);
             }

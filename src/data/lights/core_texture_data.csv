@@ -86,6 +86,7 @@ glimmer,ship,,,material,graphics/shaders/material/ships/remnants/remnant_frigate
 gremlin,ship,,,material,graphics/shaders/material/ships/phase/gremlin_material.png
 gremlin_d_pirates,ship,,,material,graphics/shaders/material/ships/phase/gremlin_pirates_material.png
 gremlin_luddic_path,ship,,,material,graphics/shaders/material/ships/phase/gremlin_pather_material.png
+grendel,ship,,,material,graphics/shaders/material/ships/phase/wendigo_material.png
 gryphon,ship,,,material,graphics/shaders/material/ships/gryphon/gryphon_material.png
 guardian,ship,,,material,graphics/shaders/material/ships/derelict/derelict_guardian_material.png
 hammerhead,ship,,,material,graphics/shaders/material/ships/hammerhead/hammerhead_base_material.png
@@ -343,6 +344,7 @@ glimmer,ship,,1,normal,graphics/shaders/normal/ships/remnants/remnant_frigate1_n
 gremlin,ship,,1,normal,graphics/shaders/normal/ships/phase/gremlin_normal.png
 gremlin_d_pirates,ship,,1,normal,graphics/shaders/normal/ships/phase/gremlin_pirates_normal.png
 gremlin_luddic_path,ship,,1,normal,graphics/shaders/normal/ships/phase/gremlin_pather_normal.png
+grendel,ship,,1,normal,graphics/shaders/normal/ships/phase/wendigo_normal.png
 gryphon,ship,,1,normal,graphics/shaders/normal/ships/gryphon/gryphon_normal.png
 guardian,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_guardian_normal.png
 hammerhead,ship,,1,normal,graphics/shaders/normal/ships/hammerhead/hammerhead_base_normal.png
@@ -600,6 +602,7 @@ glimmer,ship,,,surface,graphics/shaders/surface/ships/remnants/remnant_frigate1_
 gremlin,ship,,,surface,graphics/shaders/surface/ships/phase/gremlin_surface.png
 gremlin_d_pirates,ship,,,surface,graphics/shaders/surface/ships/phase/gremlin_pirates_surface.png
 gremlin_luddic_path,ship,,,surface,graphics/shaders/surface/ships/phase/gremlin_pather_surface.png
+grendel,ship,,,surface,graphics/shaders/surface/ships/phase/wendigo_surface.png
 gryphon,ship,,,surface,graphics/shaders/surface/ships/gryphon/gryphon_surface.png
 guardian,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_guardian_surface.png
 hammerhead,ship,,,surface,graphics/shaders/surface/ships/hammerhead/hammerhead_base_surface.png

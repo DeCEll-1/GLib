@@ -1,3 +1,6 @@
+Version 1.9.0 (February 3, 2024)
+- Updated for Starsector 0.97a
+
 Version 1.8.0 (January 7, 2024)
 - Updated for Starsector 0.96a RC10
 - No more '!!!'

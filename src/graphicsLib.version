@@ -2,11 +2,11 @@
     "masterVersionFile":"https://www.sc2mafia.com/Starsector/version/graphicsLib.version",
     "modName":"GraphicsLib",
     "modThreadId":10982,
-    "directDownloadURL": "https://bitbucket.org/DarkRevenant/graphicslib/downloads/GraphicsLib_1.8.0.7z",
+    "directDownloadURL": "https://bitbucket.org/DarkRevenant/graphicslib/downloads/GraphicsLib_1.9.0.7z",
     "modVersion":
     {
         "major":1,
-        "minor":8,
+        "minor":9,
         "patch":0
     },
 }

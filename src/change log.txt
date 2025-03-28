@@ -1,3 +1,6 @@
+Version 1.9.1 (Unreleased)
+- Updated for Starsector 0.97a RC11
+
 Version 1.9.0 (February 3, 2024)
 - Updated for Starsector 0.97a
 

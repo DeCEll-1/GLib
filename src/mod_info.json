@@ -2,10 +2,10 @@
     "id": "shaderLib",
     "name": "zz GraphicsLib",
     "author": "DarkRevenant",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "utility": "true",
     "description": "An arcane tome of black magic and sorcery.",
-    "gameVersion": "0.97a-RC6",
+    "gameVersion": "0.97a-RC11",
     "jars":["jars/Graphics.jar"],
     "modPlugin":"org.dark.shaders.ShaderModPlugin",
     "dependencies": [

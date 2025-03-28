@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.ShipColors;
+import static org.dark.graphics.util.ShipColors.EXPLOSION_COLORS;
 import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.distortion.RippleDistortion;
 import org.dark.shaders.light.LightShader;
@@ -30,8 +31,6 @@ import org.json.JSONObject;
 import org.lazywizard.lazylib.CollisionUtils;
 import org.lazywizard.lazylib.combat.entities.AnchoredEntity;
 import org.lwjgl.util.vector.Vector2f;
-
-import static org.dark.graphics.util.ShipColors.EXPLOSION_COLORS;
 
 public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
@@ -191,6 +190,10 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
 
         if (engine.isPaused()) {
             return;
+        }
+
+        if (!Global.getCombatEngine().getCustomData().containsKey(DATA_KEY)) {
+            Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
         }
 
         final LocalData localData = (LocalData) engine.getCustomData().get(DATA_KEY);
@@ -651,7 +654,6 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
     @Override
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
-        Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
         interval = new IntervalUtil(0.1f / trailScale, 0.1f / trailScale);
     }
 

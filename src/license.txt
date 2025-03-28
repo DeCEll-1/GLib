@@ -1,1 +1,1 @@
-This software may be redistributed as-is.  Source of this software may be used for other unrelated works, if attribution is granted to Magehand LLC.  Derivations of this software may be created, but not distributed.  All assets are copyright their respective owners, all rights reserved.
+GraphicsLib © 2014 by Harrison Snodgrass is licensed under CC BY 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/

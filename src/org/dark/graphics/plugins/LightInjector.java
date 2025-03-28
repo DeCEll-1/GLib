@@ -94,6 +94,10 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             return;
         }
 
+        if (!Global.getCombatEngine().getCustomData().containsKey(DATA_KEY)) {
+            Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
+        }
+
         final LocalData localData = (LocalData) engine.getCustomData().get(DATA_KEY);
         final Map<ShipAPI, StandardLight> lights = localData.lights;
         final Map<ShipAPI, StandardLight> travelLights = localData.travelLights;
@@ -508,26 +512,27 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
     @Override
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
-        engine.getCustomData().put(DATA_KEY, new LocalData());
-
-        if (engine.getCustomData().containsKey("noSunPlugin")) {
-            return;
-        }
-        if (hyperEnabled) {
-            if (engine.isInCampaign()) {
-                if (Global.getSector().getHyperspace() == Global.getSector().getPlayerFleet().getContainingLocation()) {
-                    engine.addPlugin(new HyperPlugin());
+        if (engine != null) {
+            engine.getCustomData().put(DATA_KEY, new LocalData());
+            if (engine.getCustomData().containsKey("noSunPlugin")) {
+                return;
+            }
+            if (hyperEnabled) {
+                if (engine.isInCampaign()) {
+                    if (Global.getSector().getHyperspace() == Global.getSector().getPlayerFleet().getContainingLocation()) {
+                        engine.addPlugin(new HyperPlugin());
+                    }
                 }
             }
-        }
-        if (sunEnabled) {
-            if (engine.isInCampaign()) {
-                List<NearbyPlanetData> stars = getNearbyStars(Global.getSector().getPlayerFleet());
-                for (NearbyPlanetData data : stars) {
-                    engine.addPlugin(new SunPlugin(data.offset.length(), data.offset.normalise(data.offset), data.planet, 5f / (float) Math.sqrt(stars.size())));
+            if (sunEnabled) {
+                if (engine.isInCampaign()) {
+                    List<NearbyPlanetData> stars = getNearbyStars(Global.getSector().getPlayerFleet());
+                    for (NearbyPlanetData data : stars) {
+                        engine.addPlugin(new SunPlugin(data.offset.length(), data.offset.normalise(data.offset), data.planet, 5f / (float) Math.sqrt(stars.size())));
+                    }
+                } else {
+                    engine.addPlugin(new SunPlugin());
                 }
-            } else {
-                engine.addPlugin(new SunPlugin());
             }
         }
     }

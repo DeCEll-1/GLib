@@ -91,6 +91,10 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             return;
         }
 
+        if (!Global.getCombatEngine().getCustomData().containsKey(DATA_KEY)) {
+            Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
+        }
+
         final LocalData localData = (LocalData) engine.getCustomData().get(DATA_KEY);
         final Map<DamagingProjectileAPI, ProjectileInfo> projectiles = localData.projectiles;
 
@@ -222,7 +226,6 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
     @Override
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
-        Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
     }
 
     private void createHitRipple(Vector2f location, Vector2f velocity, float damage, DamageType type, float direction,

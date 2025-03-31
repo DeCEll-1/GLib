@@ -34,16 +34,13 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class LensShader implements ShaderAPI {
 
-    public static final Comparator<CombatEntityAPI> ENTITYSIZE = new Comparator<CombatEntityAPI>() {
-        @Override
-        public int compare(CombatEntityAPI entity1, CombatEntityAPI entity2) {
-            if (entity1.getCollisionRadius() > entity2.getCollisionRadius()) {
-                return -1;
-            } else if (entity1.getCollisionRadius() < entity2.getCollisionRadius()) {
-                return 1;
-            } else {
-                return 0;
-            }
+    public static final Comparator<CombatEntityAPI> ENTITYSIZE = (CombatEntityAPI entity1, CombatEntityAPI entity2) -> {
+        if (entity1.getCollisionRadius() > entity2.getCollisionRadius()) {
+            return -1;
+        } else if (entity1.getCollisionRadius() < entity2.getCollisionRadius()) {
+            return 1;
+        } else {
+            return 0;
         }
     };
 
@@ -275,15 +272,12 @@ public class LensShader implements ShaderAPI {
         for (int i = 0; i < lenses * 3; i++) {
             int pos = i % 3;
             switch (pos) {
-                case 0:
+                case 0 ->
                     dataBuffer.put((dataBufferPre.get() - normX.y) / normX.x);
-                    break;
-                case 1:
+                case 1 ->
                     dataBuffer.put((dataBufferPre.get() - normY.y) / normY.x);
-                    break;
-                default:
+                default ->
                     dataBuffer.put(dataBufferPre.get() / normS.x);
-                    break;
             }
         }
 

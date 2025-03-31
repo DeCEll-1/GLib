@@ -21,7 +21,7 @@ public class LSProxDetector implements ProximityExplosionEffect {
 
     @Override
     public void onExplosion(DamagingProjectileAPI explosion, DamagingProjectileAPI originalProjectile) {
-        ProximityExplosionEffect originalEffect = ORIGINAL_EFFECTS.get(originalProjectile.getProjectileSpecId());
+        final ProximityExplosionEffect originalEffect = ORIGINAL_EFFECTS.get(originalProjectile.getProjectileSpecId());
         if (originalEffect != null) {
             /* Vanilla apparently instantiates this every time */
             ProximityExplosionEffect newEffect = null;
@@ -53,8 +53,8 @@ public class LSProxDetector implements ProximityExplosionEffect {
             while (iter.hasNext()) {
                 final LightAPI light = iter.next();
 
-                if (light instanceof StandardLight) {
-                    final StandardLight sLight = (StandardLight) light;
+                if (light instanceof StandardLight standardLight) {
+                    final StandardLight sLight = standardLight;
 
                     if (sLight.getAttachment() == originalProjectile) {
                         hadAttachment = true;

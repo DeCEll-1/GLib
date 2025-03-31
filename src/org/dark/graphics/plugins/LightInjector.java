@@ -28,6 +28,7 @@ import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+@SuppressWarnings("UseSpecificCatch")
 public class LightInjector extends BaseEveryFrameCombatPlugin {
 
     private static final String DATA_KEY = "GLib_LightInjector";
@@ -42,7 +43,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
     static {
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(ShipDestructionEffects.class).log(Level.ERROR, "Failed to load settings: " + e.getMessage());
             sunEnabled = false;
             hyperEnabled = false;
@@ -61,10 +62,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
     private static List<NearbyPlanetData> getNearbyStars(CampaignFleetAPI playerFleet) {
         LocationAPI loc = playerFleet.getContainingLocation();
         List<NearbyPlanetData> result = new ArrayList<>(2);
-        if (loc instanceof StarSystemAPI) {
-            StarSystemAPI system = (StarSystemAPI) loc;
-            List<PlanetAPI> planets = system.getPlanets();
-            for (PlanetAPI planet : planets) {
+        if (loc instanceof StarSystemAPI system) {
+            for (PlanetAPI planet : system.getPlanets()) {
                 if (!planet.isStar()) {
                     continue;
                 }
@@ -102,10 +101,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
         final Map<ShipAPI, StandardLight> lights = localData.lights;
         final Map<ShipAPI, StandardLight> travelLights = localData.travelLights;
 
-        List<ShipAPI> ships = engine.getShips();
-        int shipsSize = ships.size();
-        for (int i = 0; i < shipsSize; i++) {
-            ShipAPI ship = ships.get(i);
+        for (ShipAPI ship : engine.getShips()) {
             if (ship.isHulk()) {
                 continue;
             }
@@ -117,11 +113,8 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                 if (ship.getEngineController() == null) {
                     break;
                 }
-                List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                 int num = 0;
-                int enginesSize = engines.size();
-                for (int j = 0; j < enginesSize; j++) {
-                    ShipEngineAPI eng = engines.get(j);
+                for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                     if (eng.isActive() && !eng.isDisabled() && eng.getContribution() > 0f) {
                         num++;
                         if (location == null) {
@@ -177,17 +170,14 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             if (system != null) {
                 String id = system.getId();
                 switch (id) {
-                    case "burndrive":
+                    case "burndrive" -> {
                         if (system.isActive()) {
                             Vector2f location = null;
                             if (ship.getEngineController() == null) {
                                 break;
                             }
-                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                             int num = 0;
-                            int enginesSize = engines.size();
-                            for (int j = 0; j < enginesSize; j++) {
-                                ShipEngineAPI eng = engines.get(j);
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                                 if (eng.isActive() && !eng.isDisabled()) {
                                     num++;
                                     if (location == null) {
@@ -233,18 +223,15 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    case "maneuveringjets":
+                    }
+                    case "maneuveringjets" -> {
                         if (system.isActive()) {
                             Vector2f location = null;
                             if (ship.getEngineController() == null) {
                                 break;
                             }
-                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                             int num = 0;
-                            int enginesSize = engines.size();
-                            for (int j = 0; j < enginesSize; j++) {
-                                ShipEngineAPI eng = engines.get(j);
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                                 if (eng.isActive() && !eng.isDisabled()) {
                                     num++;
                                     if (location == null) {
@@ -290,18 +277,15 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    case "plasmajets":
+                    }
+                    case "plasmajets" -> {
                         if (system.isActive()) {
                             Vector2f location = null;
                             if (ship.getEngineController() == null) {
                                 break;
                             }
-                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                             int num = 0;
-                            int enginesSize = engines.size();
-                            for (int j = 0; j < enginesSize; j++) {
-                                ShipEngineAPI eng = engines.get(j);
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                                 if (eng.isActive() && !eng.isDisabled()) {
                                     num++;
                                     if (location == null) {
@@ -342,18 +326,15 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    case "microburn":
+                    }
+                    case "microburn" -> {
                         if (system.isActive()) {
                             Vector2f location = null;
                             if (ship.getEngineController() == null) {
                                 break;
                             }
-                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                             int num = 0;
-                            int enginesSize = engines.size();
-                            for (int j = 0; j < enginesSize; j++) {
-                                ShipEngineAPI eng = engines.get(j);
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                                 if (eng.isActive() && !eng.isDisabled()) {
                                     num++;
                                     if (location == null) {
@@ -394,18 +375,15 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    case "microburn_omega":
+                    }
+                    case "microburn_omega" -> {
                         if (system.isActive()) {
                             Vector2f location = null;
                             if (ship.getEngineController() == null) {
                                 break;
                             }
-                            List<ShipEngineAPI> engines = ship.getEngineController().getShipEngines();
                             int num = 0;
-                            int enginesSize = engines.size();
-                            for (int j = 0; j < enginesSize; j++) {
-                                ShipEngineAPI eng = engines.get(j);
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
                                 if (eng.isActive() && !eng.isDisabled()) {
                                     num++;
                                     if (location == null) {
@@ -446,8 +424,62 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    case "emp":
+                    }
+                    case "combat_burn" -> {
+                        if (system.isActive()) {
+                            Vector2f location = null;
+                            if (ship.getEngineController() == null) {
+                                break;
+                            }
+                            int num = 0;
+                            for (ShipEngineAPI eng : ship.getEngineController().getShipEngines()) {
+                                if (eng.isActive() && !eng.isDisabled()) {
+                                    num++;
+                                    if (location == null) {
+                                        location = new Vector2f(eng.getLocation());
+                                    } else {
+                                        Vector2f.add(location, eng.getLocation(), location);
+                                    }
+                                }
+                            }
+                            if (location == null) {
+                                break;
+                            }
+
+                            location.scale(1f / num);
+
+                            if (lights.containsKey(ship)) {
+                                StandardLight light = lights.get(ship);
+
+                                light.setLocation(location);
+
+                                if ((system.isActive() && !system.isOn()) || system.isChargedown()) {
+                                    if (!light.isFadingOut()) {
+                                        light.fadeOut(1f);
+                                    }
+                                }
+                            } else {
+                                StandardLight light = new StandardLight(location, ZERO, ZERO, null);
+                                float intensity = (float) Math.sqrt(shipRadius) / 20f;
+                                float size = intensity * 300f;
+
+                                light.setIntensity(intensity);
+                                light.setSize(size);
+                                Color color = null;
+                                if (!ship.getEngineController().getShipEngines().isEmpty()) {
+                                    color = ship.getEngineController().getShipEngines().get(0).getEngineColor();
+                                }
+                                if (color != null) {
+                                    light.setColor(color);
+                                }
+                                light.fadeIn(1f);
+
+                                lights.put(ship, light);
+                                LightShader.addLight(light);
+                            }
+                        }
+                    }
+                    case "emp" -> {
                         if (system.isActive()) {
                             Vector2f location = ship.getLocation();
 
@@ -473,9 +505,9 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
                                 LightShader.addLight(light);
                             }
                         }
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
             }
         }

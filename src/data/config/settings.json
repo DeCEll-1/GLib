@@ -12,8 +12,8 @@
         "GLib_WeaponDamageSmoke":"org.dark.graphics.plugins.WeaponDamageSmoke",
         "GLib_DistortionsPlugin":"org.dark.graphics.plugins.DistortionsPlugin",
         "GLib_LightInjector":"org.dark.graphics.plugins.LightInjector",
-        "GLib_InsigniaPlugin":"org.dark.graphics.plugins.InsigniaPlugin",
-        "GLib_MissileSelfDestruct":"org.dark.graphics.plugins.MissileSelfDestruct"
+        "GLib_ThreatInjector":"org.dark.graphics.plugins.ThreatInjector",
+        "GLib_InsigniaPlugin":"org.dark.graphics.plugins.InsigniaPlugin"
     },
 
     "graphics":{

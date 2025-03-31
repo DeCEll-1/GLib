@@ -38,7 +38,7 @@ public class LightEntry {
         standardIntensity = entry.standardIntensity;
         standardFadeout = entry.standardFadeout;
         standardColor = new Color(entry.standardColor.getRed(), entry.standardColor.getGreen(),
-                                  entry.standardColor.getBlue());
+                entry.standardColor.getBlue());
         standardOffset = entry.standardOffset;
 
         hasHit = entry.hasHit;

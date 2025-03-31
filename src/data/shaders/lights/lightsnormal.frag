@@ -239,4 +239,6 @@ void main() {
     clamp(color, 0.0, 1.0);
     //gl_FragColor = vec4(norm.rgb * hdr, 1.0);
     gl_FragColor = vec4(color, 1.0);
+    //gl_FragColor = vec4(color2.rgb * hdr, 1.0);
+    //gl_FragColor = vec4(surface * hdr, 1.0);
 }

@@ -32,6 +32,7 @@ import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+@SuppressWarnings("UseSpecificCatch")
 public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
 
     private static final Set<String> EXCLUDED_PROJECTILES = new HashSet<>(20);
@@ -50,7 +51,7 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
     static {
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(DistortionsPlugin.class).log(Level.ERROR, "Failed to load performance settings: "
                     + e.getMessage());
             enabled = false;
@@ -160,11 +161,27 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
                             }
                         }
                         float factor = ship.getMutableStats().getShieldDamageTakenMult().getModifiedValue();
-                        createHitRipple(position, ship.getVelocity(), info.damage * fader * factor,
-                                projectile.getDamageType(), VectorUtils.getFacing(
-                                VectorUtils.getDirectionalVector(ship.getShield().getLocation(),
-                                        projectile.getLocation())),
-                                ship.getShield().getRadius());
+                        if (projectile instanceof MissileAPI) {
+                            factor *= ship.getMutableStats().getMissileShieldDamageTakenMult().getModifiedValue();
+                        } else {
+                            factor *= ship.getMutableStats().getProjectileShieldDamageTakenMult().getModifiedValue();
+                        }
+                        switch (projectile.getDamageType()) {
+                            case ENERGY ->
+                                factor *= ship.getMutableStats().getEnergyShieldDamageTakenMult().getModifiedValue();
+                            case KINETIC ->
+                                factor *= ship.getMutableStats().getKineticShieldDamageTakenMult().getModifiedValue();
+                            case HIGH_EXPLOSIVE ->
+                                factor *= ship.getMutableStats().getHighExplosiveShieldDamageTakenMult().getModifiedValue();
+                            case FRAGMENTATION ->
+                                factor *= ship.getMutableStats().getFragmentationShieldDamageTakenMult().getModifiedValue();
+                            default -> {
+                            }
+                        }
+                        boolean dweller = ship.getHullStyleId().contentEquals("DWELLER");
+                        createHitRipple(position, ship.getVelocity(), info.damage * fader * factor, projectile.getDamageType(),
+                                VectorUtils.getFacing(VectorUtils.getDirectionalVector(ship.getShield().getLocation(), projectile.getLocation())),
+                                ship.getShield().getRadius(), dweller);
                     } else if (ShaderModPlugin.templarsExists && TEM_LatticeShield.shieldLevel(ship) > 0f) {
                         float fader = 1f;
                         if (!(projectile instanceof MissileAPI) && projectile.getWeapon() != null) {
@@ -178,11 +195,9 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
                             }
                         }
                         float factor = ship.getMutableStats().getShieldDamageTakenMult().getModifiedValue();
-                        createHitRipple(projectile.getLocation(), ship.getVelocity(), info.damage * fader * factor,
-                                projectile.getDamageType(),
-                                VectorUtils.getFacing(VectorUtils.getDirectionalVector(ship.getLocation(),
-                                        projectile.getLocation())),
-                                ship.getCollisionRadius());
+                        createHitRipple(projectile.getLocation(), ship.getVelocity(), info.damage * fader * factor, projectile.getDamageType(),
+                                VectorUtils.getFacing(VectorUtils.getDirectionalVector(ship.getLocation(), projectile.getLocation())),
+                                ship.getCollisionRadius(), false);
                     }
                 }
 
@@ -229,7 +244,7 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
     }
 
     private void createHitRipple(Vector2f location, Vector2f velocity, float damage, DamageType type, float direction,
-            float shieldRadius) {
+            float shieldRadius, boolean dweller) {
         float dmg = damage;
         if (type == DamageType.FRAGMENTATION) {
             dmg *= 0.25f;
@@ -269,25 +284,40 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             end2 -= 360f;
         }
 
-        RippleDistortion ripple = new RippleDistortion(location, velocity);
-        ripple.setSize(size);
-        ripple.setIntensity(size * 0.3f);
-        ripple.setFrameRate(60f / fadeTime);
-        ripple.fadeInSize(fadeTime * 1.2f);
-        ripple.fadeOutIntensity(fadeTime);
-        ripple.setSize(size * 0.2f);
-        ripple.setArc(start1, end1);
-        DistortionShader.addDistortion(ripple);
+        if (dweller) {
+            fadeTime *= 1.5f;
+            size *= 1.5f;
 
-        ripple = new RippleDistortion(location, velocity);
-        ripple.setSize(size);
-        ripple.setIntensity(size * 0.075f);
-        ripple.setFrameRate(60f / fadeTime);
-        ripple.fadeInSize(fadeTime * 1.2f);
-        ripple.fadeOutIntensity(fadeTime);
-        ripple.setSize(size * 0.2f);
-        ripple.setArc(start2, end2);
-        DistortionShader.addDistortion(ripple);
+            RippleDistortion ripple = new RippleDistortion(location, velocity);
+            ripple.setSize(size);
+            ripple.setIntensity(size * 0.1f);
+            ripple.setFrameRate(60f / fadeTime);
+            ripple.fadeInSize(fadeTime * 1.2f);
+            ripple.fadeOutIntensity(fadeTime);
+            ripple.setSize(size * 0.2f);
+            ripple.setArc(start1, end1);
+            DistortionShader.addDistortion(ripple);
+        } else {
+            RippleDistortion ripple = new RippleDistortion(location, velocity);
+            ripple.setSize(size);
+            ripple.setIntensity(size * 0.3f);
+            ripple.setFrameRate(60f / fadeTime);
+            ripple.fadeInSize(fadeTime * 1.2f);
+            ripple.fadeOutIntensity(fadeTime);
+            ripple.setSize(size * 0.2f);
+            ripple.setArc(start1, end1);
+            DistortionShader.addDistortion(ripple);
+
+            ripple = new RippleDistortion(location, velocity);
+            ripple.setSize(size);
+            ripple.setIntensity(size * 0.075f);
+            ripple.setFrameRate(60f / fadeTime);
+            ripple.fadeInSize(fadeTime * 1.2f);
+            ripple.fadeOutIntensity(fadeTime);
+            ripple.setSize(size * 0.2f);
+            ripple.setArc(start2, end2);
+            DistortionShader.addDistortion(ripple);
+        }
     }
 
 //    private float getAdjustedDamage(DamagingProjectileAPI proj, float baseDamage, boolean shields) {

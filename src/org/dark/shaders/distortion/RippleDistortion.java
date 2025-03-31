@@ -17,6 +17,7 @@ import org.lwjgl.util.vector.Vector2f;
  * @author DarkRevenant
  * @since Alpha 1.1
  */
+@SuppressWarnings("UseSpecificCatch")
 public class RippleDistortion implements DistortionAPI {
 
     public static final int FRAMES = 60;
@@ -32,7 +33,7 @@ public class RippleDistortion implements DistortionAPI {
 
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: "
                     + e.getMessage());
         }

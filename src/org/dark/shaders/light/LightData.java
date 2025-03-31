@@ -33,14 +33,14 @@ public class LightData {
         if (null == type) {
             return null;
         } else {
-            switch (type) {
-                case PROJECTILE:
-                    return projectileLightData.get(key);
-                case BEAM:
-                    return beamLightData.get(key);
-                default:
-                    return null;
-            }
+            return switch (type) {
+                case PROJECTILE ->
+                    projectileLightData.get(key);
+                case BEAM ->
+                    beamLightData.get(key);
+                default ->
+                    null;
+            };
         }
     }
 
@@ -49,6 +49,7 @@ public class LightData {
      * <p>
      * @param localPath The local path to the csv file (ex. "data/lights/core_light_data.csv").
      */
+    @SuppressWarnings("UseSpecificCatch")
     public static void readLightDataCSV(String localPath) {
         try {
             final JSONArray lightData = Global.getSettings().loadCSV(localPath);
@@ -61,13 +62,11 @@ public class LightData {
 
                     boolean success = true;
                     switch (entry.getString("type")) {
-                        case "projectile":
+                        case "projectile" ->
                             projectileLightData.put(entry.getString("id"), lightEntry);
-                            break;
-                        case "beam":
+                        case "beam" ->
                             beamLightData.put(entry.getString("id"), lightEntry);
-                            break;
-                        default:
+                        default ->
                             success = false;
                     }
                     if (!success) {
@@ -107,7 +106,7 @@ public class LightData {
                     lightEntry.fighterDim = entry.optBoolean("fighter dim", true);
                 }
             }
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! "
                     + e.getMessage());
         }
@@ -121,6 +120,7 @@ public class LightData {
      * <p>
      * @since Alpha 1.03
      */
+    @SuppressWarnings("UseSpecificCatch")
     public static void readLightDataCSVNoOverwrite(String localPath) {
         try {
             final JSONArray lightData = Global.getSettings().loadCSV(localPath);
@@ -133,21 +133,21 @@ public class LightData {
 
                     boolean success = true;
                     switch (entry.getString("type")) {
-                        case "projectile":
+                        case "projectile" -> {
                             if (projectileLightData.containsKey(entry.getString("id"))) {
                                 success = false;
                             } else {
                                 projectileLightData.put(entry.getString("id"), lightEntry);
                             }
-                            break;
-                        case "beam":
+                        }
+                        case "beam" -> {
                             if (beamLightData.containsKey(entry.getString("id"))) {
                                 success = false;
                             } else {
                                 beamLightData.put(entry.getString("id"), lightEntry);
                             }
-                            break;
-                        default:
+                        }
+                        default ->
                             success = false;
                     }
                     if (!success) {
@@ -187,7 +187,7 @@ public class LightData {
                     lightEntry.fighterDim = entry.optBoolean("fighter dim", true);
                 }
             }
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(ShaderLib.class).log(Level.ERROR, "Light data loading failed for " + localPath + "! "
                     + e.getMessage());
         }

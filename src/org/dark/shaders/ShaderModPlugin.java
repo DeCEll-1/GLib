@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Level;
-import org.dark.graphics.plugins.MissileSelfDestruct;
+import org.dark.graphics.light.ThreatMapObject;
 import org.dark.graphics.util.ShipColors;
 import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.light.LightData;
@@ -54,6 +54,7 @@ public final class ShaderModPlugin extends BaseModPlugin {
     }
 
     @Override
+    @SuppressWarnings("UseSpecificCatch")
     public void onApplicationLoad() throws IOException, JSONException {
         Global.getLogger(ShaderModPlugin.class).setLevel(Level.WARN);
 
@@ -82,7 +83,6 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
         ShaderLib.init();
         ShipColors.init();
-        MissileSelfDestruct.loadSettings();
 
         if (ShaderLib.areShadersAllowed()) {
             if ((Global.getSettings().getAASamples() > 1) && !ShaderLib.isAACompatMode()) {
@@ -109,7 +109,7 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
             try {
                 loadSettings();
-            } catch (IOException | JSONException e) {
+            } catch (Exception e) {
                 Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
             }
 
@@ -159,6 +159,31 @@ public final class ShaderModPlugin extends BaseModPlugin {
                     }
                 } catch (IOException e) {
                     Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                    throw e;
+                }
+            }
+
+            if (TextureData.isLoadMaterial()) {
+                try {
+                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_MATERIAL_PATH);
+                } catch (IOException e) {
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_MATERIAL_PATH + "! " + e.getMessage());
+                    throw e;
+                }
+            }
+            if (TextureData.isLoadNormal()) {
+                try {
+                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_NORMAL_PATH);
+                } catch (IOException e) {
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_NORMAL_PATH + "! " + e.getMessage());
+                    throw e;
+                }
+            }
+            if (TextureData.isLoadSurface()) {
+                try {
+                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_SURFACE_PATH);
+                } catch (IOException e) {
+                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_SURFACE_PATH + "! " + e.getMessage());
                     throw e;
                 }
             }

@@ -20,6 +20,7 @@ import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+@SuppressWarnings("UseSpecificCatch")
 public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
 
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
@@ -29,7 +30,7 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
     static {
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: "
                     + e.getMessage());
             enabled = false;

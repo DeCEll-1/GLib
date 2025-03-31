@@ -39,20 +39,17 @@ public class DistortionShader implements ShaderAPI {
 
     private static final String DATA_KEY = "shaderlib_DistortionShader";
 
-    private static final Comparator<DistortionAPI> DISTORTIONSIZE = new Comparator<DistortionAPI>() {
-        @Override
-        public int compare(DistortionAPI distortion1, DistortionAPI distortion2) {
-            final float distortion1factor = distortion1.getIntensity() * Math.max(distortion1.getSprite().getWidth(),
-                    distortion1.getSprite().getHeight());
-            final float distortion2factor = distortion2.getIntensity() * Math.max(distortion2.getSprite().getWidth(),
-                    distortion2.getSprite().getHeight());
-            if (distortion1factor > distortion2factor) {
-                return -1;
-            } else if (distortion1factor < distortion2factor) {
-                return 1;
-            } else {
-                return 0;
-            }
+    private static final Comparator<DistortionAPI> DISTORTIONSIZE = (DistortionAPI distortion1, DistortionAPI distortion2) -> {
+        final float distortion1factor = distortion1.getIntensity() * Math.max(distortion1.getSprite().getWidth(),
+                distortion1.getSprite().getHeight());
+        final float distortion2factor = distortion2.getIntensity() * Math.max(distortion2.getSprite().getWidth(),
+                distortion2.getSprite().getHeight());
+        if (distortion1factor > distortion2factor) {
+            return -1;
+        } else if (distortion1factor < distortion2factor) {
+            return 1;
+        } else {
+            return 0;
         }
     };
 
@@ -119,6 +116,7 @@ public class DistortionShader implements ShaderAPI {
     private boolean validated = false;
     private boolean validatedAux = false;
 
+    @SuppressWarnings("UseSpecificCatch")
     public DistortionShader() {
         if (!ShaderLib.areShadersAllowed() || !ShaderLib.areBuffersAllowed()) {
             enabled = false;
@@ -134,7 +132,7 @@ public class DistortionShader implements ShaderAPI {
 
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(DistortionShader.class).log(Level.ERROR, "Failed to load shader settings: "
                     + e.getMessage());
             enabled = false;

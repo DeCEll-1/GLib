@@ -14,8 +14,10 @@ import org.json.JSONObject;
  * A class for reading csv data to the program so that textures such as material maps and normal maps can be handled.
  * <p>
  * @author DarkRevenant
+ * <p>
  * @since Alpha 1.5
  */
+@SuppressWarnings("UseSpecificCatch")
 public class TextureData {
 
     private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
@@ -32,7 +34,7 @@ public class TextureData {
 
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(TextureData.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
         }
     }
@@ -40,9 +42,9 @@ public class TextureData {
     /**
      * Gets a copy of the requested data. Returns null if no such TextureData entry exists.
      * <p>
-     * @param key   The ID of the desired material map or normal map texture.
-     * @param map   Whether the desired texture is a material map or normal map.
-     * @param type  What kind of object the texture is intended for.
+     * @param key The ID of the desired material map or normal map texture.
+     * @param map Whether the desired texture is a material map or normal map.
+     * @param type What kind of object the texture is intended for.
      * @param frame The frame of the animation, for an animated weapon. Use 0 for non-animated weapons and ships.
      * <p>
      * @return The requested data. Null if no such TextureData entry exists.
@@ -56,53 +58,39 @@ public class TextureData {
 
         final String typeStr;
         switch (type) {
-            case SHIP:
+            case SHIP ->
                 typeStr = "$$$ship";
-                break;
-            case TURRET:
+            case TURRET ->
                 typeStr = "$$$turret";
-                break;
-            case TURRET_BARREL:
+            case TURRET_BARREL ->
                 typeStr = "$$$turretbarrel";
-                break;
-            case TURRET_UNDER:
+            case TURRET_UNDER ->
                 typeStr = "$$$turretunder";
-                break;
-            case TURRET_COVER_SMALL:
+            case TURRET_COVER_SMALL ->
                 typeStr = "$$$turretcoversmall";
-                break;
-            case TURRET_COVER_MEDIUM:
+            case TURRET_COVER_MEDIUM ->
                 typeStr = "$$$turretcovermedium";
-                break;
-            case TURRET_COVER_LARGE:
+            case TURRET_COVER_LARGE ->
                 typeStr = "$$$turretcoverlarge";
-                break;
-            case HARDPOINT:
+            case HARDPOINT ->
                 typeStr = "$$$hardpoint";
-                break;
-            case HARDPOINT_BARREL:
+            case HARDPOINT_BARREL ->
                 typeStr = "$$$hardpointbarrel";
-                break;
-            case HARDPOINT_UNDER:
+            case HARDPOINT_UNDER ->
                 typeStr = "$$$hardpointunder";
-                break;
-            case HARDPOINT_COVER_SMALL:
+            case HARDPOINT_COVER_SMALL ->
                 typeStr = "$$$hardpointcoversmall";
-                break;
-            case HARDPOINT_COVER_MEDIUM:
+            case HARDPOINT_COVER_MEDIUM ->
                 typeStr = "$$$hardpointcovermedium";
-                break;
-            case HARDPOINT_COVER_LARGE:
+            case HARDPOINT_COVER_LARGE ->
                 typeStr = "$$$hardpointcoverlarge";
-                break;
-            case MISSILE:
+            case MISSILE ->
                 typeStr = "$$$missile";
-                break;
-            case ASTEROID:
+            case ASTEROID ->
                 typeStr = "$$$asteroid";
-                break;
-            default:
+            default -> {
                 return null;
+            }
         }
         if (map == TextureDataType.MATERIAL_MAP && loadMaterial) {
             return materialData.get(key + typeStr + frame);
@@ -133,58 +121,43 @@ public class TextureData {
 
                 final JSONObject entry = textureData.getJSONObject(i);
 
-                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&
-                        !entry.optString("map").isEmpty() &&
-                        !entry.optString("path").isEmpty()) {
+                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty()
+                        && !entry.optString("map").isEmpty()
+                        && !entry.optString("path").isEmpty()) {
                     boolean success = true;
                     String type = "";
                     switch (entry.getString("type")) {
-                        case "ship":
+                        case "ship" ->
                             type = "$$$ship";
-                            break;
-                        case "turret":
+                        case "turret" ->
                             type = "$$$turret";
-                            break;
-                        case "turretbarrel":
+                        case "turretbarrel" ->
                             type = "$$$turretbarrel";
-                            break;
-                        case "turretunder":
+                        case "turretunder" ->
                             type = "$$$turretunder";
-                            break;
-                        case "turretcoversmall":
+                        case "turretcoversmall" ->
                             type = "$$$turretcoversmall";
-                            break;
-                        case "turretcovermedium":
+                        case "turretcovermedium" ->
                             type = "$$$turretcovermedium";
-                            break;
-                        case "turretcoverlarge":
+                        case "turretcoverlarge" ->
                             type = "$$$turretcoverlarge";
-                            break;
-                        case "hardpoint":
+                        case "hardpoint" ->
                             type = "$$$hardpoint";
-                            break;
-                        case "hardpointbarrel":
+                        case "hardpointbarrel" ->
                             type = "$$$hardpointbarrel";
-                            break;
-                        case "hardpointunder":
+                        case "hardpointunder" ->
                             type = "$$$hardpointunder";
-                            break;
-                        case "hardpointcoversmall":
+                        case "hardpointcoversmall" ->
                             type = "$$$hardpointcoversmall";
-                            break;
-                        case "hardpointcovermedium":
+                        case "hardpointcovermedium" ->
                             type = "$$$hardpointcovermedium";
-                            break;
-                        case "hardpointcoverlarge":
+                        case "hardpointcoverlarge" ->
                             type = "$$$hardpointcoverlarge";
-                            break;
-                        case "missile":
+                        case "missile" ->
                             type = "$$$missile";
-                            break;
-                        case "asteroid":
+                        case "asteroid" ->
                             type = "$$$asteroid";
-                            break;
-                        default:
+                        default ->
                             success = false;
                     }
                     if (!success) {
@@ -194,67 +167,68 @@ public class TextureData {
                     final String path = entry.getString("path");
 
                     switch (entry.getString("map")) {
-                        case "material":
+                        case "material" -> {
                             if (loadMaterial) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 materialData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                                 new TextureEntry(Global.getSettings().getSprite(path),
-                                                                  (float) entry.optDouble("magnitude", 1.0)));
+                                        new TextureEntry(Global.getSettings().getSprite(path),
+                                                (float) entry.optDouble("magnitude", 1.0)));
                             }
-                            break;
-                        case "normal":
+                        }
+                        case "normal" -> {
                             if (loadNormal) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 normalData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                               new TextureEntry(Global.getSettings().getSprite(path),
-                                                                (float) entry.optDouble("magnitude", 1.0)));
+                                        new TextureEntry(Global.getSettings().getSprite(path),
+                                                (float) entry.optDouble("magnitude", 1.0)));
                             }
-                            break;
-                        case "surface":
+                        }
+                        case "surface" -> {
                             if (loadSurface) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                                new TextureEntry(Global.getSettings().getSprite(path),
-                                                                 (float) entry.optDouble("magnitude", 1.0)));
+                                        new TextureEntry(Global.getSettings().getSprite(path),
+                                                (float) entry.optDouble("magnitude", 1.0)));
                             }
-                            break;
-                        default:
+                        }
+                        default -> {
+                        }
                     }
                 }
             }
-        } catch (IOException | JSONException e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " +
-                                                    e.getMessage());
+        } catch (Exception e) {
+            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! "
+                    + e.getMessage());
         }
     }
 
@@ -277,58 +251,43 @@ public class TextureData {
 
                 final JSONObject entry = textureData.getJSONObject(i);
 
-                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty() &&
-                        !entry.optString("map").isEmpty() &&
-                        !entry.optString("path").isEmpty()) {
+                if (!entry.optString("id").isEmpty() && !entry.optString("type").isEmpty()
+                        && !entry.optString("map").isEmpty()
+                        && !entry.optString("path").isEmpty()) {
                     boolean success = true;
                     String type = "";
                     switch (entry.getString("type")) {
-                        case "ship":
+                        case "ship" ->
                             type = "$$$ship";
-                            break;
-                        case "turret":
+                        case "turret" ->
                             type = "$$$turret";
-                            break;
-                        case "turretbarrel":
+                        case "turretbarrel" ->
                             type = "$$$turretbarrel";
-                            break;
-                        case "turretunder":
+                        case "turretunder" ->
                             type = "$$$turretunder";
-                            break;
-                        case "turretcoversmall":
+                        case "turretcoversmall" ->
                             type = "$$$turretcoversmall";
-                            break;
-                        case "turretcovermedium":
+                        case "turretcovermedium" ->
                             type = "$$$turretcovermedium";
-                            break;
-                        case "turretcoverlarge":
+                        case "turretcoverlarge" ->
                             type = "$$$turretcoverlarge";
-                            break;
-                        case "hardpoint":
+                        case "hardpoint" ->
                             type = "$$$hardpoint";
-                            break;
-                        case "hardpointbarrel":
+                        case "hardpointbarrel" ->
                             type = "$$$hardpointbarrel";
-                            break;
-                        case "hardpointunder":
+                        case "hardpointunder" ->
                             type = "$$$hardpointunder";
-                            break;
-                        case "hardpointcoversmall":
+                        case "hardpointcoversmall" ->
                             type = "$$$hardpointcoversmall";
-                            break;
-                        case "hardpointcovermedium":
+                        case "hardpointcovermedium" ->
                             type = "$$$hardpointcovermedium";
-                            break;
-                        case "hardpointcoverlarge":
+                        case "hardpointcoverlarge" ->
                             type = "$$$hardpointcoverlarge";
-                            break;
-                        case "missile":
+                        case "missile" ->
                             type = "$$$missile";
-                            break;
-                        case "asteroid":
+                        case "asteroid" ->
                             type = "$$$asteroid";
-                            break;
-                        default:
+                        default ->
                             success = false;
                     }
                     if (!success) {
@@ -338,77 +297,111 @@ public class TextureData {
                     final String path = entry.getString("path");
 
                     switch (entry.getString("map")) {
-                        case "material":
+                        case "material" -> {
                             if (loadMaterial) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!materialData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
                                     materialData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                                     new TextureEntry(Global.getSettings().getSprite(
-                                                                     path),
-                                                                      (float) entry.optDouble("magnitude", 1.0)));
+                                            new TextureEntry(Global.getSettings().getSprite(
+                                                    path),
+                                                    (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
-                            break;
-                        case "normal":
+                        }
+                        case "normal" -> {
                             if (loadNormal) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!normalData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
                                     normalData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                                   new TextureEntry(
-                                                           Global.getSettings().getSprite(path),
-                                                           (float) entry.optDouble("magnitude", 1.0)));
+                                            new TextureEntry(
+                                                    Global.getSettings().getSprite(path),
+                                                    (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
-                            break;
-                        case "surface":
+                        }
+                        case "surface" -> {
                             if (loadSurface) {
-                                if (Global.getSettings().getSprite(path) == null ||
-                                        Global.getSettings().getSprite(path).getHeight() < 1) {
+                                if (Global.getSettings().getSprite(path) == null
+                                        || Global.getSettings().getSprite(path).getHeight() < 1) {
                                     try {
                                         Global.getSettings().loadTexture(path);
                                     } catch (IOException e) {
                                         Global.getLogger(TextureData.class).log(Level.ERROR,
-                                                                                "Texture loading failed at " + path +
-                                                                                "! " + e.getMessage());
+                                                "Texture loading failed at " + path
+                                                + "! " + e.getMessage());
                                         continue;
                                     }
                                 }
                                 if (!surfaceData.containsKey(entry.getString("id") + type + entry.optInt("frame", 0))) {
                                     surfaceData.put(entry.getString("id") + type + entry.optInt("frame", 0),
-                                                    new TextureEntry(Global.getSettings().getSprite(
-                                                                    path),
-                                                                     (float) entry.optDouble("magnitude", 1.0)));
+                                            new TextureEntry(Global.getSettings().getSprite(
+                                                    path),
+                                                    (float) entry.optDouble("magnitude", 1.0)));
                                 }
                             }
-                            break;
-                        default:
+                        }
+                        default -> {
+                        }
                     }
                 }
             }
-        } catch (IOException | JSONException e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " +
-                                                    e.getMessage());
+        } catch (Exception e) {
+            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! "
+                    + e.getMessage());
         }
+    }
+
+    /**
+     * Queries if material maps are configured to be loaded or not.
+     * <p>
+     * @return True if material maps should be loaded.
+     * <p>
+     * @since 1.10.0
+     */
+    public static boolean isLoadMaterial() {
+        return loadMaterial;
+    }
+
+    /**
+     * Queries if normal maps are configured to be loaded or not.
+     * <p>
+     * @return True if normal maps should be loaded.
+     * <p>
+     * @since 1.10.0
+     */
+    public static boolean isLoadNormal() {
+        return loadNormal;
+    }
+
+    /**
+     * Queries if surface maps are configured to be loaded or not.
+     * <p>
+     * @return True if surface maps should be loaded.
+     * <p>
+     * @since 1.10.0
+     */
+    public static boolean isLoadSurface() {
+        return loadSurface;
     }
 
     private static void loadSettings() throws IOException, JSONException {

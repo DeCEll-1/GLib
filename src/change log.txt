@@ -1,5 +1,12 @@
-Version 1.9.1 (Unreleased)
-- Updated for Starsector 0.97a RC11
+Version 1.10.0 (March 31, 2025)
+- Updated for Starsector 0.98a
+- Added MapObjectAPI, ShaderLib.addMapObject(), .removeMapObject(), and .getMapObjects()
+  * Permits rendering material/normal/surface maps for arbitrary objects (i.e., objects that are not associated with a ShipAPI, MissileAPI, etc.)
+- Added ShaderLib.overrideWeaponTexture() and .getWeaponTexture()
+- Added TextureData.isLoadMaterial(), .isLoadNormal(), and .isLoadSurface()
+- Removed MissileSelfDestruct; correspondingly removed no_self_destruct.csv
+- Added no_arc_overload.csv to suppress arcs generated on ship overload
+- A bunch of under-the-hood enhancements to support new vanilla content
 
 Version 1.9.0 (February 3, 2024)
 - Updated for Starsector 0.97a

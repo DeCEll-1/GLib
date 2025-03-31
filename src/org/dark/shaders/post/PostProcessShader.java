@@ -512,6 +512,7 @@ public class PostProcessShader implements ShaderAPI {
     protected int programPost = 0;
     protected int programPre = 0;
 
+    @SuppressWarnings("UseSpecificCatch")
     public PostProcessShader() {
         if (!ShaderLib.areShadersAllowed() || !ShaderLib.areBuffersAllowed()) {
             enabled = false;
@@ -522,7 +523,7 @@ public class PostProcessShader implements ShaderAPI {
 
         try {
             loadSettings();
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Failed to load shader settings: "
                     + e.getMessage());
             enabled = false;

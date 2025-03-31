@@ -99,6 +99,7 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
         final List<ShaderAPI> shaders = ShaderLib.getShaderAPIs();

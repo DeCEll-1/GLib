@@ -1,3 +1,14 @@
+Version 1.10.2 (Unreleased)
+- Updated for Starsector 0.98a RC7
+- Fixed non-compliant OpenGL in the Light shader (affects you if enableBloom is true (it usually is))
+  * Possibly fixes graphical issues for some cards
+- Added "debugLevel" option to GRAPHICS_OPTIONS
+  * Prints GL debug output, with full stack traces, to the Starsector log
+- Cleaned up some things
+
+Version 1.10.1 (April 1, 2025)
+- Explosion visuals should falsely trigger less often
+
 Version 1.10.0 (March 31, 2025)
 - Updated for Starsector 0.98a
 - Added MapObjectAPI, ShaderLib.addMapObject(), .removeMapObject(), and .getMapObjects()

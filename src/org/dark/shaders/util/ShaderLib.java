@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -134,7 +135,8 @@ public final class ShaderLib {
     };
 
     public static final boolean VALIDATE_EVERY_FRAME = false;
-    public static final boolean DEBUG_CALLBACK = false;
+
+    public static final boolean DEBUG_CALLBACK_NO_VANILLA = false;
 
     private static int RTTSizeX = 2048;
     private static int RTTSizeY = 2048;
@@ -152,8 +154,11 @@ public final class ShaderLib {
     private static boolean isForegroundEmpty = true;
     private static boolean isForegroundRendered = false;
     private static int screenTex;
+    private static int activeTexBeforeBeginDraw;
+    private static int boundTexBeforeBeginDraw;
 
     private static final List<ShaderAPI> shaders = new ArrayList<>(10);
+    private static final Set<Integer> logMessageChecksums = new HashSet<>();
 
     private static boolean shadersAllowed = false;
     private static float squareTrans = 1f;
@@ -163,6 +168,7 @@ public final class ShaderLib {
     private static boolean useFramebufferCore = false;
     private static boolean useFramebufferEXT = false;
     private static boolean aaCompatMode = false;
+    private static int debugLevel = 0;
     static boolean enabled = false;
     static boolean extraClear = false;
     static boolean initialized = false;
@@ -224,6 +230,9 @@ public final class ShaderLib {
      * @param shader The shader program ID to bind the renderer to.
      */
     public static void beginDraw(int shader) {
+        activeTexBeforeBeginDraw = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
+        boundTexBeforeBeginDraw = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+
         GL20.glUseProgram(shader);
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
@@ -312,6 +321,17 @@ public final class ShaderLib {
      * state variables from the stack. See {@link ShaderLib#beginDraw(int shader)}.
      */
     public static void exitDraw() {
+        exitDraw(boundTexBeforeBeginDraw, activeTexBeforeBeginDraw);
+    }
+
+    /**
+     * This function is meant to be used at the end of the shader's rendering stage. Special function to call
+     * glActiveTexture and glBindTexture with specific IDs rather than relying on automatic behavior.
+     * <p>
+     * @param boundTex Texture to bind
+     * @param activeTex Texture to make active
+     */
+    public static void exitDraw(int boundTex, int activeTex) {
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glPopMatrix();
         GL11.glMatrixMode(GL11.GL_TEXTURE);
@@ -320,8 +340,8 @@ public final class ShaderLib {
         GL11.glPopMatrix();
         GL11.glPopAttrib();
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTex);
+        GL13.glActiveTexture(activeTex);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, boundTex);
 
         GL20.glUseProgram(0);
     }
@@ -539,11 +559,6 @@ public final class ShaderLib {
             return;
         }
 
-        if (DEBUG_CALLBACK) {
-            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
-            GL43.glDebugMessageCallback(new KHRDebugCallback(new QuickHandler()));
-        }
-
         Global.getLogger(ShaderLib.class).setLevel(Level.INFO);
 
         displayWidth = (int) Global.getSettings().getScreenWidthPixels();
@@ -612,6 +627,13 @@ public final class ShaderLib {
             Global.getLogger(ShaderLib.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
             enabled = false;
             return;
+        }
+
+        if (debugLevel > 0) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            GL43.glDebugMessageCallback(new KHRDebugCallback(new QuickHandler()));
+            Global.getLogger(ShaderLib.class).setLevel(Level.DEBUG);
         }
 
         if (shadersAllowed) {
@@ -706,25 +728,105 @@ public final class ShaderLib {
             }
         }
 
-        if (DEBUG_CALLBACK) {
+        if (DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
 
         initialized = true;
     }
 
-    // TODO: more error handling like parsing the i, i1, i3...
     public static class QuickHandler implements Handler {
 
         @Override
-        public void handleMessage(int i, int i1, int i2, int i3, String string) {
-            String trace = "\n";
-            StackTraceElement stes[] = new Throwable().getStackTrace();
-            for (StackTraceElement ste : stes) {
-                trace += ste + "\n";
-            }
-            Global.getLogger(ShaderLib.class).log(Level.ERROR, "QuickHandler: " + i + ", " + i1 + ", " + i2 + ", " + i3 + ", " + string + trace);
+        public void handleMessage(int source, int type, int id, int severity, String string) {
+            ShaderLib.handleMessage(source, type, id, severity, string, debugLevel > 1, debugLevel == 2, "GL Debug");
         }
+    }
+
+    /**
+     * Debug function for printing GL error codes.
+     * <p>
+     * @param source First parameter from KHRDebugCallback
+     * @param type Second parameter from KHRDebugCallback
+     * @param id Third parameter from KHRDebugCallback
+     * @param severity Fourth parameter from KHRDebugCallback
+     * @param message Fifth parameter from KHRDebugCallback
+     * @param includeTrace If true, include stack trace
+     * @param suppressIdentical If true, suppress identical messages
+     * @param title Title to print
+     *
+     * @since 1.10.2
+     */
+    public static void handleMessage(int source, int type, int id, int severity, String message, boolean includeTrace, boolean suppressIdentical, String title) {
+        Level logLevel;
+        if (type == GL43.GL_DEBUG_TYPE_ERROR) {
+            logLevel = Level.ERROR;
+        } else if ((type == GL43.GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) || (type == GL43.GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)) {
+            logLevel = Level.WARN;
+        } else {
+            logLevel = Level.DEBUG;
+        }
+        String sourceStr = switch (source) {
+            case GL43.GL_DEBUG_SOURCE_API ->
+                "API";
+            case GL43.GL_DEBUG_SOURCE_WINDOW_SYSTEM ->
+                "Window System";
+            case GL43.GL_DEBUG_SOURCE_SHADER_COMPILER ->
+                "Shader Compiler";
+            case GL43.GL_DEBUG_SOURCE_THIRD_PARTY ->
+                "Third Party";
+            case GL43.GL_DEBUG_SOURCE_APPLICATION ->
+                "Application";
+            default ->
+                "Other";
+        };
+        String typeStr = switch (type) {
+            case GL43.GL_DEBUG_TYPE_ERROR ->
+                "Error";
+            case GL43.GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR ->
+                "Deprecated Behavior";
+            case GL43.GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR ->
+                "Undefined Behavior";
+            case GL43.GL_DEBUG_TYPE_PORTABILITY ->
+                "Portability";
+            case GL43.GL_DEBUG_TYPE_PERFORMANCE ->
+                "Performance";
+            case GL43.GL_DEBUG_TYPE_MARKER ->
+                "Marker";
+            default ->
+                "Other";
+        };
+        String severityStr = switch (severity) {
+            case GL43.GL_DEBUG_SEVERITY_HIGH ->
+                "High";
+            case GL43.GL_DEBUG_SEVERITY_MEDIUM ->
+                "Medium";
+            case GL43.GL_DEBUG_SEVERITY_LOW ->
+                "Low";
+            default ->
+                "Notification";
+        };
+        String trace = "";
+        if (includeTrace) {
+            Throwable t = new Throwable();
+            StackTraceElement stes[] = t.getStackTrace();
+            for (StackTraceElement ste : stes) {
+                trace += "\n\tat " + ste;
+            }
+            for (Throwable se : t.getSuppressed()) {
+                StackTraceElement sestes[] = se.getStackTrace();
+                for (StackTraceElement ste : sestes) {
+                    trace += "\n\t\tat " + ste;
+                }
+            }
+        }
+        String logMessage = title + ": Source=" + sourceStr + ", Type=" + typeStr + ", ID=" + id + ", Severity=" + severityStr + ": " + message + trace;
+        if (suppressIdentical) {
+            if (!logMessageChecksums.add(logMessage.hashCode())) {
+                return;
+            }
+        }
+        Global.getLogger(ShaderLib.class).log(logLevel, logMessage);
     }
 
     /**
@@ -1080,6 +1182,7 @@ public final class ShaderLib {
         auxiliaryBuffer64Bit = settings.getBoolean("use64BitBuffer");
         extraClear = settings.getBoolean("extraScreenClear");
         aaCompatMode = settings.getBoolean("aaCompatMode");
+        debugLevel = settings.getInt("debugLevel");
 
         if (!enabled) {
             shadersAllowed = false;

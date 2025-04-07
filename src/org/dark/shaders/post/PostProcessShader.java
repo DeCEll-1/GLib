@@ -534,7 +534,7 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
 
@@ -548,7 +548,7 @@ public class PostProcessShader implements ShaderAPI {
                     "Post Process pre-shader loading error!  Post Processing disabled!"
                     + ex.getMessage());
             enabled = false;
-            if (ShaderLib.DEBUG_CALLBACK) {
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
                 GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
             }
             return;
@@ -560,7 +560,7 @@ public class PostProcessShader implements ShaderAPI {
             enabled = false;
             Global.getLogger(PostProcessShader.class).log(Level.ERROR,
                     "Post Process pre-shader compile error!  Post Processing disabled!");
-            if (ShaderLib.DEBUG_CALLBACK) {
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
                 GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
             }
             return;
@@ -575,7 +575,7 @@ public class PostProcessShader implements ShaderAPI {
                         "Post Process post-shader loading error!  Post Processing disabled!"
                         + ex.getMessage());
                 enabled = false;
-                if (ShaderLib.DEBUG_CALLBACK) {
+                if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
                     GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
                 }
                 return;
@@ -587,7 +587,7 @@ public class PostProcessShader implements ShaderAPI {
                 enabled = false;
                 Global.getLogger(PostProcessShader.class).log(Level.ERROR,
                         "Post Process post-shader compile error!  Post Processing disabled!");
-                if (ShaderLib.DEBUG_CALLBACK) {
+                if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
                     GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
                 }
                 return;
@@ -672,7 +672,7 @@ public class PostProcessShader implements ShaderAPI {
             GL20.glUseProgram(0);
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
 
@@ -696,7 +696,7 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
 
@@ -723,7 +723,7 @@ public class PostProcessShader implements ShaderAPI {
             GL20.glDeleteProgram(programPost);
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
     }
@@ -761,10 +761,9 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
-
         if (post) {
             ShaderLib.beginDraw(programPost);
         } else {
@@ -794,6 +793,9 @@ public class PostProcessShader implements ShaderAPI {
                     Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(programPost));
                     ShaderLib.exitDraw();
                     enabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
@@ -809,6 +811,9 @@ public class PostProcessShader implements ShaderAPI {
                     Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(programPre));
                     ShaderLib.exitDraw();
                     enabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
@@ -818,8 +823,7 @@ public class PostProcessShader implements ShaderAPI {
         ShaderLib.screenDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
         ShaderLib.exitDraw();
-
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
     }
@@ -836,7 +840,7 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
 
@@ -960,7 +964,7 @@ public class PostProcessShader implements ShaderAPI {
         GL20.glUniform1f(indexPre[17], 1f / ShaderLib.getInternalHeight()); // scanwidth
         GL20.glUseProgram(0);
 
-        if (ShaderLib.DEBUG_CALLBACK) {
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
     }

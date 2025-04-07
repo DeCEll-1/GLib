@@ -12,12 +12,12 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.ShipColors;
 import static org.dark.graphics.util.ShipColors.EXPLOSION_COLORS;
@@ -220,7 +220,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                 dweller = true;
             }
 
-            if (!ship.isAlive()) {
+            if (!ship.isAlive() && !ship.isFinishedLanding() && (ship.getHullLevel() <= 0.01)) {
                 if (!deadShips.contains(ship)) {
                     deadShips.add(ship);
                     Vector2f shipLoc = ship.getLocation();
@@ -228,7 +228,7 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                     float shipRadius = effectiveRadius(ship);
                     HullSize shipHullSize = ship.getHullSize();
 
-                    boolean suppressed = suppressEffects.containsKey(ship);
+                    boolean suppressed = suppressEffects.containsKey(ship) || (explosionScale <= 0.001);
 
                     String style = ship.getHullStyleId();
                     if (EXPLOSION_COLORS.get(style) == null) {
@@ -348,8 +348,8 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                         explosionColor = ship.getExplosionFlashColorOverride();
                     }
 
-                    boolean suppressed = suppressEffects.containsKey(ship);
                     float explosionScale = ship.getExplosionScale();
+                    boolean suppressed = suppressEffects.containsKey(ship) || (explosionScale <= 0.001);
 
                     if ((engine.isInCampaign() || engine.isInCampaignSim() || engine.isSimulation() || engine.getPlayerShip() == null
                             || !engine.getPlayerShip().getHullSpec().getHullId().contentEquals("swp_arcade_superhyperion")
@@ -497,7 +497,8 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
                 explosionColor = exploder.ship.getExplosionFlashColorOverride();
             }
 
-            boolean suppressed = suppressEffects.containsKey(exploder.ship);
+            float explosionScale = exploder.ship.getExplosionScale();
+            boolean suppressed = suppressEffects.containsKey(exploder.ship) || (explosionScale <= 0.001);
 
             // Draw fire contrails from our burning wrecks
             Iterator<FlamePoint> iter3 = exploder.flamePoints.iterator();
@@ -761,6 +762,6 @@ public class ShipDestructionEffects extends BaseEveryFrameCombatPlugin {
         final Set<ShipAPI> deadShips = new LinkedHashSet<>(100);
         final List<ShipAPI> lastFrameShips = new LinkedList<>();
         final List<ExplodingShip> explodingShips = new LinkedList<>();
-        final Map<ShipAPI, Boolean> suppressEffects = new LinkedHashMap<>(100);
+        final Map<ShipAPI, Boolean> suppressEffects = new WeakHashMap<>(100);
     }
 }

@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -158,11 +159,19 @@ public class DistortionShader implements ShaderAPI {
             return;
         }
 
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         program = ShaderLib.loadShader(vertShader, fragShader);
         programAux = ShaderLib.loadShader(vertShaderAux, fragShaderAux);
 
         if (program == 0 || programAux == 0) {
             enabled = false;
+
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -175,6 +184,8 @@ public class DistortionShader implements ShaderAPI {
         GL20.glUniform1i(index[1], 1);
         GL20.glUniform4f(index[2], ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), ShaderLib.getVisibleU(),
                 ShaderLib.getVisibleV());
+        GL20.glUseProgram(0);
+
         GL20.glUseProgram(programAux);
         indexAux[0] = GL20.glGetUniformLocation(programAux, "tex");
         indexAux[1] = GL20.glGetUniformLocation(programAux, "facing");
@@ -185,6 +196,10 @@ public class DistortionShader implements ShaderAPI {
         indexAux[6] = GL20.glGetUniformLocation(programAux, "attwidth");
         GL20.glUniform1i(indexAux[0], 0);
         GL20.glUseProgram(0);
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
 
         enabled = true;
     }
@@ -218,6 +233,10 @@ public class DistortionShader implements ShaderAPI {
             return;
         }
 
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         if (program != 0) {
             final ByteBuffer countbb = ByteBuffer.allocateDirect(4);
             final ByteBuffer shadersbb = ByteBuffer.allocateDirect(8);
@@ -239,6 +258,10 @@ public class DistortionShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programAux);
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
     }
 
@@ -281,6 +304,10 @@ public class DistortionShader implements ShaderAPI {
         CombatEngineAPI engine = Global.getCombatEngine();
 
         final List<DistortionAPI> distortions = ((LocalData) engine.getCustomData().get(DATA_KEY)).distortions;
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
 
         GL20.glUseProgram(programAux);
 
@@ -369,6 +396,9 @@ public class DistortionShader implements ShaderAPI {
                     Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(programAux));
                     ShaderLib.exitDraw();
                     enabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
@@ -416,6 +446,9 @@ public class DistortionShader implements ShaderAPI {
                 Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(program));
                 ShaderLib.exitDraw();
                 enabled = false;
+                if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                    GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                }
                 return;
             }
         }
@@ -424,6 +457,9 @@ public class DistortionShader implements ShaderAPI {
         ShaderLib.screenDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
         ShaderLib.exitDraw();
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
     }
 
     private void loadSettings() throws IOException, JSONException {

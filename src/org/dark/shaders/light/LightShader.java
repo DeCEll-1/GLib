@@ -57,6 +57,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -242,6 +243,10 @@ public class LightShader implements ShaderAPI {
             }
         }
 
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         if (normalEnabled) {
             programAux = ShaderLib.loadShader(vertShader, fragShader);
 
@@ -264,6 +269,9 @@ public class LightShader implements ShaderAPI {
             Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!"
                     + ex.getMessage());
             enabled = false;
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -272,6 +280,9 @@ public class LightShader implements ShaderAPI {
         if (program == 0) {
             enabled = false;
             Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader compile error!  Lighting disabled!");
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -378,6 +389,7 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+
             if (ShaderLib.useBufferCore()) {
                 normalBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, normalTex,
                         ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
@@ -416,6 +428,7 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+
             if (ShaderLib.useBufferCore()) {
                 hdrBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex,
                         ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
@@ -444,6 +457,7 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex2,
                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
@@ -478,6 +492,7 @@ public class LightShader implements ShaderAPI {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex3,
                         ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
@@ -545,6 +560,8 @@ public class LightShader implements ShaderAPI {
                     ShaderLib.getVisibleU());
             GL20.glUniform1f(indexBloom1[2], 16f);
             GL20.glUniform1f(indexBloom1[3], bloomScale);
+            GL20.glUseProgram(0);
+
             GL20.glUseProgram(programBloom2);
             indexBloom2[0] = GL20.glGetUniformLocation(programBloom2, "tex");
             indexBloom2[1] = GL20.glGetUniformLocation(programBloom2, "screen");
@@ -555,6 +572,8 @@ public class LightShader implements ShaderAPI {
                     ShaderLib.getVisibleV());
             GL20.glUniform1f(indexBloom2[2], bloomIntensity);
             GL20.glUniform1f(indexBloom2[3], bloomScale);
+            GL20.glUseProgram(0);
+
             GL20.glUseProgram(programBloom3);
             indexBloom3[0] = GL20.glGetUniformLocation(programBloom3, "tex");
             indexBloom3[1] = GL20.glGetUniformLocation(programBloom3, "glow");
@@ -571,6 +590,10 @@ public class LightShader implements ShaderAPI {
             indexAux[1] = GL20.glGetUniformLocation(programAux, "data");
             GL20.glUniform1i(indexAux[0], 0);
             GL20.glUseProgram(0);
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
 
         enabled = true;
@@ -602,6 +625,10 @@ public class LightShader implements ShaderAPI {
     public void destroy() {
         if (!enabled) {
             return;
+        }
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
         }
 
         if (program != 0) {
@@ -710,6 +737,10 @@ public class LightShader implements ShaderAPI {
                 EXTFramebufferObject.glDeleteFramebuffersEXT(normalBufferId);
             }
         }
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
     }
 
     @Override
@@ -720,7 +751,14 @@ public class LightShader implements ShaderAPI {
     @Override
     public void initCombat() {
         Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
         Tessellate.clearCache();
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
 
         /*
          if (!enabled) { return; }
@@ -832,11 +870,9 @@ public class LightShader implements ShaderAPI {
                     if (behaviorSpec != null) {
                         if (behaviorSpec.getOnExplosionClassName() == null) {
                             LSProxDetector.ORIGINAL_EFFECTS.remove(proj.getProjectileSpecId());
-                            System.out.print("null " + LS_PROX_DETECTOR_NAME + "\n");
                             behaviorSpec.setOnExplosionClassName(LS_PROX_DETECTOR_NAME);
                         } else if ((behaviorSpec.getOnExplosionClassName() != null) && !behaviorSpec.getOnExplosionClassName().contentEquals(LS_PROX_DETECTOR_NAME)) {
                             LSProxDetector.ORIGINAL_EFFECTS.put(proj.getProjectileSpecId(), behaviorSpec.getOnProximityExplosionEffect());
-                            System.out.print(behaviorSpec.getOnExplosionClassName() + " " + LS_PROX_DETECTOR_NAME + "\n");
                             behaviorSpec.setOnExplosionClassName(LS_PROX_DETECTOR_NAME);
                         }
                     }
@@ -1044,8 +1080,42 @@ public class LightShader implements ShaderAPI {
     }
 
     private void drawLights(ViewportAPI viewport) {
+//        if (ShaderLib.DEBUG_CHECKS) {
+//            final int maxMessages = 100;
+//            final ByteBuffer sourcesbb = ByteBuffer.allocateDirect(maxMessages * 4);
+//            final IntBuffer sources = sourcesbb.asIntBuffer();
+//            final ByteBuffer typesbb = ByteBuffer.allocateDirect(maxMessages * 4);
+//            final IntBuffer types = typesbb.asIntBuffer();
+//            final ByteBuffer idsbb = ByteBuffer.allocateDirect(maxMessages * 4);
+//            final IntBuffer ids = idsbb.asIntBuffer();
+//            final ByteBuffer severitiesbb = ByteBuffer.allocateDirect(maxMessages * 4);
+//            final IntBuffer severities = severitiesbb.asIntBuffer();
+//            final ByteBuffer lengthsbb = ByteBuffer.allocateDirect(maxMessages * 4);
+//            final IntBuffer lengths = lengthsbb.asIntBuffer();
+//            final ByteBuffer messageLog = ByteBuffer.allocateDirect(maxMessages * 100);
+//            final int numMessages = GL43.glGetDebugMessageLog(100, sources, types, ids, severities, lengths, messageLog);
+//            int messageStart = 0;
+//            for (int i = 0; i < numMessages; i++) {
+//                final int source = sources.get(i);
+//                final int type = types.get(i);
+//                final int id = ids.get(i);
+//                final int severity = severities.get(i);
+//                final int length = lengths.get(i);
+//                final String message = new String(messageLog.slice(messageStart, length).array());
+//                ShaderLib.handleMessage(source, type, id, severity, message, i == (numMessages - 1), "drawLights");
+//                messageStart += length;
+//            }
+//        }
+
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
         // Exit if there is nothing to do
         if (ShaderLib.isForegroundEmpty(viewport)) {
+            if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+            }
             return;
         }
 
@@ -1055,11 +1125,16 @@ public class LightShader implements ShaderAPI {
 
         if (normalEnabled) {
             drawNormalMaps(viewport);
-
             drawSurfaceMaps(viewport);
         }
 
-        ShaderLib.beginDraw(program);
+        int activeTexBeforeBeginDraw = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
+        int boundTexBeforeBeginDraw = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+        if (bloomEnabled) {
+            GL20.glUseProgram(program);
+        } else {
+            ShaderLib.beginDraw(program);
+        }
 
         // Load all the data into a 1-dimensional texture
         Vector2f maxCoords = null;
@@ -1094,8 +1169,7 @@ public class LightShader implements ShaderAPI {
 
             switch (type) {
                 case 0: {
-                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                            light.getLocation()));
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
                     final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
@@ -1151,10 +1225,8 @@ public class LightShader implements ShaderAPI {
                     break;
                 }
                 case 1: {
-                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                            light.getLocation()));
-                    final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                            light.getLocation2()));
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
+                    final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation2()));
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
                     final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
@@ -1214,8 +1286,7 @@ public class LightShader implements ShaderAPI {
                     break;
                 }
                 case 2: {
-                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(
-                            light.getLocation()));
+                    final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
                     final float anglesx = (float) Math.toRadians(light.getArcStart());
                     final float anglesy = (float) Math.toRadians(light.getArcEnd());
                     size = ShaderLib.unitsToUV(size);
@@ -1428,10 +1499,17 @@ public class LightShader implements ShaderAPI {
             GL20.glValidateProgram(program);
             if (GL20.glGetProgrami(program, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
                 Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(program));
-                ShaderLib.exitDraw();
+                if (bloomEnabled) {
+                    GL20.glUseProgram(0);
+                } else {
+                    ShaderLib.exitDraw();
+                }
                 dataBuffer.clear();
                 dataBufferPre.clear();
                 enabled = false;
+                if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                    GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                }
                 return;
             }
         }
@@ -1447,15 +1525,15 @@ public class LightShader implements ShaderAPI {
                 EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, hdrBufferId);
             }
 
+            ShaderLib.beginDraw(program);
+
             GL11.glColorMask(true, true, true, false);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
             GL11.glDisable(GL11.GL_BLEND);
             ShaderLib.drawScreenQuad(1f);
 
-            ShaderLib.exitDraw();
-
-            ShaderLib.beginDraw(programBloom1);
+            ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
             if (ShaderLib.useBufferCore()) {
                 GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, hdrBuffer2Id);
@@ -1464,6 +1542,8 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, hdrBuffer2Id);
             }
+
+            ShaderLib.beginDraw(programBloom1);
 
             GL11.glColorMask(true, true, true, false);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
@@ -1487,10 +1567,13 @@ public class LightShader implements ShaderAPI {
                     } else {
                         EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
                     }
-                    ShaderLib.exitDraw();
+                    ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
                     dataBuffer.clear();
                     dataBufferPre.clear();
                     bloomEnabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
@@ -1498,9 +1581,7 @@ public class LightShader implements ShaderAPI {
             GL11.glDisable(GL11.GL_BLEND);
             ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, bloomMips - 1));
 
-            ShaderLib.exitDraw();
-
-            ShaderLib.beginDraw(programBloom2);
+            ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
             if (ShaderLib.useBufferCore()) {
                 GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, hdrBuffer3Id);
@@ -1509,6 +1590,8 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, hdrBuffer3Id);
             }
+
+            ShaderLib.beginDraw(programBloom2);
 
             GL11.glColorMask(true, true, true, false);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
@@ -1536,6 +1619,9 @@ public class LightShader implements ShaderAPI {
                     dataBuffer.clear();
                     dataBufferPre.clear();
                     bloomEnabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
@@ -1543,9 +1629,7 @@ public class LightShader implements ShaderAPI {
             GL11.glDisable(GL11.GL_BLEND);
             ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, bloomMips - 1));
 
-            ShaderLib.exitDraw();
-
-            ShaderLib.beginDraw(programBloom3);
+            ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
             if (ShaderLib.useBufferCore()) {
                 GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
@@ -1554,6 +1638,8 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
             }
+
+            ShaderLib.beginDraw(programBloom3);
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex);
@@ -1573,18 +1659,26 @@ public class LightShader implements ShaderAPI {
                     dataBuffer.clear();
                     dataBufferPre.clear();
                     bloomEnabled = false;
+                    if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+                        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+                    }
                     return;
                 }
             }
 
             GL11.glDisable(GL11.GL_BLEND);
             ShaderLib.drawScreenQuad(1f);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
         } else {
             GL11.glDisable(GL11.GL_BLEND);
             ShaderLib.screenDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
         }
 
-        ShaderLib.exitDraw();
+        ShaderLib.exitDraw(boundTexBeforeBeginDraw, activeTexBeforeBeginDraw);
+        if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
 
         dataBuffer.clear();
         dataBufferPre.clear();
@@ -1680,6 +1774,7 @@ public class LightShader implements ShaderAPI {
                 GL20.glValidateProgram(programAux);
                 if (GL20.glGetProgrami(programAux, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
                     Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(programAux));
+                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
                     GL11.glPopMatrix();
                     GL11.glMatrixMode(GL11.GL_TEXTURE);
                     GL11.glPopMatrix();
@@ -1698,6 +1793,7 @@ public class LightShader implements ShaderAPI {
                             (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
+
                     return;
                 }
             }
@@ -1764,6 +1860,7 @@ public class LightShader implements ShaderAPI {
                     GL20.glValidateProgram(programAux);
                     if (GL20.glGetProgrami(programAux, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
                         Global.getLogger(ShaderLib.class).log(Level.ERROR, ShaderLib.getProgramLogInfo(programAux));
+                        GL11.glMatrixMode(GL11.GL_MODELVIEW);
                         GL11.glPopMatrix();
                         GL11.glMatrixMode(GL11.GL_TEXTURE);
                         GL11.glPopMatrix();
@@ -1782,6 +1879,7 @@ public class LightShader implements ShaderAPI {
                                 (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                         normalEnabled = false;
                         enabled = false;
+
                         return;
                     }
                 }
@@ -2173,6 +2271,7 @@ public class LightShader implements ShaderAPI {
                             (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
+
                     return;
                 }
             }
@@ -2253,6 +2352,7 @@ public class LightShader implements ShaderAPI {
                             (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
                     normalEnabled = false;
                     enabled = false;
+
                     return;
                 }
             }
@@ -2274,11 +2374,11 @@ public class LightShader implements ShaderAPI {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
         }
         GL11.glPopAttrib();
+
+        GL20.glUseProgram(0);
     }
 
     private void drawSurfaceMaps(ViewportAPI viewport) {
-        GL20.glUseProgram(0);
-
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         if (ShaderLib.useBufferCore()) {
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ShaderLib.getAuxiliaryBufferId());

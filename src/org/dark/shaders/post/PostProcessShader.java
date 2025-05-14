@@ -519,7 +519,7 @@ public class PostProcessShader implements ShaderAPI {
             return;
         }
 
-        Global.getLogger(PostProcessShader.class).setLevel(Level.ERROR);
+        Global.getLogger(PostProcessShader.class).setLevel(Level.INFO);
 
         try {
             loadSettings();

@@ -29,7 +29,7 @@ public class RippleDistortion implements DistortionAPI {
     static boolean pathsSet = false;
 
     static {
-        Global.getLogger(RippleDistortion.class).setLevel(Level.ERROR);
+        Global.getLogger(RippleDistortion.class).setLevel(Level.INFO);
 
         try {
             loadSettings();

@@ -14,9 +14,11 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.loading.MissileSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Misc.WeaponSkinType;
+import java.awt.Color;
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -169,6 +171,7 @@ public final class ShaderLib {
     private static boolean useFramebufferEXT = false;
     private static boolean aaCompatMode = false;
     private static int debugLevel = 0;
+    private static float defaultMaterialBrightness = 1f;
     static boolean enabled = false;
     static boolean extraClear = false;
     static boolean initialized = false;
@@ -1183,6 +1186,7 @@ public final class ShaderLib {
         extraClear = settings.getBoolean("extraScreenClear");
         aaCompatMode = settings.getBoolean("aaCompatMode");
         debugLevel = settings.getInt("debugLevel");
+        defaultMaterialBrightness = (float) settings.getDouble("defaultMaterialBrightness");
 
         if (!enabled) {
             shadersAllowed = false;
@@ -1203,12 +1207,13 @@ public final class ShaderLib {
     }
 
     /**
-     * Retrieves the most appropriate TextureEntry corresponding to the given ship and texture type.
+     * Retrieves the most appropriate TextureEntry corresponding to the given ship and texture type. May auto-generate
+     * normal maps, if appropriate.
      * <p>
      * @param ship Ship to find TextureEntry for.
      * @param type Texture type to find TextureEntry for.
      * <p>
-     * @return TextureEntry corresponding to the given ship/type, or null if not found.
+     * @return TextureEntry corresponding to the given ship/type, or null if not found or unable to auto-generate.
      * <p>
      * @since 1.4.0
      */
@@ -1216,10 +1221,12 @@ public final class ShaderLib {
         TextureEntry entry = null;
 
         final CombatEngineAPI engine = Global.getCombatEngine();
+        Map<String, Object> customData = null;
+        Map<ShipAPI, String> shipTexOvd = null;
         if (engine != null) {
-            final Map<String, Object> customData = engine.getCustomData();
+            customData = engine.getCustomData();
             if (customData != null) {
-                final Map<ShipAPI, String> shipTexOvd = (Map<ShipAPI, String>) customData.get("SL_shipTexOvd");
+                shipTexOvd = (Map<ShipAPI, String>) customData.get("SL_shipTexOvd");
                 if (shipTexOvd != null) {
                     final String ovdId = shipTexOvd.get(ship);
                     if (ovdId != null) {
@@ -1232,7 +1239,7 @@ public final class ShaderLib {
                         ship.setCustomData("SL_fighterCheck", 1);
                         final ShipAPI sourceShip = ship.getWing().getSourceShip();
                         if (sourceShip != null) {
-                            final String fighterSkin = getFighterSkin(ship, sourceShip);
+                            final String fighterSkin = getFighterSkinKey(ship, sourceShip);
                             if (fighterSkin != null) {
                                 overrideShipTexture(ship, fighterSkin);
                                 entry = TextureData.getTextureData(fighterSkin, type, ObjectType.SHIP, 0);
@@ -1245,19 +1252,33 @@ public final class ShaderLib {
 
         if (entry == null) {
             entry = TextureData.getTextureData(ship.getHullSpec().getHullId(), type, ObjectType.SHIP, 0);
-
             if (entry == null) {
                 entry = TextureData.getTextureData(ship.getHullSpec().getDParentHullId(), type, ObjectType.SHIP, 0);
+            }
+            if (entry == null) {
+                entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), type, ObjectType.SHIP, 0);
+            }
+        }
 
-                if (entry == null) {
-                    entry = TextureData.getTextureData(ship.getHullSpec().getBaseHullId(), type, ObjectType.SHIP, 0);
-                }
+        if ((engine != null) && (customData != null) && (shipTexOvd != null)) {
+            final String ovdId = shipTexOvd.get(ship);
+            if (ovdId != null) {
+                entry = TextureData.getTextureDataWithAutoGen(ovdId, type, ObjectType.SHIP, 0, ship, false);
+            }
+        }
+        if (entry == null) {
+            entry = TextureData.getTextureDataWithAutoGen(ship.getHullSpec().getHullId(), type, ObjectType.SHIP, 0, ship, false);
+            if (entry == null) {
+                entry = TextureData.getTextureDataWithAutoGen(ship.getHullSpec().getDParentHullId(), type, ObjectType.SHIP, 0, ship, false);
+            }
+            if (entry == null) {
+                entry = TextureData.getTextureDataWithAutoGen(ship.getHullSpec().getBaseHullId(), type, ObjectType.SHIP, 0, ship, false);
             }
         }
         return entry;
     }
 
-    private static String getFighterSkin(ShipAPI fighter, ShipAPI carrier) {
+    private static String getFighterSkinKey(ShipAPI fighter, ShipAPI carrier) {
         if (carrier.getHullStyleId().equals(fighter.getHullStyleId())) {
             return null;
         }
@@ -1266,19 +1287,19 @@ public final class ShaderLib {
         String skin = null;
         if ((carrier.getOwner() == 0) || (carrier.getOriginalOwner() == 0)) {
             cat = "fighterSkinsPlayerOnly";
-            skin = getFighterSkin(cat, fighter, carrier);
+            skin = getFighterSkinKey(cat, fighter, carrier);
         }
         if (skin != null) {
             return skin;
         }
 
         cat = "fighterSkinsPlayerAndNPC";
-        skin = getFighterSkin(cat, fighter, carrier);
+        skin = getFighterSkinKey(cat, fighter, carrier);
 
         return skin;
     }
 
-    private static String getFighterSkin(String cat, ShipAPI fighter, ShipAPI carrier) {
+    private static String getFighterSkinKey(String cat, ShipAPI fighter, ShipAPI carrier) {
         final String exclude = "fighterSkinsExcludeFromSharing";
         final String id = fighter.getHullSpec().getHullId();
         final String style = carrier.getHullStyleId();
@@ -1316,7 +1337,8 @@ public final class ShaderLib {
     }
 
     /**
-     * Retrieves the most appropriate TextureEntry corresponding to the given weapon, texture, and object type.
+     * Retrieves the most appropriate TextureEntry corresponding to the given weapon, texture, and object type. May
+     * auto-generate normal maps, if appropriate.
      * <p>
      * @param weapon Weapon to find TextureEntry for.
      * @param texType Texture type to find TextureEntry for.
@@ -1324,7 +1346,7 @@ public final class ShaderLib {
      * HARDPOINT, HARDPOINT_BARREL, HARDPOINT_UNDER.
      * @param frame Animation frame to find TextureEntry for.
      * <p>
-     * @return TextureEntry corresponding to the given weapon/type, or null if not found.
+     * @return TextureEntry corresponding to the given weapon/type, or null if not found or unable to auto-generate.
      * <p>
      * @since 1.10.0
      */
@@ -1351,10 +1373,12 @@ public final class ShaderLib {
         }
 
         final CombatEngineAPI engine = Global.getCombatEngine();
+        Map<String, Object> customData = null;
+        Map<WeaponAPI, String> wpnTexOvd = null;
         if (engine != null) {
-            final Map<String, Object> customData = engine.getCustomData();
+            customData = engine.getCustomData();
             if (customData != null) {
-                final Map<WeaponAPI, String> wpnTexOvd = (Map<WeaponAPI, String>) customData.get("SL_wpnTexOvd");
+                wpnTexOvd = (Map<WeaponAPI, String>) customData.get("SL_wpnTexOvd");
                 if (wpnTexOvd != null) {
                     final String ovdId = wpnTexOvd.get(weapon);
                     if (ovdId != null) {
@@ -1369,7 +1393,7 @@ public final class ShaderLib {
                         final String key = "SL_weaponCheck_" + slot.getId();
                         if ((ship.getCustomData() != null) && !ship.getCustomData().containsKey(key)) {
                             ship.setCustomData(key, 1);
-                            final String weaponSkin = getWeaponSkin(ship, weapon.getId(), skinType);
+                            final String weaponSkin = getWeaponSkinKey(ship, weapon.getId(), skinType);
                             if (weaponSkin != null) {
                                 overrideWeaponTexture(weapon, weaponSkin);
                                 entry = TextureData.getTextureData(weaponSkin, texType, objType, frame);
@@ -1383,27 +1407,37 @@ public final class ShaderLib {
         if (entry == null) {
             entry = TextureData.getTextureData(weapon.getId(), texType, objType, 0);
         }
+
+        if ((engine != null) && (customData != null) && (wpnTexOvd != null)) {
+            final String ovdId = wpnTexOvd.get(weapon);
+            if (ovdId != null) {
+                entry = TextureData.getTextureDataWithAutoGen(ovdId, texType, objType, frame, weapon, false);
+            }
+        }
+        if (entry == null) {
+            entry = TextureData.getTextureDataWithAutoGen(weapon.getId(), texType, objType, 0, weapon, false);
+        }
         return entry;
     }
 
-    private static String getWeaponSkin(ShipAPI ship, String weaponId, WeaponSkinType type) {
+    private static String getWeaponSkinKey(ShipAPI ship, String weaponId, WeaponSkinType type) {
         String cat;
         String skin = null;
         if ((ship.getOwner() == 0) || (ship.getOriginalOwner() == 0)) {
             cat = "weaponSkinsPlayerOnly";
-            skin = getWeaponSkin(cat, weaponId, ship, type);
+            skin = getWeaponSkinKey(cat, weaponId, ship, type);
         }
         if (skin != null) {
             return skin;
         }
 
         cat = "weaponSkinsPlayerAndNPC";
-        skin = getWeaponSkin(cat, weaponId, ship, type);
+        skin = getWeaponSkinKey(cat, weaponId, ship, type);
 
         return skin;
     }
 
-    private static String getWeaponSkin(String cat, String weaponId, ShipAPI ship, WeaponSkinType type) {
+    private static String getWeaponSkinKey(String cat, String weaponId, ShipAPI ship, WeaponSkinType type) {
         final String exclude = "weaponSkinsExcludeFromSharing";
         final String style = ship.getHullStyleId();
 
@@ -1572,6 +1606,13 @@ public final class ShaderLib {
         return mapObjects;
     }
 
+    private static Color darkerShipMaterialColor(Color startColor) {
+        int red = Math.max(0, Math.min(255, Math.round(startColor.getRed() * defaultMaterialBrightness)));
+        int green = Math.max(0, Math.min(255, Math.round(startColor.getGreen() * defaultMaterialBrightness)));
+        int blue = Math.max(0, Math.min(255, Math.round(startColor.getBlue() * defaultMaterialBrightness)));
+        return new Color(red, green, blue, startColor.getAlpha());
+    }
+
     private static void renderForeground(ViewportAPI viewport) {
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         if (useFramebufferCore) {
@@ -1622,6 +1663,7 @@ public final class ShaderLib {
 
             final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.MATERIAL_MAP, ObjectType.ASTEROID, 0);
             final SpriteAPI sprite;
+            Color prevColor = null;
             if (entry != null) {
                 sprite = entry.sprite;
                 sprite.setAngle(asteroidSprite.getAngle());
@@ -1630,9 +1672,15 @@ public final class ShaderLib {
                 sprite.setAlphaMult(asteroidSprite.getAlphaMult());
             } else {
                 sprite = asteroidSprite;
+                prevColor = sprite.getColor();
+                sprite.setColor(darkerShipMaterialColor(prevColor));
             }
 
             sprite.renderAtCenter(asteroidLocation.x, asteroidLocation.y);
+
+            if (entry == null) {
+                sprite.setColor(prevColor);
+            }
 
             objectCount++;
         }
@@ -1656,6 +1704,7 @@ public final class ShaderLib {
             if (!ship.isDoNotRenderSprite()) {
                 entry = getShipTexture(ship, TextureDataType.MATERIAL_MAP);
                 originalSprite = ship.getSpriteAPI();
+                Color prevColor = null;
                 if (entry != null) {
                     sprite = entry.sprite;
                     sprite.setAngle(originalSprite.getAngle());
@@ -1665,6 +1714,8 @@ public final class ShaderLib {
                     sprite.setColor(originalSprite.getColor());
                 } else {
                     sprite = originalSprite;
+                    prevColor = sprite.getColor();
+                    sprite.setColor(darkerShipMaterialColor(prevColor));
                 }
 
                 if (bounds != null) {
@@ -1692,6 +1743,10 @@ public final class ShaderLib {
                     GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // Pass test always
                 } else {
                     sprite.renderAtCenter(shipLocation.x, shipLocation.y);
+                }
+
+                if (entry == null) {
+                    sprite.setColor(prevColor);
                 }
             }
 
@@ -1755,6 +1810,7 @@ public final class ShaderLib {
                             continue;
                         }
 
+                        Color prevColor = null;
                         if (entry != null) {
                             sprite = entry.sprite;
                             sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
@@ -1765,9 +1821,15 @@ public final class ShaderLib {
                         } else {
                             sprite = originalSprite;
                             sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
+                            prevColor = sprite.getColor();
+                            sprite.setColor(darkerShipMaterialColor(prevColor));
                         }
 
                         sprite.renderAtCenter(slotLocation.x, slotLocation.y);
+
+                        if (entry == null) {
+                            sprite.setColor(prevColor);
+                        }
                     }
                 }
 
@@ -1781,17 +1843,9 @@ public final class ShaderLib {
 
                         if (weapon.getUnderSpriteAPI() != null) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_UNDER, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_UNDER, 0);
                             }
                             originalSprite = weapon.getUnderSpriteAPI();
                             if (entry != null) {
@@ -1810,17 +1864,9 @@ public final class ShaderLib {
 
                         if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -1866,17 +1912,9 @@ public final class ShaderLib {
 
                         if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = getWeaponTexture(weapon, TextureDataType.MATERIAL_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -1940,6 +1978,10 @@ public final class ShaderLib {
 
         for (MissileAPI missile : Global.getCombatEngine().getMissiles()) {
             if (missile.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
+                continue;
+            }
+            MissileSpecAPI spec = missile.getSpec();
+            if ((spec != null) && (spec.getTypeString() != null) && (spec.getTypeString().contentEquals("MOTE") || spec.getTypeString().startsWith("FLARE"))) {
                 continue;
             }
 

@@ -18,6 +18,7 @@ import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.combat.dweller.DarkenedGazeSystemScript;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.MissileSpecAPI;
 import com.fs.starfarer.api.loading.ShotBehaviorSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import java.awt.Color;
@@ -750,7 +751,8 @@ public class LightShader implements ShaderAPI {
 
     @Override
     public void initCombat() {
-        Global.getCombatEngine().getCustomData().put(DATA_KEY, new LocalData());
+        final CombatEngineAPI combatEngine = Global.getCombatEngine();
+        combatEngine.getCustomData().put(DATA_KEY, new LocalData());
 
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
@@ -759,13 +761,6 @@ public class LightShader implements ShaderAPI {
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
-
-        /*
-         if (!enabled) { return; }
-
-         StandardLight sun = new StandardLight(); sun.setType(3); sun.setDirection((Vector3f) (new Vector3f(-1f, -1f, -0.5f)).normalise());
-         sun.setIntensity(2f); sun.setSpecularIntensity(3f); sun.setColor(1f, 1f, 1f); sun.makePermanent(); LightShader.addLight(sun);
-         */
     }
 
     @Override
@@ -1737,7 +1732,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final boolean hasNormal;
-            final TextureEntry entry = TextureData.getTextureData(asteroidType, TextureDataType.NORMAL_MAP, ObjectType.ASTEROID, 0);
+            final TextureEntry entry = TextureData.getTextureDataWithAutoGen(asteroidType, TextureDataType.NORMAL_MAP, ObjectType.ASTEROID, 0, asteroid, false);
             final SpriteAPI sprite;
             float depth = 1f;
             if (entry != null) {
@@ -1943,28 +1938,28 @@ public class LightShader implements ShaderAPI {
                             default:
                             case SMALL:
                                 if (slot.isHardpoint()) {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_SMALL, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_SMALL, 0, ship, false);
                                     originalSprite = ship.getSmallHardpointCover();
                                 } else {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_SMALL, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_SMALL, 0, ship, false);
                                     originalSprite = ship.getSmallTurretCover();
                                 }
                                 break;
                             case MEDIUM:
                                 if (slot.isHardpoint()) {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_MEDIUM, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_MEDIUM, 0, ship, false);
                                     originalSprite = ship.getMediumHardpointCover();
                                 } else {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_MEDIUM, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_MEDIUM, 0, ship, false);
                                     originalSprite = ship.getMediumTurretCover();
                                 }
                                 break;
                             case LARGE:
                                 if (slot.isHardpoint()) {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_LARGE, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_COVER_LARGE, 0, ship, false);
                                     originalSprite = ship.getLargeHardpointCover();
                                 } else {
-                                    entry = TextureData.getTextureData(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_LARGE, 0);
+                                    entry = TextureData.getTextureDataWithAutoGen(ship.getHullStyleId(), TextureDataType.NORMAL_MAP, ObjectType.TURRET_COVER_LARGE, 0, ship, false);
                                     originalSprite = ship.getLargeTurretCover();
                                 }
                                 break;
@@ -2013,17 +2008,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getUnderSpriteAPI() != null) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_UNDER, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_UNDER, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_UNDER, 0);
                             }
                             originalSprite = weapon.getUnderSpriteAPI();
                             if (entry != null) {
@@ -2056,17 +2043,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -2140,17 +2119,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.NORMAL_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -2188,7 +2159,7 @@ public class LightShader implements ShaderAPI {
 
                                 final Vector2f missileLocation = msl.getMissileCenterLocation();
 
-                                entry = TextureData.getTextureData(msl.getMissileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
+                                entry = TextureData.getTextureDataWithAutoGen(msl.getMissileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0, weapon, false);
                                 originalSprite = msl.getSprite();
                                 if (entry != null) {
                                     sprite = entry.sprite;
@@ -2284,6 +2255,10 @@ public class LightShader implements ShaderAPI {
             if (missile.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
                 continue;
             }
+            MissileSpecAPI spec = missile.getSpec();
+            if ((spec != null) && (spec.getTypeString() != null) && (spec.getTypeString().contentEquals("MOTE") || spec.getTypeString().startsWith("FLARE"))) {
+                continue;
+            }
 
             final Vector2f missileLocation = missile.getLocation();
             if (!ShaderLib.isOnScreen(missileLocation, 1.25f * missile.getCollisionRadius())) {
@@ -2295,7 +2270,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final boolean hasNormal;
-            final TextureEntry entry = TextureData.getTextureData(missile.getProjectileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0);
+            final TextureEntry entry = TextureData.getTextureDataWithAutoGen(missile.getProjectileSpecId(), TextureDataType.NORMAL_MAP, ObjectType.MISSILE, 0, missile, false);
             final SpriteAPI sprite;
             float depth = 1f;
             final SpriteAPI originalSprite = missile.getSpriteAPI();
@@ -2608,17 +2583,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getUnderSpriteAPI() != null) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_UNDER, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_UNDER, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_UNDER, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_UNDER, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_UNDER, 0);
                             }
                             originalSprite = weapon.getUnderSpriteAPI();
                             if (entry != null) {
@@ -2641,17 +2608,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getBarrelSpriteAPI() != null && weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -2707,17 +2666,9 @@ public class LightShader implements ShaderAPI {
 
                         if (weapon.getBarrelSpriteAPI() != null && !weapon.isRenderBarrelBelow()) {
                             if (weapon.getSlot().isHardpoint()) {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.HARDPOINT_BARREL, 0);
                             } else {
-                                if (weapon.getAnimation() != null) {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, weapon.getAnimation().getFrame());
-                                } else {
-                                    entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
-                                }
+                                entry = ShaderLib.getWeaponTexture(weapon, TextureDataType.SURFACE_MAP, ObjectType.TURRET_BARREL, 0);
                             }
                             originalSprite = weapon.getBarrelSpriteAPI();
                             if (entry != null) {
@@ -2791,6 +2742,10 @@ public class LightShader implements ShaderAPI {
 
         for (MissileAPI missile : Global.getCombatEngine().getMissiles()) {
             if (missile.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
+                continue;
+            }
+            MissileSpecAPI spec = missile.getSpec();
+            if ((spec != null) && (spec.getTypeString() != null) && (spec.getTypeString().contentEquals("MOTE") || spec.getTypeString().startsWith("FLARE"))) {
                 continue;
             }
 

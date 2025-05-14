@@ -129,7 +129,7 @@ public class DistortionShader implements ShaderAPI {
         RippleDistortion.pathsSet = false;
         WaveDistortion.pathsSet = false;
 
-        Global.getLogger(DistortionShader.class).setLevel(Level.ERROR);
+        Global.getLogger(DistortionShader.class).setLevel(Level.INFO);
 
         try {
             loadSettings();

@@ -1,4 +1,52 @@
-Version 1.10.2 (Unreleased)
+Version 1.11.0 (May 14, 2025)
+- GraphicsLib will now automatically generate basic normal maps for ships, weapons, etc. which lack them
+  * The resulting normal maps are cached on disk in the GraphicsLib/cache folder
+  * The cache is invalidated/regenerated whenever the mod list changes (including because of a version number change)
+- GraphicsLib now uses a dynamic texture loader
+  * Only the necessary material/normal/surface maps will be resident in memory
+  * At the start of combat, it preloads all of the maps relevant for the ships (including all of their installed equipment) in every fleet participating in the battle, and unloads everything else
+  * At the end of combat, it unloads everything that's not part of the player fleet
+  * Any maps that were missed by the preload step are loaded immediately as they appear within view of the player
+  * Very substantial reduction in VRAM usage in almost all cases (exceptions being stuff involving literally every ship/weapon, like the Arcade mission)
+  * Reduction in overall game load time (even with auto-gen normal maps!)
+- Added to GRAPHICS_OPTIONS.ini:
+  * "preloadAllMaps":
+    - Preloads all material, normal, and surface maps
+    - VRAM-intensive, but avoids pauses before combat and stuttering during combat as textures load in
+  * "autoGenNormals"
+  * "defaultMaterialBrightness":
+    - If no material map is defined for an object, the base sprite is used instead
+    - This setting controls the brightness of the base ship (and weapon covers) sprite when it is used in this capacity
+    - The default value here is selected to match the style of the material maps included with GraphicsLib
+- New tags for ships, fighters, and weapons to adjust behavior:
+  * "graphicslib_no_autogen":
+    - Prevents auto-generated normal maps
+    - Useful for saving VRAM for sprites that never actually appear in battle (e.g., images that only appear in the Codex)
+  * "graphicslib_autogen_override":
+    - Causes auto-generated normal maps for that ship/weapon/skin/whatever to count as "real" normal maps
+    - Useful for skins that significantly change the geometry of the object
+  * "graphicslib_preload":
+    - Forces all maps (auto-gen or otherwise) associated with the ship/weapon/whatever to remain loaded at all times
+    - Should be used sparingly
+- Adjusted default settings in the presets
+  * "High-End" is the only preset with "preloadAllMaps" set to "true"
+  * "Low VRAM Compatibility" now enables normal maps & auto-gen, thanks to the enormous VRAM savings afforded by the dynamic texture loader
+- Explicitly forced mipmaps for all loaded maps (doesn't appear to have any VRAM impact on my machine, so this probably doesn't have any practical effect, but...)
+- Fixed Buffalo Mk2 and Hammer (Single) not having any maps
+- Fixed the way GraphicsLib handles animated sprites; in short, only TURRET and HARDPOINT maps allow them now
+- Improved brightness/consistency of ships that lack a material map
+- Added new TextureData API functions:
+  * getTextureDataWithAutoGen()
+    - This function can be used to procedurally preload specific texture maps at the start of combat
+    - In an EveryFrameScript or similar type of plugin, wait for "graphicslib_preload" to be set and then call this function for every map that should be preloaded
+    - Useful for factions involving custom ship spawning
+  * mapSpriteToMNSWithAutoGen()
+  * autoGenNormalMap()
+  * Intended for internal use:
+    - autoGenMissingNormalMaps()
+    - unloadAndPreloadTextures()
+
+Version 1.10.2 (April 7, 2025)
 - Updated for Starsector 0.98a RC7
 - Fixed non-compliant OpenGL in the Light shader (affects you if enableBloom is true (it usually is))
   * Possibly fixes graphical issues for some cards

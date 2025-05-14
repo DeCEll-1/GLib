@@ -216,12 +216,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
         private long epochShort;
         private long epochSize;
         private final List<Double> frameTimes = new LinkedList<>();
+        private final List<Double> memLoadsGB = new LinkedList<>();
         private int frames = 0;
         private int framesShort = 0;
         private int framesSize = 0;
         private float height = 4500f;
         private int maxDP = 0;
-        private double memsGB = 0.0;
         private double minimums = 0.0;
         private int orderedStuff = 60;
         private double variances = 0.0;
@@ -344,9 +344,11 @@ public class MissionDefinition implements MissionDefinitionPlugin {
             }
 
             double frameTime = (System.currentTimeMillis() - epochMicro) / 1000.0;
+            double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1073741824.0);
             advanced += amount;
             advancedShort += amount;
             frameTimes.add(frameTime);
+            memLoadsGB.add(usedMemGB);
             epochMicro = System.currentTimeMillis();
 
             frames++;
@@ -387,8 +389,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 double progress = 1.0 - Math.min(playerTotalDP - battleSize / 2, enemyTotalDP - battleSize / 2) / (double) (maxDP - battleSize / 2);
                 double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
                 double fpsAvg = frames / intervalAvg;
-                double usedMemGB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1073741824.0);
-                memsGB += usedMemGB;
                 log.info(String.format("Benchmark [%s] - %.1f FPS - %.2fGB Memory Used", new SimpleDateFormat("HH.mm.ss").format(new Date()), fps, usedMemGB));
                 Global.getCombatEngine().addFloatingText(new Vector2f(0f, 87.5f), String.format("Progress: %d%%", (int) (progress * 100.0)), 75f, Color.yellow, null, 1f, 0f);
                 Global.getCombatEngine().addFloatingText(new Vector2f(0f, 0f), String.format("Average FPS: %.1f", fpsAvg), 100f, Color.yellow, null, 1f, 0f);
@@ -427,12 +427,23 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                     min = Math.min(min, 1.0 / frame);
                 }
                 minimums += min;
+                double meanMem = 0.0;
+                double minMem;
+                if (memLoadsGB.isEmpty()) {
+                    minMem = 0.0;
+                } else {
+                    minMem = memLoadsGB.get(0);
+                }
+                for (double mem : memLoadsGB) {
+                    meanMem += mem;
+                    minMem = Math.min(minMem, mem);
+                }
+                meanMem /= memLoadsGB.size();
                 double intervalAvg = (System.currentTimeMillis() - epoch) / 1000.0;
                 double fpsAvg = frames / intervalAvg;
                 double minimumFPS = minimums / (intervalAvg / 10.0);
                 double variancesAvg = variances / (intervalAvg / 10.0);
                 double progress = 1.0 - Math.min(playerTotalDP - battleSize / 2, enemyTotalDP - battleSize / 2) / (double) (maxDP - battleSize / 2);
-                double memoryAvg = memsGB / intervalAvg;
                 double intervalInfo = (System.currentTimeMillis() - epochInfo) / 1000.0;
                 double gameSpeed = advancedShort / intervalInfo;
                 log.info(String.format("Benchmark Stats [%s] (Progress: %d%%):", new SimpleDateFormat("HH:mm:ss").format(new Date()), (int) (progress * 100.0)));
@@ -440,11 +451,13 @@ public class MissionDefinition implements MissionDefinitionPlugin {
                 log.info(String.format("  Minimum FPS: %.1f", minimumFPS));
                 log.info(String.format("  Frame Variance: %.2fms", stdevMs));
                 log.info(String.format("  Average Frame Variance: %.2fms", variancesAvg));
-                log.info(String.format("  Average Memory Used: %.2fGB", memoryAvg));
+                log.info(String.format("  Average Memory Used: %.2fGB", meanMem));
+                log.info(String.format("  Minimum Memory Used: %.2fGB", minMem));
                 log.info(String.format("  Game Speed: %.1f%%", gameSpeed * 100.0));
                 log.info(String.format("  Battle Size: %d", battleSize - 200));
 
                 frameTimes.clear();
+                memLoadsGB.clear();
                 advancedShort = 0.0;
                 epochInfo = System.currentTimeMillis();
             }

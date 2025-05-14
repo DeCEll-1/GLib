@@ -25,7 +25,7 @@ buffalo_hegemony,ship,,,material,graphics/shaders/material/ships/buffalo/buffalo
 buffalo_luddic_church,ship,,,material,graphics/shaders/material/ships/buffalo/buffalo_luddic_church_material.png
 buffalo_pirates,ship,,,material,graphics/shaders/material/ships/buffalo/buffalo_pirates_material.png
 buffalo_tritachyon,ship,,,material,graphics/shaders/material/ships/buffalo/buffalo_tritachyon_material.png
-buffalo_mk2,ship,,,material,graphics/shaders/material/ships/buffalo_dd_material.png
+buffalo2,ship,,,material,graphics/shaders/material/ships/buffalo_dd_material.png
 centurion,ship,,,material,graphics/shaders/material/ships/centurion/centurion_material.png
 centurion_LG,ship,,,material,graphics/shaders/material/ships/centurion/centurion_lg_material.png
 cerberus,ship,,,material,graphics/shaders/material/ships/cerberus/cerberus_base_material.png
@@ -43,6 +43,7 @@ conquest,ship,,,material,graphics/shaders/material/ships/conquest/conquest_mater
 crig,ship,,,material,graphics/shaders/material/ships/salvage_rig_material.png
 dagger,ship,,,material,graphics/shaders/material/ships/dagger_trp_material.png
 defender,ship,,,material,graphics/shaders/material/ships/derelict/derelict_defender_material.png
+dem_drone,ship,,,material,graphics/shaders/blank.png
 derelict_mothership_bow_module,ship,,,material,graphics/shaders/material/ships/derelict/derelict_mothership_bow_module_material.png
 derelict_mothership_pod_engine_left,ship,,,material,graphics/shaders/material/ships/derelict/derelict_mothership_pod_engine_left_material.png
 derelict_mothership_pod_m_left,ship,,,material,graphics/shaders/material/ships/derelict/derelict_mothership_pod_m_left_material.png
@@ -79,7 +80,6 @@ falcon_d,ship,,,material,graphics/shaders/material/ships/falcon/falcon_damaged_m
 falcon_LG,ship,,,material,graphics/shaders/material/ships/falcon/falcon_lg_material.png
 falcon_p,ship,,,material,graphics/shaders/material/ships/falcon/falcon_p_material.png
 falcon_xiv,ship,,,material,graphics/shaders/material/ships/falcon/falcon_hegemony_material.png
-flare,ship,,,material,graphics/shaders/material/ships/remnants/flare_material.png
 flash,ship,,,material,graphics/shaders/material/ships/remnants/flare_material.png
 fulgent,ship,,,material,graphics/shaders/material/ships/remnants/remnant_destroyer1_material.png
 fury,ship,,,material,graphics/shaders/material/ships/fury/fury_material.png
@@ -300,7 +300,7 @@ buffalo_hegemony,ship,,1,normal,graphics/shaders/normal/ships/buffalo/buffalo_he
 buffalo_luddic_church,ship,,1,normal,graphics/shaders/normal/ships/buffalo/buffalo_luddic_church_normal.png
 buffalo_pirates,ship,,1,normal,graphics/shaders/normal/ships/buffalo/buffalo_pirates_normal.png
 buffalo_tritachyon,ship,,1,normal,graphics/shaders/normal/ships/buffalo/buffalo_tritachyon_normal.png
-buffalo_mk2,ship,,1,normal,graphics/shaders/normal/ships/buffalo_dd_normal.png
+buffalo2,ship,,1,normal,graphics/shaders/normal/ships/buffalo_dd_normal.png
 centurion,ship,,1,normal,graphics/shaders/normal/ships/centurion/centurion_normal.png
 centurion_LG,ship,,1,normal,graphics/shaders/normal/ships/centurion/centurion_lg_normal.png
 cerberus,ship,,1,normal,graphics/shaders/normal/ships/cerberus/cerberus_base_normal.png
@@ -318,6 +318,7 @@ conquest,ship,,1,normal,graphics/shaders/normal/ships/conquest/conquest_normal.p
 crig,ship,,1,normal,graphics/shaders/normal/ships/salvage_rig_normal.png
 dagger,ship,,1,normal,graphics/shaders/normal/ships/dagger_trp_normal.png
 defender,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_defender_normal.png
+dem_drone,ship,,1,normal,graphics/shaders/blank.png
 derelict_mothership_bow_module,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_mothership_bow_module_normal.png
 derelict_mothership_pod_engine_left,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_mothership_pod_engine_left_normal.png
 derelict_mothership_pod_m_left,ship,,1,normal,graphics/shaders/normal/ships/derelict/derelict_mothership_pod_m_left_normal.png
@@ -354,7 +355,6 @@ falcon_d,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_damaged_norm
 falcon_LG,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_lg_normal.png
 falcon_p,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_p_normal.png
 falcon_xiv,ship,,1,normal,graphics/shaders/normal/ships/falcon/falcon_hegemony_normal.png
-flare,ship,,1,normal,graphics/shaders/normal/ships/remnants/flare_normal.png
 flash,ship,,1,normal,graphics/shaders/normal/ships/remnants/flare_normal.png
 fulgent,ship,,1,normal,graphics/shaders/normal/ships/remnants/remnant_destroyer1_normal.png
 fury,ship,,1,normal,graphics/shaders/normal/ships/fury/fury_normal.png
@@ -575,7 +575,7 @@ buffalo_hegemony,ship,,,surface,graphics/shaders/surface/ships/buffalo/buffalo_h
 buffalo_luddic_church,ship,,,surface,graphics/shaders/surface/ships/buffalo/buffalo_luddic_church_surface.png
 buffalo_pirates,ship,,,surface,graphics/shaders/surface/ships/buffalo/buffalo_pirates_surface.png
 buffalo_tritachyon,ship,,,surface,graphics/shaders/surface/ships/buffalo/buffalo_tritachyon_surface.png
-buffalo_mk2,ship,,,surface,graphics/shaders/surface/ships/buffalo_dd_surface.png
+buffalo2,ship,,,surface,graphics/shaders/surface/ships/buffalo_dd_surface.png
 centurion,ship,,,surface,graphics/shaders/surface/ships/centurion/centurion_surface.png
 centurion_LG,ship,,,surface,graphics/shaders/surface/ships/centurion/centurion_lg_surface.png
 cerberus,ship,,,surface,graphics/shaders/surface/ships/cerberus/cerberus_base_surface.png
@@ -593,6 +593,7 @@ conquest,ship,,,surface,graphics/shaders/surface/ships/conquest/conquest_surface
 crig,ship,,,surface,graphics/shaders/surface/ships/salvage_rig_surface.png
 dagger,ship,,,surface,graphics/shaders/surface/ships/dagger_trp_surface.png
 defender,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_defender_surface.png
+dem_drone,ship,,,surface,graphics/shaders/blank.png
 derelict_mothership_bow_module,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_mothership_bow_module_surface.png
 derelict_mothership_pod_engine_left,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_mothership_pod_engine_left_surface.png
 derelict_mothership_pod_m_left,ship,,,surface,graphics/shaders/surface/ships/derelict/derelict_mothership_pod_m_left_surface.png
@@ -629,7 +630,6 @@ falcon_d,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_damaged_sur
 falcon_LG,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_lg_surface.png
 falcon_p,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_p_surface.png
 falcon_xiv,ship,,,surface,graphics/shaders/surface/ships/falcon/falcon_hegemony_surface.png
-flare,ship,,,surface,graphics/shaders/surface/ships/remnants/flare_surface.png
 flash,ship,,,surface,graphics/shaders/surface/ships/remnants/flare_surface.png
 fulgent,ship,,,surface,graphics/shaders/surface/ships/remnants/remnant_destroyer1_surface.png
 fury,ship,,,surface,graphics/shaders/surface/ships/fury/fury_surface.png
@@ -897,6 +897,8 @@ guardian,turret,,,material,graphics/shaders/material/weapons/guardian_turret_bas
 guardian,hardpoint,,,material,graphics/shaders/material/weapons/guardian_hardpoint_base_material.png
 hammer,turret,,,material,graphics/shaders/material/weapons/torpedo_mount_2x_lowtech_small_turret_material.png
 hammer,hardpoint,,,material,graphics/shaders/material/weapons/torpedo_mount_2x_lowtech_small_hardpoint_material.png
+hammer_single,turret,,,material,graphics/shaders/material/weapons/missile_rack_1x_turret_base_material.png
+hammer_single,hardpoint,,,material,graphics/shaders/material/weapons/missile_rack_1x_hardpoint_base_material.png
 hammerrack,turret,,,material,graphics/shaders/material/weapons/hammer_barrage_t_material.png
 hammerrack,hardpoint,,,material,graphics/shaders/material/weapons/hammer_barrage_h_material.png
 harpoon,turret,,,material,graphics/shaders/material/weapons/missile_rack_open_m_3x_turret_base_material.png
@@ -1256,6 +1258,8 @@ guardian,turret,,1,normal,graphics/shaders/normal/weapons/guardian_turret_base_n
 guardian,hardpoint,,1,normal,graphics/shaders/normal/weapons/guardian_hardpoint_base_normal.png
 hammer,turret,,1,normal,graphics/shaders/normal/weapons/torpedo_mount_2x_lowtech_small_turret_normal.png
 hammer,hardpoint,,1,normal,graphics/shaders/normal/weapons/torpedo_mount_2x_lowtech_small_hardpoint_normal.png
+hammer_single,turret,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_turret_base_normal.png
+hammer_single,hardpoint,,1,normal,graphics/shaders/normal/weapons/missile_rack_1x_hardpoint_base_normal.png
 hammerrack,turret,,1,normal,graphics/shaders/normal/weapons/hammer_barrage_t_normal.png
 hammerrack,hardpoint,,1,normal,graphics/shaders/normal/weapons/hammer_barrage_h_normal.png
 harpoon,turret,,1,normal,graphics/shaders/normal/weapons/missile_rack_open_m_3x_turret_base_normal.png
@@ -1615,6 +1619,8 @@ guardian,turret,,,surface,graphics/shaders/surface/weapons/guardian_turret_base_
 guardian,hardpoint,,,surface,graphics/shaders/surface/weapons/guardian_hardpoint_base_surface.png
 hammer,turret,,,surface,graphics/shaders/surface/weapons/torpedo_mount_2x_lowtech_small_turret_surface.png
 hammer,hardpoint,,,surface,graphics/shaders/surface/weapons/torpedo_mount_2x_lowtech_small_hardpoint_surface.png
+hammer_single,turret,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_turret_base_surface.png
+hammer_single,hardpoint,,,surface,graphics/shaders/surface/weapons/missile_rack_1x_hardpoint_base_surface.png
 hammerrack,turret,,,surface,graphics/shaders/surface/weapons/hammer_barrage_t_surface.png
 hammerrack,hardpoint,,,surface,graphics/shaders/surface/weapons/hammer_barrage_h_surface.png
 harpoon,turret,,,surface,graphics/shaders/surface/weapons/missile_rack_open_m_3x_turret_base_surface.png

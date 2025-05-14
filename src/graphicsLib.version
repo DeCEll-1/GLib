@@ -2,12 +2,12 @@
     "masterVersionFile":"https://bitbucket.org/DarkRevenant/graphicslib/downloads/graphicsLib.version",
     "modName":"GraphicsLib",
     "modThreadId":10982,
-    "directDownloadURL": "https://bitbucket.org/DarkRevenant/graphicslib/downloads/GraphicsLib_1.10.2.7z",
+    "directDownloadURL": "https://bitbucket.org/DarkRevenant/graphicslib/downloads/GraphicsLib_1.11.0.7z",
     "changelogURL":"https://bitbucket.org/DarkRevenant/graphicslib/downloads/changelog.txt",
     "modVersion":
     {
         "major":1,
-        "minor":10,
-        "patch":2
+        "minor":11,
+        "patch":0
     },
 }

@@ -20,7 +20,6 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Misc.WeaponSkinType;
 import java.awt.Color;
 import java.awt.geom.Line2D;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +38,6 @@ import org.dark.shaders.ShaderModPlugin;
 import org.dark.shaders.light.LightShader;
 import org.dark.shaders.util.TextureData.ObjectType;
 import org.dark.shaders.util.TextureData.TextureDataType;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -142,9 +139,7 @@ public final class ShaderLib {
 
     private static int RTTSizeX = 2048;
     private static int RTTSizeY = 2048;
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
 
-    private static boolean auxiliaryBuffer64Bit = false;
     private static int auxiliaryBufferId;
     private static int auxiliaryBufferTex;
     private static boolean buffersAllowed = false;
@@ -161,6 +156,7 @@ public final class ShaderLib {
 
     private static final List<ShaderAPI> shaders = new ArrayList<>(10);
     private static final Set<Integer> logMessageChecksums = new HashSet<>();
+    private static final KHRDebugCallback debugHandler = new KHRDebugCallback(new QuickHandler());
 
     private static boolean shadersAllowed = false;
     private static float squareTrans = 1f;
@@ -169,14 +165,8 @@ public final class ShaderLib {
     private static boolean useFramebufferARB = false;
     private static boolean useFramebufferCore = false;
     private static boolean useFramebufferEXT = false;
-    private static boolean aaCompatMode = false;
-    private static int debugLevel = 0;
-    private static float defaultMaterialBrightness = 1f;
     static boolean enabled = false;
-    static boolean extraClear = false;
     static boolean initialized = false;
-    static int reloadKey;
-    static int toggleKey;
 
     /**
      * Adds the given instance of ShaderAPI to the rendering queue. Duplicates of the same shader or same type of shader
@@ -199,7 +189,7 @@ public final class ShaderLib {
      * @return Whether the user can use framebuffer objects.
      */
     public static boolean areBuffersAllowed() {
-        return buffersAllowed;
+        return (buffersAllowed && GraphicsLibSettings.enableShaders());
     }
 
     /**
@@ -208,7 +198,7 @@ public final class ShaderLib {
      * @return Whether the user can use shaders (has OpenGL 2.0 support).
      */
     public static boolean areShadersAllowed() {
-        return shadersAllowed;
+        return (shadersAllowed && GraphicsLibSettings.enableShaders());
     }
 
     /**
@@ -219,7 +209,7 @@ public final class ShaderLib {
      * @since v1.5.1
      */
     public static boolean isAACompatMode() {
-        return aaCompatMode;
+        return GraphicsLibSettings.aaCompatMode();
     }
 
     /**
@@ -613,8 +603,7 @@ public final class ShaderLib {
             buffersAllowed = true;
         } else {
             buffersAllowed = false;
-            Global.getLogger(ShaderLib.class).log(Level.ERROR,
-                    "GPU does not support Framebuffer Objects! Some shaders disabled!");
+            Global.getLogger(ShaderLib.class).log(Level.ERROR, "GPU does not support Framebuffer Objects! Some shaders disabled!");
         }
 
         if (GLContext.getCapabilities().OpenGL20) {
@@ -625,25 +614,45 @@ public final class ShaderLib {
         }
 
         try {
-            loadSettings();
+            GraphicsLibSettings.load();
         } catch (Exception e) {
             Global.getLogger(ShaderLib.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
             enabled = false;
             return;
         }
+        enabled = GraphicsLibSettings.enableShaders();
 
-        if (debugLevel > 0) {
+        if (GraphicsLibSettings.debugLevel() > 0) {
+            enableDebugLog();
+        }
+
+        loadCoreData();
+
+        initialized = true;
+    }
+
+    static void enableDebugLog() {
+        GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        GL11.glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        GL43.glDebugMessageCallback(debugHandler);
+        Global.getLogger(ShaderLib.class).setLevel(Level.DEBUG);
+    }
+
+    static void disableDebugLog() {
+        GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        GL11.glDisable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        Global.getLogger(ShaderLib.class).setLevel(Level.INFO);
+    }
+
+    static void loadCoreData() {
+        if (DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
-            GL11.glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            GL43.glDebugMessageCallback(new KHRDebugCallback(new QuickHandler()));
-            Global.getLogger(ShaderLib.class).setLevel(Level.DEBUG);
         }
 
         if (shadersAllowed) {
             screenTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGB,
-                    GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (useFramebufferEXT) {
                 EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
             } else if (useFramebufferARB) {
@@ -660,8 +669,7 @@ public final class ShaderLib {
         if (buffersAllowed && shadersAllowed) {
             foregroundBufferTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, foregroundBufferTex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGBA,
-                    GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, RTTSizeX, RTTSizeY, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (useFramebufferEXT) {
                 EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
             } else if (useFramebufferARB) {
@@ -686,20 +694,17 @@ public final class ShaderLib {
 
             if (foregroundBufferId == 0) {
                 buffersAllowed = false;
-                Global.getLogger(ShaderLib.class).log(Level.ERROR,
-                        "Foreground framebuffer object error!  ShaderLib features disabled!");
+                Global.getLogger(ShaderLib.class).log(Level.ERROR, "Foreground framebuffer object error!  ShaderLib features disabled!");
             }
 
             auxiliaryBufferTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, auxiliaryBufferTex);
-            if (auxiliaryBuffer64Bit) {
+            if (GraphicsLibSettings.use64BitBuffer()) {
                 GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA16, ShaderLib.getInternalWidth(),
-                        ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
-                        GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
+                        ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
             } else {
                 GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, ShaderLib.getInternalWidth(),
-                        ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA,
-                        GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+                        ShaderLib.getInternalHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             }
             if (useFramebufferEXT) {
                 EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
@@ -719,30 +724,67 @@ public final class ShaderLib {
                 auxiliaryBufferId = makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, auxiliaryBufferTex,
                         ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
-                auxiliaryBufferId
-                        = makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, auxiliaryBufferTex,
-                                ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
+                auxiliaryBufferId = makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, auxiliaryBufferTex,
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             if (auxiliaryBufferId == 0) {
                 buffersAllowed = false;
-                Global.getLogger(ShaderLib.class).log(Level.ERROR,
-                        "Auxiliary framebuffer object error!  ShaderLib features disabled!");
+                Global.getLogger(ShaderLib.class).log(Level.ERROR, "Auxiliary framebuffer object error!  ShaderLib features disabled!");
             }
         }
 
         if (DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
+    }
 
-        initialized = true;
+    static void unloadCoreData() {
+        if (DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
+        }
+
+        if (auxiliaryBufferId != 0) {
+            if (useFramebufferCore) {
+                GL30.glDeleteFramebuffers(auxiliaryBufferId);
+            } else if (useFramebufferARB) {
+                ARBFramebufferObject.glDeleteFramebuffers(auxiliaryBufferId);
+            } else {
+                EXTFramebufferObject.glDeleteFramebuffersEXT(auxiliaryBufferId);
+            }
+        }
+        if (auxiliaryBufferTex != 0) {
+            GL11.glDeleteTextures(auxiliaryBufferTex);
+            auxiliaryBufferTex = 0;
+        }
+        if (foregroundBufferId != 0) {
+            if (useFramebufferCore) {
+                GL30.glDeleteFramebuffers(foregroundBufferId);
+            } else if (useFramebufferARB) {
+                ARBFramebufferObject.glDeleteFramebuffers(foregroundBufferId);
+            } else {
+                EXTFramebufferObject.glDeleteFramebuffersEXT(foregroundBufferId);
+            }
+        }
+        if (foregroundBufferTex != 0) {
+            GL11.glDeleteTextures(foregroundBufferTex);
+            foregroundBufferTex = 0;
+        }
+        if (screenTex != 0) {
+            GL11.glDeleteTextures(screenTex);
+            screenTex = 0;
+        }
+
+        if (DEBUG_CALLBACK_NO_VANILLA) {
+            GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
+        }
     }
 
     public static class QuickHandler implements Handler {
 
         @Override
         public void handleMessage(int source, int type, int id, int severity, String string) {
-            ShaderLib.handleMessage(source, type, id, severity, string, debugLevel > 1, debugLevel == 2, "GL Debug");
+            ShaderLib.handleMessage(source, type, id, severity, string, GraphicsLibSettings.debugLevel() > 1, GraphicsLibSettings.debugLevel() == 2, "GL Debug");
         }
     }
 
@@ -973,8 +1015,7 @@ public final class ShaderLib {
             final int bufferId = GL30.glGenFramebuffers();
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, bufferId);
             GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
-            GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL_ATTACHMENT, GL30.GL_RENDERBUFFER,
-                    rbStencilId);
+            GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL_ATTACHMENT, GL30.GL_RENDERBUFFER, rbStencilId);
 
             final int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
             if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
@@ -987,17 +1028,13 @@ public final class ShaderLib {
         } else if (useFramebufferARB) {
             final int rbStencilId = ARBFramebufferObject.glGenRenderbuffers();
             ARBFramebufferObject.glBindRenderbuffer(ARBFramebufferObject.GL_RENDERBUFFER, rbStencilId);
-            ARBFramebufferObject.glRenderbufferStorage(ARBFramebufferObject.GL_RENDERBUFFER,
-                    ARBFramebufferObject.GL_STENCIL_INDEX8, texWidth, texHeight);
+            ARBFramebufferObject.glRenderbufferStorage(ARBFramebufferObject.GL_RENDERBUFFER, ARBFramebufferObject.GL_STENCIL_INDEX8, texWidth, texHeight);
             ARBFramebufferObject.glBindRenderbuffer(ARBFramebufferObject.GL_RENDERBUFFER, 0);
 
             final int bufferId = ARBFramebufferObject.glGenFramebuffers();
             ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, bufferId);
-            ARBFramebufferObject.glFramebufferTexture2D(ARBFramebufferObject.GL_FRAMEBUFFER, attachment,
-                    GL11.GL_TEXTURE_2D, texture, mipLevel);
-            ARBFramebufferObject.glFramebufferRenderbuffer(ARBFramebufferObject.GL_FRAMEBUFFER,
-                    ARBFramebufferObject.GL_STENCIL_ATTACHMENT,
-                    ARBFramebufferObject.GL_RENDERBUFFER, rbStencilId);
+            ARBFramebufferObject.glFramebufferTexture2D(ARBFramebufferObject.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
+            ARBFramebufferObject.glFramebufferRenderbuffer(ARBFramebufferObject.GL_FRAMEBUFFER, ARBFramebufferObject.GL_STENCIL_ATTACHMENT, ARBFramebufferObject.GL_RENDERBUFFER, rbStencilId);
 
             final int status = ARBFramebufferObject.glCheckFramebufferStatus(ARBFramebufferObject.GL_FRAMEBUFFER);
             if (status != ARBFramebufferObject.GL_FRAMEBUFFER_COMPLETE) {
@@ -1010,18 +1047,13 @@ public final class ShaderLib {
         } else {
             final int rbStencilId = EXTFramebufferObject.glGenRenderbuffersEXT();
             EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, rbStencilId);
-            EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT,
-                    EXTFramebufferObject.GL_STENCIL_INDEX8_EXT, texWidth,
-                    texHeight);
+            EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, EXTFramebufferObject.GL_STENCIL_INDEX8_EXT, texWidth, texHeight);
             EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, 0);
 
             final int bufferId = EXTFramebufferObject.glGenFramebuffersEXT();
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, bufferId);
-            EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, attachment,
-                    GL11.GL_TEXTURE_2D, texture, mipLevel);
-            EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
-                    EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT,
-                    EXTFramebufferObject.GL_RENDERBUFFER_EXT, rbStencilId);
+            EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, attachment, GL11.GL_TEXTURE_2D, texture, mipLevel);
+            EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, EXTFramebufferObject.GL_RENDERBUFFER_EXT, rbStencilId);
 
             final int status = EXTFramebufferObject.glCheckFramebufferStatusEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT);
             if (status != EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT) {
@@ -1043,7 +1075,7 @@ public final class ShaderLib {
      */
     public static void screenDraw(int texture, int textureUnit) {
         copyScreen(texture, textureUnit);
-        if (extraClear) {
+        if (GraphicsLibSettings.extraScreenClear()) {
             GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
         }
@@ -1174,24 +1206,6 @@ public final class ShaderLib {
         final float s = numer2 / denom;
 
         return !((r < 0 || r > 1) || (s < 0 || s > 1));
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableShaders");
-        toggleKey = settings.getInt("toggleKey");
-        reloadKey = settings.getInt("reloadKey");
-        auxiliaryBuffer64Bit = settings.getBoolean("use64BitBuffer");
-        extraClear = settings.getBoolean("extraScreenClear");
-        aaCompatMode = settings.getBoolean("aaCompatMode");
-        debugLevel = settings.getInt("debugLevel");
-        defaultMaterialBrightness = (float) settings.getDouble("defaultMaterialBrightness");
-
-        if (!enabled) {
-            shadersAllowed = false;
-            buffersAllowed = false;
-        }
     }
 
     // JeffK's FastTrig functionality, as seen in LazyLib
@@ -1607,9 +1621,10 @@ public final class ShaderLib {
     }
 
     private static Color darkerShipMaterialColor(Color startColor) {
-        int red = Math.max(0, Math.min(255, Math.round(startColor.getRed() * defaultMaterialBrightness)));
-        int green = Math.max(0, Math.min(255, Math.round(startColor.getGreen() * defaultMaterialBrightness)));
-        int blue = Math.max(0, Math.min(255, Math.round(startColor.getBlue() * defaultMaterialBrightness)));
+        final float defaultMaterialBrightness = GraphicsLibSettings.defaultMaterialBrightness();
+        final int red = Math.max(0, Math.min(255, Math.round(startColor.getRed() * defaultMaterialBrightness)));
+        final int green = Math.max(0, Math.min(255, Math.round(startColor.getGreen() * defaultMaterialBrightness)));
+        final int blue = Math.max(0, Math.min(255, Math.round(startColor.getBlue() * defaultMaterialBrightness)));
         return new Color(red, green, blue, startColor.getAlpha());
     }
 
@@ -1670,6 +1685,10 @@ public final class ShaderLib {
                 sprite.setSize(asteroidSprite.getWidth(), asteroidSprite.getHeight());
                 sprite.setCenter(asteroidSprite.getCenterX(), asteroidSprite.getCenterY());
                 sprite.setAlphaMult(asteroidSprite.getAlphaMult());
+                sprite.setTexX(asteroidSprite.getTexX());
+                sprite.setTexY(asteroidSprite.getTexY());
+                sprite.setTexWidth(asteroidSprite.getTexWidth());
+                sprite.setTexHeight(asteroidSprite.getTexHeight());
             } else {
                 sprite = asteroidSprite;
                 prevColor = sprite.getColor();
@@ -1712,6 +1731,10 @@ public final class ShaderLib {
                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                     sprite.setAlphaMult(ship.getCombinedAlphaMult());
                     sprite.setColor(originalSprite.getColor());
+                    sprite.setTexX(originalSprite.getTexX());
+                    sprite.setTexY(originalSprite.getTexY());
+                    sprite.setTexWidth(originalSprite.getTexWidth());
+                    sprite.setTexHeight(originalSprite.getTexHeight());
                 } else {
                     sprite = originalSprite;
                     prevColor = sprite.getColor();
@@ -1818,6 +1841,10 @@ public final class ShaderLib {
                             sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                             sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                             sprite.setColor(originalSprite.getColor());
+                            sprite.setTexX(originalSprite.getTexX());
+                            sprite.setTexY(originalSprite.getTexY());
+                            sprite.setTexWidth(originalSprite.getTexWidth());
+                            sprite.setTexHeight(originalSprite.getTexHeight());
                         } else {
                             sprite = originalSprite;
                             sprite.setAngle(slot.getAngle() + ship.getFacing() - 90f);
@@ -1855,6 +1882,10 @@ public final class ShaderLib {
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                                 sprite.setColor(originalSprite.getColor());
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                             } else {
                                 sprite = originalSprite;
                             }
@@ -1903,6 +1934,10 @@ public final class ShaderLib {
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
                                 sprite.setColor(originalSprite.getColor());
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                             } else {
                                 sprite = originalSprite;
                             }
@@ -1946,6 +1981,10 @@ public final class ShaderLib {
                                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                     sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
                                     sprite.setColor(originalSprite.getColor());
+                                    sprite.setTexX(originalSprite.getTexX());
+                                    sprite.setTexY(originalSprite.getTexY());
+                                    sprite.setTexWidth(originalSprite.getTexWidth());
+                                    sprite.setTexHeight(originalSprite.getTexHeight());
                                 } else {
                                     sprite = originalSprite;
                                 }
@@ -2004,6 +2043,10 @@ public final class ShaderLib {
                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                 sprite.setAlphaMult(originalSprite.getAlphaMult());
                 sprite.setColor(originalSprite.getColor());
+                sprite.setTexX(originalSprite.getTexX());
+                sprite.setTexY(originalSprite.getTexY());
+                sprite.setTexWidth(originalSprite.getTexWidth());
+                sprite.setTexHeight(originalSprite.getTexHeight());
             } else {
                 sprite = originalSprite;
             }

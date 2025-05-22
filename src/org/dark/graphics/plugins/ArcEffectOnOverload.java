@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.ShipColors;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderLib;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -32,20 +32,13 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
     private static final float OFFSCREEN_GRACE_CONSTANT = 500f;
     private static final float OFFSCREEN_GRACE_FACTOR = 2f;
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
     private static final String SETTINGS_SPREADSHEET = "data/config/glib/no_arc_overload.csv";
-
-    private static boolean enabled = true;
-    private static boolean useVentColors = false;
-    private static boolean offscreen = false;
 
     static {
         try {
             loadSettings();
         } catch (Exception e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load performance settings: "
-                    + e.getMessage());
-            enabled = false;
+            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load settings: " + e.getMessage());
         }
     }
 
@@ -63,12 +56,6 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                 EXCLUDED_HULLS.add(id);
             }
         }
-
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableOverloadArcs");
-        useVentColors = settings.getBoolean("useVentColorsForOverloadArcs");
-        offscreen = settings.getBoolean("drawOffscreenParticles");
     }
 
     private CombatEngineAPI engine;
@@ -77,7 +64,7 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
     /* We're not going to bother with per-ship time manipulation applying to this.  An overloaded ship probably won't be warping time. */
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
-        if (engine == null || !enabled) {
+        if ((engine == null) || !GraphicsLibSettings.enableOverloadArcs()) {
             return;
         }
 
@@ -99,8 +86,8 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                 }
 
                 if (ship.getFluxTracker().isOverloaded()) {
-                    if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius()
-                            * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                    if (GraphicsLibSettings.drawOffscreenParticles()
+                            || ShaderLib.isOnScreen(ship.getLocation(), ship.getCollisionRadius() * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
                         int arcs = 1;
                         switch (ship.getHullSize()) {
                             case FIGHTER ->
@@ -134,7 +121,7 @@ public class ArcEffectOnOverload extends BaseEveryFrameCombatPlugin {
                             if (ship.getOverloadColor() != null) {
                                 Color core;
                                 Color fringe;
-                                if (useVentColors) {
+                                if (GraphicsLibSettings.useVentColorsForOverloadArcs()) {
                                     core = ship.getVentCoreColor();
                                     fringe = ship.getVentFringeColor();
                                 } else {

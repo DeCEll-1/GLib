@@ -140,9 +140,11 @@ public class LensShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(program);
+            program = 0;
         }
         if (rippleTex != 0) {
             GL11.glDeleteTextures(rippleTex);
+            rippleTex = 0;
         }
     }
 

@@ -9,11 +9,10 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 import org.apache.log4j.Level;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderAPI;
 import org.dark.shaders.util.ShaderHook;
 import org.dark.shaders.util.ShaderLib;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
@@ -27,8 +26,6 @@ import org.lwjgl.opengl.GL43;
  * @since Beta 1.07
  */
 public class PostProcessShader implements ShaderAPI {
-
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
 
     /**
      * Resets the post-processing shader to the default settings, taking into account color blindness options.
@@ -503,7 +500,6 @@ public class PostProcessShader implements ShaderAPI {
         }
     }
 
-    private int colorBlindness = 0;
     private boolean enabled = false;
     private boolean validatedPost = false;
     private boolean validatedPre = false;
@@ -514,22 +510,14 @@ public class PostProcessShader implements ShaderAPI {
 
     @SuppressWarnings("UseSpecificCatch")
     public PostProcessShader() {
-        if (!ShaderLib.areShadersAllowed() || !ShaderLib.areBuffersAllowed()) {
+        if (!ShaderLib.areShadersAllowed()) {
             enabled = false;
             return;
         }
 
         Global.getLogger(PostProcessShader.class).setLevel(Level.INFO);
 
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(PostProcessShader.class).log(Level.ERROR, "Failed to load shader settings: "
-                    + e.getMessage());
-            enabled = false;
-            return;
-        }
-
+        enabled = GraphicsLibSettings.enablePostProcess();
         if (!enabled) {
             return;
         }
@@ -710,6 +698,7 @@ public class PostProcessShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programPre);
+            programPre = 0;
         }
         if (programPost != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -721,6 +710,7 @@ public class PostProcessShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programPost);
+            programPost = 0;
         }
 
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
@@ -828,13 +818,6 @@ public class PostProcessShader implements ShaderAPI {
         }
     }
 
-    private void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enablePostProcess");
-        colorBlindness = settings.getInt("colorBlindnessMode");
-    }
-
     private void setDefaultSettings() {
         if (!enabled) {
             return;
@@ -845,7 +828,7 @@ public class PostProcessShader implements ShaderAPI {
         }
 
         GL20.glUseProgram(programPost);
-        switch (colorBlindness) {
+        switch (GraphicsLibSettings.colorBlindnessMode()) {
             case 1: // Protanomaly (hard to see red)
                 GL20.glUniform1f(indexPost[3], 1f); // saturation
                 GL20.glUniform1f(indexPost[5], 1f); // lightness

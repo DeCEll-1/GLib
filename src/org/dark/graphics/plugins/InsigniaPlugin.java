@@ -10,38 +10,15 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 @SuppressWarnings("UseSpecificCatch")
 public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
-
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-
-    private static boolean enabled = true;
-
-    static {
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(ArcEffectOnOverload.class).log(Level.ERROR, "Failed to load insignia settings: "
-                    + e.getMessage());
-            enabled = false;
-        }
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableInsignias");
-    }
 
     private CombatEngineAPI engine;
 
@@ -52,7 +29,7 @@ public class InsigniaPlugin extends BaseEveryFrameCombatPlugin {
 
     @Override
     public void renderInUICoords(ViewportAPI viewport) {
-        if (engine == null || !enabled) {
+        if ((engine == null) || !GraphicsLibSettings.enableInsignias()) {
             return;
         }
 

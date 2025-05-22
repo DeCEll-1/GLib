@@ -22,16 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Level;
-import org.dark.graphics.light.ThreatMapObject;
 import org.dark.graphics.util.ShipColors;
 import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.light.LightShader;
 import org.dark.shaders.post.PostProcessShader;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
@@ -47,27 +46,10 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
     public static boolean templarsExists = false;
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-
-    private static boolean useLargeRipple = false;
-    private static boolean useSmallRipple = false;
-
     public static void refresh() {
         try {
             Display.processMessages();
         } catch (Throwable t) {
-        }
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        final boolean enabled = settings.getBoolean("enableDistortion");
-        if (enabled) {
-            useLargeRipple = settings.getBoolean("useLargeRipple");
-            if (!useLargeRipple) {
-                useSmallRipple = true;
-            }
         }
     }
 
@@ -122,104 +104,27 @@ C) Disable shaders by setting "enableShaders" to "false" in GRAPHICS_OPTIONS.ini
 
         refresh();
 
-        if (ShaderLib.areShadersAllowed()) {
-            //ShaderLib.addShaderAPI(new LensShader());
-            //ShaderLib.addShaderAPI(new InvertShader());
-            ShaderLib.addShaderAPI(new PostProcessShader());
+        //ShaderLib.addShaderAPI(new LensShader());
+        //ShaderLib.addShaderAPI(new InvertShader());
+        ShaderLib.addShaderAPI(new PostProcessShader());
+
+        LightData.readLightDataCSVNoOverwrite("data/lights/core_light_data.csv");
+        TextureData.readTextureDataCSVNoOverwrite("data/lights/core_texture_data.csv");
+        ShaderLib.addShaderAPI(new LightShader());
+        ShaderLib.addShaderAPI(new DistortionShader());
+
+        if (GraphicsLibSettings.enableDistortion()) {
+            GraphicsLibSettings.loadWave();
         }
 
-        if (ShaderLib.areShadersAllowed() && ShaderLib.areBuffersAllowed()) {
-            LightData.readLightDataCSVNoOverwrite("data/lights/core_light_data.csv");
-            TextureData.readTextureDataCSVNoOverwrite("data/lights/core_texture_data.csv");
-            ShaderLib.addShaderAPI(new LightShader());
-            ShaderLib.addShaderAPI(new DistortionShader());
+        if (GraphicsLibSettings.useSmallRipple()) {
+            GraphicsLibSettings.loadSmallRipple();
+        } else if (GraphicsLibSettings.useLargeRipple()) {
+            GraphicsLibSettings.loadLargeRipple();
+        }
 
-            try {
-                loadSettings();
-            } catch (Exception e) {
-                Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
-            }
-
-            if (useSmallRipple || useLargeRipple) {
-                String path = "graphics/shaders/distortions/wave.png";
-                try {
-                    Global.getSettings().forceMipmapsFor(path, true);
-                    Global.getSettings().loadTexture(path);
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                    throw e; // Crash the game; it's probably too fucked to work at this point, anyway
-                }
-            }
-
-            if (useSmallRipple) {
-                String path = "";
-                try {
-                    for (int i = 1; i <= 60; i++) {
-                        if (i % 10 == 0) {
-                            refresh();
-                        }
-
-                        if (i < 10) {
-                            path = "graphics/shaders/distortions/smallripple/000" + i + ".PNG";
-                        } else {
-                            path = "graphics/shaders/distortions/smallripple/00" + i + ".PNG";
-                        }
-                        Global.getSettings().forceMipmapsFor(path, true);
-                        Global.getSettings().loadTexture(path);
-                    }
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                    throw e;
-                }
-            } else if (useLargeRipple) {
-                String path = "";
-                try {
-                    for (int i = 1; i <= 60; i++) {
-                        if (i % 10 == 0) {
-                            refresh();
-                        }
-
-                        if (i < 10) {
-                            path = "graphics/shaders/distortions/ripple/000" + i + ".PNG";
-                        } else {
-                            path = "graphics/shaders/distortions/ripple/00" + i + ".PNG";
-                        }
-                        Global.getSettings().forceMipmapsFor(path, true);
-                        Global.getSettings().loadTexture(path);
-                    }
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                    throw e;
-                }
-            }
-
-            if (TextureData.isLoadMaterial()) {
-                try {
-                    Global.getSettings().forceMipmapsFor(ThreatMapObject.THREAT_MATERIAL_PATH, true);
-                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_MATERIAL_PATH);
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_MATERIAL_PATH + "! " + e.getMessage());
-                    throw e;
-                }
-            }
-            if (TextureData.isLoadNormal()) {
-                try {
-                    Global.getSettings().forceMipmapsFor(ThreatMapObject.THREAT_NORMAL_PATH, true);
-                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_NORMAL_PATH);
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_NORMAL_PATH + "! " + e.getMessage());
-                    throw e;
-                }
-            }
-            if (TextureData.isLoadSurface()) {
-                try {
-                    Global.getSettings().forceMipmapsFor(ThreatMapObject.THREAT_SURFACE_PATH, true);
-                    Global.getSettings().loadTexture(ThreatMapObject.THREAT_SURFACE_PATH);
-                } catch (IOException e) {
-                    Global.getLogger(ShaderModPlugin.class).log(Level.ERROR, "Texture loading failed at " + ThreatMapObject.THREAT_SURFACE_PATH + "! " + e.getMessage());
-                    throw e;
-                }
-            }
+        if (TextureData.isLoadMaterial() || TextureData.isLoadNormal() || TextureData.isLoadSurface()) {
+            GraphicsLibSettings.loadThreat();
         }
 
         /*

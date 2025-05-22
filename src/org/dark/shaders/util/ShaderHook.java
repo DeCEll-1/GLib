@@ -20,7 +20,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Level;
 
 /**
  * Internal every frame hook that runs each shader in turn. Do not modify.
@@ -146,34 +145,14 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
 //                event.consume();
 //                break;
 //            }
-            if (event.isKeyDownEvent() && event.getEventValue() == ShaderLib.toggleKey) {
+            if (event.isKeyDownEvent() && (event.getEventValue() == GraphicsLibSettings.toggleKey())) {
                 enableShaders = !enableShaders;
                 event.consume();
                 break;
             }
 
-            if (event.isKeyDownEvent() && event.getEventValue() == ShaderLib.reloadKey) {
-                final List<ShaderAPI> shaders = ShaderLib.getShaderAPIs();
-                final List<ShaderAPI> newShaders = new ArrayList<>(shaders.size());
-
-                for (ShaderAPI shader : shaders) {
-                    shader.destroy();
-                    try {
-                        @SuppressWarnings("deprecation")
-                        final ShaderAPI sdr = (ShaderAPI) Global.getSettings().getScriptClassLoader().loadClass(
-                                shader.getClass().getName()).newInstance();
-                        newShaders.add(sdr);
-                        sdr.initCombat();
-                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                        Global.getLogger(ShaderLib.class).log(Level.ERROR, "Reload Error! " + ex);
-                    }
-                }
-
-                shaders.clear();
-                for (ShaderAPI shader : newShaders) {
-                    shaders.add(shader);
-                }
-
+            if (event.isKeyDownEvent() && (event.getEventValue() == GraphicsLibSettings.reloadKey())) {
+                GraphicsLibSettings.reload();
                 event.consume();
                 return;
             }

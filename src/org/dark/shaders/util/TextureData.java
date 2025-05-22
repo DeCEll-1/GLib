@@ -62,14 +62,12 @@ public class TextureData {
 
     private static final String CACHE_HASH_FILE = "shaderlib_cache_hash";
     private static final String CACHE_DIR = "cache";
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
+
+    public static boolean CHECK_INEFFICIENT = false;
 
     private static boolean invalidateCache = true;
-    private static boolean loadMaterial = false;
-    private static boolean loadNormal = false;
-    private static boolean loadSurface = false;
-    private static boolean useAutoGen = false;
-    private static boolean preloadAll = false;
+    private static boolean everTraversedSpecs = false;
+    private static boolean everPerformedAutoGen = false;
 
     private static final Map<String, TextureEntry> materialKeyToEntry = new LinkedHashMap<>(1000);
     private static final Map<String, TextureEntry> materialSpriteNameToEntry = new HashMap<>(1000);
@@ -77,9 +75,13 @@ public class TextureData {
     private static final Map<String, TextureEntry> normalSpriteNameToEntry = new HashMap<>(1000);
     private static final Map<String, TextureEntry> surfaceKeyToEntry = new LinkedHashMap<>(1000);
     private static final Map<String, TextureEntry> surfaceSpriteNameToEntry = new HashMap<>(1000);
+    private static final Set<String> mnsSpritePathSet = new HashSet<>(1000);
     private static final Map<String, String> baseHullIdToHullStyle = new HashMap<>(1000);
     private static final Map<String, Integer> weaponIdToAnimFrames = new HashMap<>(1000);
     private static final Set<String> allHullStyles = new LinkedHashSet<>();
+
+    private static int wastedBytesTotal = 0;
+    private static final Set<String> consideredSprites = new HashSet<>(1000);
 
     private static long vramUsageBytes = 0; // An estimate
 
@@ -88,12 +90,6 @@ public class TextureData {
 
     static {
         Global.getLogger(TextureData.class).setLevel(Level.DEBUG);
-
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
-        }
 
         double kernelSum = BLUR_KERNEL[0];
         for (int i = 1; i < BLUR_KERNEL.length; i++) {
@@ -154,12 +150,12 @@ public class TextureData {
         }
 
         TextureEntry entry;
-        if ((map == TextureDataType.MATERIAL_MAP) && loadMaterial) {
+        if ((map == TextureDataType.MATERIAL_MAP) && isLoadMaterial()) {
             entry = materialKeyToEntry.get(dataKey);
-        } else if ((map == TextureDataType.NORMAL_MAP) && loadNormal) {
+        } else if ((map == TextureDataType.NORMAL_MAP) && isLoadNormal()) {
             TextureEntry normalEntry = normalKeyToEntry.get(dataKey);
             if (normalEntry == null) {
-                if ((object != null) && useAutoGen) {
+                if ((object != null) && GraphicsLibSettings.autoGenNormals()) {
                     String spriteName = null;
                     boolean autoGen = true;
                     boolean autoGenOverride = false;
@@ -300,7 +296,7 @@ public class TextureData {
                 return null;
             }
             entry = normalEntry;
-        } else if ((map == TextureDataType.SURFACE_MAP) && loadSurface) {
+        } else if ((map == TextureDataType.SURFACE_MAP) && isLoadSurface()) {
             entry = surfaceKeyToEntry.get(dataKey);
         } else {
             entry = null;
@@ -313,7 +309,7 @@ public class TextureData {
         /* Last-minute texture loader, if we didn't preload it before this point.  Terrible performance impact, so
          * let's try not to rely on this fallback too much...
          */
-        if (!entry.loaded && entry.needsLoad && (entry.spriteName != null) && !entry.spriteName.isEmpty() && !unloadedOk) {
+        if (!entry.loaded && entry.validToLoad && (entry.spriteName != null) && !entry.spriteName.isEmpty() && !unloadedOk) {
             /* Add mappings to the database if we haven't caught them yet */
             if ((type == ObjectType.TURRET_COVER_SMALL) || (type == ObjectType.TURRET_COVER_MEDIUM) || (type == ObjectType.TURRET_COVER_LARGE)
                     || (type == ObjectType.HARDPOINT_COVER_SMALL) || (type == ObjectType.HARDPOINT_COVER_MEDIUM) || (type == ObjectType.HARDPOINT_COVER_LARGE)) {
@@ -342,7 +338,7 @@ public class TextureData {
                 Global.getSettings().forceMipmapsFor(entry.spriteName, true);
                 Global.getSettings().loadTexture(entry.spriteName);
             } catch (IOException | RuntimeException e) {
-                entry.needsLoad = false;
+                entry.validToLoad = false;
                 return null;
             }
 
@@ -480,175 +476,7 @@ public class TextureData {
      * @since Alpha 1.5
      */
     public static void readTextureDataCSV(String localPath) {
-        try {
-            final JSONArray textureData = Global.getSettings().loadCSV(localPath);
-
-            for (int i = 0; i < textureData.length(); i++) {
-                if ((i % 10) == 0) {
-                    ShaderModPlugin.refresh();
-                }
-
-                final JSONObject entry = textureData.getJSONObject(i);
-                final String id = entry.optString("id");
-                final String type = entry.optString("type");
-                final String map = entry.optString("map");
-                final String path = entry.optString("path");
-                if (!id.isEmpty() && !type.isEmpty() && !map.isEmpty() && !path.isEmpty()) {
-                    boolean success = true;
-                    boolean forceLoad = isAlwaysPreload(id, type);
-                    String typeForKey = "";
-                    switch (type) {
-                        case "ship" ->
-                            typeForKey = "$$$ship";
-                        case "turret" ->
-                            typeForKey = "$$$turret";
-                        case "turretbarrel" ->
-                            typeForKey = "$$$turretbarrel";
-                        case "turretunder" ->
-                            typeForKey = "$$$turretunder";
-                        case "turretcoversmall" ->
-                            typeForKey = "$$$turretcoversmall";
-                        case "turretcovermedium" ->
-                            typeForKey = "$$$turretcovermedium";
-                        case "turretcoverlarge" ->
-                            typeForKey = "$$$turretcoverlarge";
-                        case "hardpoint" ->
-                            typeForKey = "$$$hardpoint";
-                        case "hardpointbarrel" ->
-                            typeForKey = "$$$hardpointbarrel";
-                        case "hardpointunder" ->
-                            typeForKey = "$$$hardpointunder";
-                        case "hardpointcoversmall" ->
-                            typeForKey = "$$$hardpointcoversmall";
-                        case "hardpointcovermedium" ->
-                            typeForKey = "$$$hardpointcovermedium";
-                        case "hardpointcoverlarge" ->
-                            typeForKey = "$$$hardpointcoverlarge";
-                        case "missile" ->
-                            typeForKey = "$$$missile";
-                        case "asteroid" -> {
-                            typeForKey = "$$$asteroid";
-                        }
-                        default ->
-                            success = false;
-                    }
-                    if (!success) {
-                        continue;
-                    }
-
-                    final SpriteAPI sprite = Global.getSettings().getSprite(path);
-                    final String frameStr;
-                    if (type.contentEquals("turret") || type.contentEquals("hardpoint")) {
-                        frameStr = "" + entry.optInt("frame", 0);
-                    } else {
-                        frameStr = "";
-                        if (entry.optInt("frame", 0) > 0) {
-                            Global.getLogger(TextureData.class).log(Level.WARN, "Defined animation frames for incompatible object type "
-                                    + type + " for " + id + "! (discarded)");
-                        }
-                    }
-
-                    boolean spriteExists = false;
-                    boolean spriteWasLoaded = false;
-                    switch (map) {
-                        case "material" -> {
-                            if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadMaterial) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
-                                    }
-                                }
-                            } else {
-                                spriteExists = true;
-                            }
-                            materialKeyToEntry.put(id + typeForKey + frameStr,
-                                    new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                            false, spriteWasLoaded && !forceLoad, spriteExists));
-                        }
-                        case "normal" -> {
-                            if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadNormal) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
-                                    }
-                                }
-                            } else {
-                                spriteExists = true;
-                            }
-                            normalKeyToEntry.put(id + typeForKey + frameStr,
-                                    new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                            false, spriteWasLoaded && !forceLoad, spriteExists));
-                        }
-                        case "surface" -> {
-                            if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadSurface) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
-                                    }
-                                }
-                            } else {
-                                spriteExists = true;
-                            }
-                            surfaceKeyToEntry.put(id + typeForKey + frameStr,
-                                    new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                            false, spriteWasLoaded && !forceLoad, spriteExists));
-                        }
-                        default -> {
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture data loading failed for " + localPath + "! " + e.getMessage());
-        }
+        readTextureDataCSVInner(localPath, true);
     }
 
     /**
@@ -660,6 +488,11 @@ public class TextureData {
      * @since Alpha 1.5
      */
     public static void readTextureDataCSVNoOverwrite(String localPath) {
+        readTextureDataCSVInner(localPath, false);
+    }
+
+    private static void readTextureDataCSVInner(String localPath, boolean overwrite) {
+        ShaderLib.init();
         try {
             final JSONArray textureData = Global.getSettings().loadCSV(localPath);
 
@@ -668,11 +501,11 @@ public class TextureData {
                     ShaderModPlugin.refresh();
                 }
 
-                final JSONObject entry = textureData.getJSONObject(i);
-                final String id = entry.optString("id");
-                final String type = entry.optString("type");
-                final String map = entry.optString("map");
-                final String path = entry.optString("path");
+                final JSONObject row = textureData.getJSONObject(i);
+                final String id = row.optString("id");
+                final String type = row.optString("type");
+                final String map = row.optString("map");
+                final String path = row.optString("path");
                 if (!id.isEmpty() && !type.isEmpty() && !map.isEmpty() && !path.isEmpty()) {
                     boolean success = true;
                     boolean forceLoad = isAlwaysPreload(id, type);
@@ -719,112 +552,181 @@ public class TextureData {
                     final SpriteAPI sprite = Global.getSettings().getSprite(path);
                     final String frameStr;
                     if (type.contentEquals("turret") || type.contentEquals("hardpoint")) {
-                        frameStr = "" + entry.optInt("frame", 0);
+                        frameStr = "" + row.optInt("frame", 0);
                     } else {
                         frameStr = "";
-                        if (entry.optInt("frame", 0) > 0) {
+                        if (row.optInt("frame", 0) > 0) {
                             Global.getLogger(TextureData.class).log(Level.WARN, "Defined animation frames for incompatible object type "
                                     + type + " for " + id + "! (discarded)");
                         }
                     }
+                    final float magnitude = (float) row.optDouble("magnitude", 1.0);
 
                     boolean spriteExists = false;
                     boolean spriteWasLoaded = false;
+                    TextureEntry linkedEntry = null;
                     switch (map) {
                         case "material" -> {
                             if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadMaterial) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
+                                if (isLoadMaterial() && (GraphicsLibSettings.preloadAllMaps() || forceLoad)) {
+                                    try {
+                                        Global.getSettings().forceMipmapsFor(path, true);
+                                        Global.getSettings().loadTexture(path);
+                                    } catch (IOException e) {
+                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        continue;
                                     }
+                                    final SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
+                                    if (loadedSprite != null) {
+                                        spriteExists = true;
+                                        spriteWasLoaded = true;
+                                        vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
+                                                * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
+                                    }
+                                } else {
+                                    spriteExists = false;
+                                    spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
                                 }
                             } else {
                                 spriteExists = true;
                             }
-                            if (!materialKeyToEntry.containsKey(id + typeForKey + frameStr)) {
-                                materialKeyToEntry.put(id + typeForKey + frameStr,
-                                        new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                                false, spriteWasLoaded && !forceLoad, spriteExists));
+                            if (overwrite || !materialKeyToEntry.containsKey(id + typeForKey + frameStr)) {
+                                final TextureEntry otherEntry = materialKeyToEntry.get(id + typeForKey + frameStr);
+                                if ((otherEntry != null) && (otherEntry.spriteName != null) && otherEntry.validToLoad && otherEntry.loaded && !otherEntry.spriteName.contentEquals(path)) {
+                                    final int texId = otherEntry.sprite.getTextureId();
+                                    Global.getSettings().unloadTexture(otherEntry.spriteName);
+                                    GL11.glDeleteTextures(texId);
+                                    otherEntry.sprite = null;
+                                    otherEntry.loaded = false;
+                                    vramUsageBytes -= otherEntry.vramSize;
+                                    Global.getLogger(TextureData.class).log(Level.INFO, "Unloaded potentially orphaned material texture: " + otherEntry.spriteName);
+                                }
+                                if (mnsSpritePathSet.contains(path)) {
+                                    for (TextureEntry entry : materialKeyToEntry.values()) {
+                                        if ((entry.spriteName != null) && entry.spriteName.contentEquals(path)) {
+                                            linkedEntry = entry;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (linkedEntry == null) {
+                                    materialKeyToEntry.put(id + typeForKey + frameStr,
+                                            new TextureEntry(Global.getSettings().getSprite(path), path, magnitude, false, spriteWasLoaded, spriteExists, forceLoad));
+                                    mnsSpritePathSet.add(path);
+                                } else {
+                                    materialKeyToEntry.put(id + typeForKey + frameStr, linkedEntry);
+                                }
                             }
                         }
                         case "normal" -> {
                             if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadNormal) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
+                                if (isLoadNormal() && (GraphicsLibSettings.preloadAllMaps() || forceLoad)) {
+                                    try {
+                                        Global.getSettings().forceMipmapsFor(path, true);
+                                        Global.getSettings().loadTexture(path);
+                                    } catch (IOException e) {
+                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        continue;
                                     }
+                                    final SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
+                                    if (loadedSprite != null) {
+                                        spriteExists = true;
+                                        spriteWasLoaded = true;
+                                        vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
+                                                * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
+                                    }
+                                } else {
+                                    spriteExists = false;
+                                    spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
                                 }
                             } else {
                                 spriteExists = true;
                             }
-                            if (!normalKeyToEntry.containsKey(id + typeForKey + frameStr)) {
-                                normalKeyToEntry.put(id + typeForKey + frameStr,
-                                        new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                                false, spriteWasLoaded && !forceLoad, spriteExists));
+                            if (overwrite || !normalKeyToEntry.containsKey(id + typeForKey + frameStr)) {
+                                final TextureEntry otherEntry = normalKeyToEntry.get(id + typeForKey + frameStr);
+                                if ((otherEntry != null) && (otherEntry.spriteName != null) && otherEntry.validToLoad && otherEntry.loaded && !otherEntry.spriteName.contentEquals(path)) {
+                                    final int texId = otherEntry.sprite.getTextureId();
+                                    Global.getSettings().unloadTexture(otherEntry.spriteName);
+                                    GL11.glDeleteTextures(texId);
+                                    otherEntry.sprite = null;
+                                    otherEntry.loaded = false;
+                                    vramUsageBytes -= otherEntry.vramSize;
+                                    Global.getLogger(TextureData.class).log(Level.INFO, "Unloaded potentially orphaned normal texture: " + otherEntry.spriteName);
+                                }
+                                String linkedId = null;
+                                if (mnsSpritePathSet.contains(path)) {
+                                    for (Entry<String, TextureEntry> mapEntry : normalKeyToEntry.entrySet()) {
+                                        final TextureEntry entry = mapEntry.getValue();
+                                        if ((entry.spriteName != null) && entry.spriteName.contentEquals(path)) {
+                                            linkedEntry = entry;
+                                            linkedId = mapEntry.getKey();
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (linkedEntry == null) {
+                                    normalKeyToEntry.put(id + typeForKey + frameStr,
+                                            new TextureEntry(Global.getSettings().getSprite(path), path, magnitude, false, spriteWasLoaded, spriteExists, forceLoad));
+                                    mnsSpritePathSet.add(path);
+                                } else {
+                                    normalKeyToEntry.put(id + typeForKey + frameStr, linkedEntry);
+                                    if (Math.abs(linkedEntry.magnitude - magnitude) > 1E-6) {
+                                        Global.getLogger(TextureData.class).log(Level.WARN,
+                                                "Linking identical normal maps for " + id + typeForKey + frameStr + " and " + linkedId + " but magnitude is different!");
+                                    }
+                                }
                             }
                         }
                         case "surface" -> {
                             if ((sprite == null) || (sprite.getHeight() < 1)) {
-                                if (loadSurface) {
-                                    if (preloadAll || forceLoad) {
-                                        try {
-                                            Global.getSettings().forceMipmapsFor(path, true);
-                                            Global.getSettings().loadTexture(path);
-                                        } catch (IOException e) {
-                                            Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
-                                            continue;
-                                        }
-                                        SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
-                                        if (loadedSprite != null) {
-                                            spriteExists = true;
-                                            spriteWasLoaded = true;
-                                            vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
-                                                    * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
-                                        }
-                                    } else {
-                                        spriteExists = false;
-                                        spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
+                                if (isLoadSurface() && (GraphicsLibSettings.preloadAllMaps() || forceLoad)) {
+                                    try {
+                                        Global.getSettings().forceMipmapsFor(path, true);
+                                        Global.getSettings().loadTexture(path);
+                                    } catch (IOException e) {
+                                        Global.getLogger(TextureData.class).log(Level.ERROR, "Texture loading failed at " + path + "! " + e.getMessage());
+                                        continue;
                                     }
+                                    final SpriteAPI loadedSprite = Global.getSettings().getSprite(path);
+                                    if (loadedSprite != null) {
+                                        spriteExists = true;
+                                        spriteWasLoaded = true;
+                                        vramUsageBytes += Math.round((double) (16 * (Math.round(loadedSprite.getWidth() / loadedSprite.getTextureWidth())
+                                                * Math.round(loadedSprite.getHeight() / loadedSprite.getTextureHeight()))) / 3.0);
+                                    }
+                                } else {
+                                    spriteExists = false;
+                                    spriteWasLoaded = true; // Set this true, hoping it'll load; might set to false later if it fails
                                 }
                             } else {
                                 spriteExists = true;
                             }
-                            if (!surfaceKeyToEntry.containsKey(id + typeForKey + frameStr)) {
-                                surfaceKeyToEntry.put(id + typeForKey + frameStr,
-                                        new TextureEntry(Global.getSettings().getSprite(path), path, (float) entry.optDouble("magnitude", 1.0),
-                                                false, spriteWasLoaded && !forceLoad, spriteExists));
+                            if (overwrite || !surfaceKeyToEntry.containsKey(id + typeForKey + frameStr)) {
+                                final TextureEntry otherEntry = surfaceKeyToEntry.get(id + typeForKey + frameStr);
+                                if ((otherEntry != null) && (otherEntry.spriteName != null) && otherEntry.validToLoad && otherEntry.loaded && !otherEntry.spriteName.contentEquals(path)) {
+                                    final int texId = otherEntry.sprite.getTextureId();
+                                    Global.getSettings().unloadTexture(otherEntry.spriteName);
+                                    GL11.glDeleteTextures(texId);
+                                    otherEntry.sprite = null;
+                                    otherEntry.loaded = false;
+                                    vramUsageBytes -= otherEntry.vramSize;
+                                    Global.getLogger(TextureData.class).log(Level.INFO, "Unloaded potentially orphaned surface texture: " + otherEntry.spriteName);
+                                }
+                                if (mnsSpritePathSet.contains(path)) {
+                                    for (TextureEntry entry : surfaceKeyToEntry.values()) {
+                                        if ((entry.spriteName != null) && entry.spriteName.contentEquals(path)) {
+                                            linkedEntry = entry;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (linkedEntry == null) {
+                                    surfaceKeyToEntry.put(id + typeForKey + frameStr,
+                                            new TextureEntry(Global.getSettings().getSprite(path), path, magnitude, false, spriteWasLoaded, spriteExists, forceLoad));
+                                    mnsSpritePathSet.add(path);
+                                } else {
+                                    surfaceKeyToEntry.put(id + typeForKey + frameStr, linkedEntry);
+                                }
                             }
                         }
                         default -> {
@@ -965,7 +867,7 @@ public class TextureData {
      * @since 1.11.0
      */
     public static void autoGenMissingNormalMaps() {
-        if (!loadMaterial && !loadNormal && !loadSurface) {
+        if (!isLoadMaterial() && !isLoadNormal() && !isLoadSurface()) {
             return;
         }
 
@@ -977,7 +879,7 @@ public class TextureData {
         final int modVersionHash = modVersionData.hashCode();
 
         invalidateCache = true;
-        if (Global.getSettings().fileExistsInCommon(CACHE_HASH_FILE)) {
+        if (GraphicsLibSettings.autoGenNormals() && isLoadNormal() && Global.getSettings().fileExistsInCommon(CACHE_HASH_FILE)) {
             int prevModVersionHash = 0;
             try {
                 prevModVersionHash = Integer.decode(Global.getSettings().readTextFileFromCommon(CACHE_HASH_FILE));
@@ -991,23 +893,30 @@ public class TextureData {
             }
         }
 
-        try {
-            Global.getSettings().writeTextFileToCommon(CACHE_HASH_FILE, "" + modVersionHash);
-        } catch (IOException e) {
-            Global.getLogger(TextureData.class).log(Level.ERROR, "Failed to write " + CACHE_HASH_FILE + ": " + e.getMessage());
-        }
-
         /* Run without autogen first so that we can find and link all of the sprites to their associated texture
          * entries.  This has two key benefits.  First, we can avoid generating unnecessary normal maps for things that
          * do already have normal maps defined.  Second, we can automatically link stuff that has identical sprites to
          * their corresponding material/normal/surface maps, even if there isn't a corresponding entry in the handmade
          * texture data CSV.
          */
-        autoGenMissingNormalMapsInner(false);
-        if (useAutoGen && loadNormal) {
-            autoGenMissingNormalMapsInner(true);
+        if (!everTraversedSpecs) {
+            autoGenMissingNormalMapsInner(false);
+            everTraversedSpecs = true;
+
+            if (CHECK_INEFFICIENT) {
+                Global.getLogger(TextureData.class).log(Level.INFO, "Wasted " + wastedBytesTotal + " bytes over " + consideredSprites.size() + " sprites!");
+            }
         }
-        invalidateCache = false;
+        if (GraphicsLibSettings.autoGenNormals() && isLoadNormal() && !everPerformedAutoGen) {
+            autoGenMissingNormalMapsInner(true);
+            try {
+                Global.getSettings().writeTextFileToCommon(CACHE_HASH_FILE, "" + modVersionHash);
+            } catch (IOException e) {
+                Global.getLogger(TextureData.class).log(Level.ERROR, "Failed to write " + CACHE_HASH_FILE + ": " + e.getMessage());
+            }
+            invalidateCache = false;
+            everPerformedAutoGen = true;
+        }
 
         Global.getLogger(TextureData.class).log(Level.INFO, "Estimated VRAM usage for material/normal/surface maps after initial load: " + vramUsageBytes + " bytes");
     }
@@ -1024,19 +933,13 @@ public class TextureData {
      * @since 1.11.0
      */
     public static void unloadAndPreloadTextures(Collection<FleetMemberAPI> members) {
-        if (preloadAll || !ShaderLib.enabled) {
-            return;
-        }
-        if (!loadMaterial && !loadNormal && !loadSurface) {
-            return;
-        }
-
         Global.getLogger(TextureData.class).log(Level.INFO, "Estimated VRAM usage for material/normal/surface maps before unload/preload: " + vramUsageBytes + " bytes");
 
-        final Set<TextureEntry> keptMaterialEntries = new LinkedHashSet<>(materialKeyToEntry.size());
-        final Set<TextureEntry> keptNormalEntries = new LinkedHashSet<>(normalKeyToEntry.size());
-        final Set<TextureEntry> keptSurfaceEntries = new LinkedHashSet<>(surfaceKeyToEntry.size());
-        if ((members != null) && !members.isEmpty()) {
+        final Object autoGen = new Object();
+        Set<TextureEntry> keptMaterialEntries = new LinkedHashSet<>(materialKeyToEntry.size());
+        Set<TextureEntry> keptNormalEntries = new LinkedHashSet<>(normalKeyToEntry.size());
+        Set<TextureEntry> keptSurfaceEntries = new LinkedHashSet<>(surfaceKeyToEntry.size());
+        if ((members != null) && !members.isEmpty() && ShaderLib.enabled && (isLoadMaterial() || isLoadNormal() || isLoadSurface()) && !GraphicsLibSettings.preloadAllMaps()) {
             final List<PreloadEntry> hullsToProcess = new ArrayList<>(members.size());
             for (FleetMemberAPI member : members) {
                 final ShipHullSpecAPI hullSpec = member.getHullSpec();
@@ -1108,16 +1011,16 @@ public class TextureData {
 
                     TextureEntry shipTexEntry = null;
                     if (entry.fighterSpriteKey != null) {
-                        shipTexEntry = getTextureDataWithAutoGen(entry.fighterSpriteKey, type, ObjectType.SHIP, 0, null, true);
+                        shipTexEntry = getTextureDataWithAutoGen(entry.fighterSpriteKey, type, ObjectType.SHIP, 0, autoGen, true);
                     }
                     if (shipTexEntry == null) {
-                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getHullId(), type, ObjectType.SHIP, 0, null, true);
+                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getHullId(), type, ObjectType.SHIP, 0, autoGen, true);
                     }
                     if (shipTexEntry == null) {
-                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getDParentHullId(), type, ObjectType.SHIP, 0, null, true);
+                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getDParentHullId(), type, ObjectType.SHIP, 0, autoGen, true);
                     }
                     if (shipTexEntry == null) {
-                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getBaseHullId(), type, ObjectType.SHIP, 0, null, true);
+                        shipTexEntry = getTextureDataWithAutoGen(hullSpec.getBaseHullId(), type, ObjectType.SHIP, 0, autoGen, true);
                     }
                     if (shipTexEntry != null) {
                         keptEntries.add(shipTexEntry);
@@ -1159,23 +1062,23 @@ public class TextureData {
                                 default:
                                 case SMALL:
                                     if (slot.isHardpoint()) {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_SMALL, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_SMALL, 0, autoGen, true);
                                     } else {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_SMALL, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_SMALL, 0, autoGen, true);
                                     }
                                     break;
                                 case MEDIUM:
                                     if (slot.isHardpoint()) {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_MEDIUM, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_MEDIUM, 0, autoGen, true);
                                     } else {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_MEDIUM, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_MEDIUM, 0, autoGen, true);
                                     }
                                     break;
                                 case LARGE:
                                     if (slot.isHardpoint()) {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_LARGE, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.HARDPOINT_COVER_LARGE, 0, autoGen, true);
                                     } else {
-                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_LARGE, 0, null, true);
+                                        coverTexEntry = TextureData.getTextureDataWithAutoGen(hullStyle, type, ObjectType.TURRET_COVER_LARGE, 0, autoGen, true);
                                     }
                                     break;
                             }
@@ -1221,9 +1124,9 @@ public class TextureData {
                         for (int frame = 0; frame <= numFrames; frame++) {
                             final TextureEntry weaponTexEntry;
                             if (slot.isHardpoint()) {
-                                weaponTexEntry = TextureData.getTextureDataWithAutoGen(hardpointId, type, ObjectType.HARDPOINT, frame, null, true);
+                                weaponTexEntry = TextureData.getTextureDataWithAutoGen(hardpointId, type, ObjectType.HARDPOINT, frame, autoGen, true);
                             } else {
-                                weaponTexEntry = TextureData.getTextureDataWithAutoGen(turretId, type, ObjectType.TURRET, frame, null, true);
+                                weaponTexEntry = TextureData.getTextureDataWithAutoGen(turretId, type, ObjectType.TURRET, frame, autoGen, true);
                             }
                             if (weaponTexEntry != null) {
                                 keptEntries.add(weaponTexEntry);
@@ -1231,9 +1134,9 @@ public class TextureData {
 
                             final TextureEntry weaponBarrelTexEntry;
                             if (slot.isHardpoint()) {
-                                weaponBarrelTexEntry = TextureData.getTextureDataWithAutoGen(hardpointBarrelId, type, ObjectType.HARDPOINT_BARREL, frame, null, true);
+                                weaponBarrelTexEntry = TextureData.getTextureDataWithAutoGen(hardpointBarrelId, type, ObjectType.HARDPOINT_BARREL, frame, autoGen, true);
                             } else {
-                                weaponBarrelTexEntry = TextureData.getTextureDataWithAutoGen(turretBarrelId, type, ObjectType.TURRET_BARREL, frame, null, true);
+                                weaponBarrelTexEntry = TextureData.getTextureDataWithAutoGen(turretBarrelId, type, ObjectType.TURRET_BARREL, frame, autoGen, true);
                             }
                             if (weaponBarrelTexEntry != null) {
                                 keptEntries.add(weaponBarrelTexEntry);
@@ -1241,9 +1144,9 @@ public class TextureData {
 
                             final TextureEntry weaponUnderTexEntry;
                             if (slot.isHardpoint()) {
-                                weaponUnderTexEntry = TextureData.getTextureDataWithAutoGen(underId, type, ObjectType.HARDPOINT_UNDER, frame, null, true);
+                                weaponUnderTexEntry = TextureData.getTextureDataWithAutoGen(underId, type, ObjectType.HARDPOINT_UNDER, frame, autoGen, true);
                             } else {
-                                weaponUnderTexEntry = TextureData.getTextureDataWithAutoGen(underId, type, ObjectType.TURRET_UNDER, frame, null, true);
+                                weaponUnderTexEntry = TextureData.getTextureDataWithAutoGen(underId, type, ObjectType.TURRET_UNDER, frame, autoGen, true);
                             }
                             if (weaponUnderTexEntry != null) {
                                 keptEntries.add(weaponUnderTexEntry);
@@ -1254,9 +1157,22 @@ public class TextureData {
                             if (!missileSpec.getTypeString().contentEquals("MOTE") && !missileSpec.getTypeString().startsWith("FLARE")) {
                                 final ShipHullSpecAPI missileHullSpec = missileSpec.getHullSpec();
                                 if (missileHullSpec != null) {
-                                    final TextureEntry missileTexEntry = TextureData.getTextureDataWithAutoGen(missileHullSpec.getHullId(), type, ObjectType.MISSILE, 0, null, true);
+                                    final TextureEntry missileTexEntry = TextureData.getTextureDataWithAutoGen(missileHullSpec.getHullId(), type, ObjectType.MISSILE, 0, autoGen, true);
                                     if (missileTexEntry != null) {
                                         keptEntries.add(missileTexEntry);
+                                    }
+
+                                    if (missileSpec.getTypeString().startsWith("MIRV")) {
+                                        JSONObject behaviorSpec = missileSpec.getBehaviorJSON();
+                                        if ((behaviorSpec != null) && behaviorSpec.has("projectileSpec")) {
+                                            String mirvId = behaviorSpec.optString("projectileSpec");
+                                            if ((mirvId != null) && !mirvId.isEmpty()) {
+                                                final TextureEntry mirvTexEntry = TextureData.getTextureDataWithAutoGen(mirvId, type, ObjectType.MISSILE, 0, autoGen, true);
+                                                if (mirvTexEntry != null) {
+                                                    keptEntries.add(mirvTexEntry);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1264,33 +1180,57 @@ public class TextureData {
                     }
                 }
             }
+        } else if (ShaderLib.enabled && GraphicsLibSettings.preloadAllMaps()) {
+            if (isLoadMaterial()) {
+                keptMaterialEntries = new LinkedHashSet<>(materialKeyToEntry.values());
+            }
+            if (isLoadNormal()) {
+                keptNormalEntries = new LinkedHashSet<>(normalKeyToEntry.values());
+            }
+            if (isLoadSurface()) {
+                keptSurfaceEntries = new LinkedHashSet<>(surfaceKeyToEntry.values());
+            }
         }
 
         Global.getLogger(TextureData.class).log(Level.INFO, "Unloading...");
         for (TextureDataType type : TextureDataType.values()) {
             Set<Entry<String, TextureEntry>> keyToEntry = materialKeyToEntry.entrySet();
-            Set<TextureEntry> keptEntries = keptMaterialEntries;
+            Set<TextureEntry> keptEntries = null;
             switch (type) {
                 case MATERIAL_MAP -> {
                     keyToEntry = materialKeyToEntry.entrySet();
-                    keptEntries = keptMaterialEntries;
+                    if (isLoadMaterial()) {
+                        keptEntries = keptMaterialEntries;
+                    }
                 }
                 case NORMAL_MAP -> {
                     keyToEntry = normalKeyToEntry.entrySet();
-                    keptEntries = keptNormalEntries;
+                    if (isLoadNormal()) {
+                        keptEntries = keptNormalEntries;
+                    }
                 }
                 case SURFACE_MAP -> {
                     keyToEntry = surfaceKeyToEntry.entrySet();
-                    keptEntries = keptSurfaceEntries;
+                    if (isLoadSurface()) {
+                        keptEntries = keptSurfaceEntries;
+                    }
                 }
             }
             for (Entry<String, TextureEntry> entry : keyToEntry) {
                 final TextureEntry texEntry = entry.getValue();
-                if ((texEntry != null) && (texEntry.sprite != null) && (texEntry.spriteName != null) && texEntry.needsLoad && texEntry.loaded) {
-                    if (keptEntries.contains(texEntry)) {
+                if ((keptEntries != null) && (texEntry != null)) {
+                    if (texEntry.alwaysPreload) {
+                        keptEntries.add(texEntry);
+                    }
+                    if (texEntry.autoGen && !GraphicsLibSettings.autoGenNormals()) {
+                        keptEntries.remove(texEntry);
+                    }
+                }
+                if ((texEntry != null) && (texEntry.sprite != null) && (texEntry.spriteName != null) && texEntry.validToLoad && texEntry.loaded) {
+                    if ((keptEntries != null) && keptEntries.contains(texEntry)) {
                         continue;
                     }
-                    int texId = texEntry.sprite.getTextureId();
+                    final int texId = texEntry.sprite.getTextureId();
                     Global.getSettings().unloadTexture(texEntry.spriteName);
                     GL11.glDeleteTextures(texId);
                     texEntry.sprite = null;
@@ -1300,34 +1240,49 @@ public class TextureData {
             }
         }
 
-        Global.getLogger(TextureData.class).log(Level.INFO, "Preloading...");
-        for (TextureDataType type : TextureDataType.values()) {
-            Set<TextureEntry> keptEntries = keptMaterialEntries;
-            switch (type) {
-                case MATERIAL_MAP ->
-                    keptEntries = keptMaterialEntries;
-                case NORMAL_MAP ->
-                    keptEntries = keptNormalEntries;
-                case SURFACE_MAP ->
-                    keptEntries = keptSurfaceEntries;
-            }
-            for (TextureEntry texEntry : keptEntries) {
-                if (!texEntry.loaded && texEntry.needsLoad && (texEntry.spriteName != null) && !texEntry.spriteName.isEmpty()) {
-                    try {
-                        Global.getSettings().forceMipmapsFor(texEntry.spriteName, true);
-                        Global.getSettings().loadTexture(texEntry.spriteName);
-                    } catch (IOException | RuntimeException e) {
-                        texEntry.needsLoad = false;
-                        continue;
-                    }
-                    texEntry.sprite = Global.getSettings().getSprite(texEntry.spriteName);
-                    if ((texEntry.sprite != null) && (texEntry.sprite.getHeight() >= 1)) {
-                        if (texEntry.vramSize == 0) {
-                            texEntry.vramSize = Math.round((double) (16 * (Math.round(texEntry.sprite.getWidth() / texEntry.sprite.getTextureWidth())
-                                    * Math.round(texEntry.sprite.getHeight() / texEntry.sprite.getTextureHeight()))) / 3.0);
+        int count = 0;
+        if (ShaderLib.enabled && (isLoadMaterial() || isLoadNormal() || isLoadSurface())) {
+            Global.getLogger(TextureData.class).log(Level.INFO, "Preloading...");
+            for (TextureDataType type : TextureDataType.values()) {
+                if ((type == TextureDataType.MATERIAL_MAP) && !isLoadMaterial()) {
+                    continue;
+                } else if ((type == TextureDataType.NORMAL_MAP) && !isLoadNormal()) {
+                    continue;
+                } else if ((type == TextureDataType.SURFACE_MAP) && !isLoadSurface()) {
+                    continue;
+                }
+                Set<TextureEntry> keptEntries = keptMaterialEntries;
+                switch (type) {
+                    case MATERIAL_MAP ->
+                        keptEntries = keptMaterialEntries;
+                    case NORMAL_MAP ->
+                        keptEntries = keptNormalEntries;
+                    case SURFACE_MAP ->
+                        keptEntries = keptSurfaceEntries;
+                }
+                for (TextureEntry texEntry : keptEntries) {
+                    if (!texEntry.loaded && texEntry.validToLoad && (texEntry.spriteName != null) && !texEntry.spriteName.isEmpty()
+                            && (!texEntry.autoGen || GraphicsLibSettings.autoGenNormals())) {
+                        try {
+                            Global.getSettings().forceMipmapsFor(texEntry.spriteName, true);
+                            Global.getSettings().loadTexture(texEntry.spriteName);
+                        } catch (IOException | RuntimeException e) {
+                            texEntry.validToLoad = false;
+                            continue;
                         }
-                        vramUsageBytes += texEntry.vramSize;
-                        texEntry.loaded = true;
+                        texEntry.sprite = Global.getSettings().getSprite(texEntry.spriteName);
+                        if ((texEntry.sprite != null) && (texEntry.sprite.getHeight() >= 1)) {
+                            if (texEntry.vramSize == 0) {
+                                texEntry.vramSize = Math.round((double) (16 * (Math.round(texEntry.sprite.getWidth() / texEntry.sprite.getTextureWidth())
+                                        * Math.round(texEntry.sprite.getHeight() / texEntry.sprite.getTextureHeight()))) / 3.0);
+                            }
+                            vramUsageBytes += texEntry.vramSize;
+                            texEntry.loaded = true;
+                        }
+                        count++;
+                        if ((count % 10) == 0) {
+                            ShaderModPlugin.refresh();
+                        }
                     }
                 }
             }
@@ -1772,6 +1727,49 @@ public class TextureData {
                         final String missileKey = hullSpec.getHullId();
                         final String missileSpriteName = hullSpec.getSpriteName();
                         mapSpriteToMNSWithAutoGen(missileKey, missileSpriteName, ObjectType.MISSILE, 0, autoGenThisWeapon, autoGenOverride);
+
+                        /* "Only" one level of recursion */
+                        if (missileSpec.getTypeString().startsWith("MIRV")) {
+                            JSONObject behaviorSpec = missileSpec.getBehaviorJSON();
+                            if ((behaviorSpec != null) && behaviorSpec.has("projectileSpec")) {
+                                String mirvKey;
+                                try {
+                                    mirvKey = behaviorSpec.getString("projectileSpec");
+                                } catch (JSONException e) {
+                                    Global.getLogger(TextureData.class).log(Level.ERROR, "JSON error for missile " + missileKey + ": " + e.getMessage());
+                                    continue;
+                                }
+                                if (mirvKey != null) {
+                                    JSONObject mirvJson;
+                                    try {
+                                        mirvJson = Global.getSettings().loadJSON("data/weapons/proj/" + mirvKey + ".proj");
+                                    } catch (IOException | JSONException | RuntimeException ex) {
+                                        mirvJson = null;
+                                    }
+                                    if (mirvJson == null) {
+                                        try {
+                                            mirvJson = Global.getSettings().loadJSON("data/shipsystems/proj/" + mirvKey + ".proj");
+                                        } catch (IOException | JSONException | RuntimeException ex) {
+                                            mirvJson = null;
+                                        }
+                                    }
+                                    if (mirvJson != null) {
+                                        if (mirvJson.has("sprite")) {
+                                            String mirvSpriteName;
+                                            try {
+                                                mirvSpriteName = mirvJson.getString("sprite");
+                                            } catch (JSONException e) {
+                                                Global.getLogger(TextureData.class).log(Level.ERROR, "JSON error for MIRV " + mirvKey + ": " + e.getMessage());
+                                                continue;
+                                            }
+                                            mapSpriteToMNSWithAutoGen(mirvKey, mirvSpriteName, ObjectType.MISSILE, 0, autoGenThisWeapon, autoGenOverride);
+                                        }
+                                    } else {
+                                        Global.getLogger(TextureData.class).log(Level.WARN, "Failed to find JSON for MIRV " + mirvKey);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1801,18 +1799,24 @@ public class TextureData {
             if (frame > 0) {
                 spriteName = getAnimNameForFrame(spriteName, frame);
             }
-            if (loadMaterial) {
+            if (CHECK_INEFFICIENT) {
+                alertInefficientSprite(spriteName, type);
+            }
+            if (isLoadMaterial()) {
                 TextureEntry entry = getTextureDataWithAutoGen(key, TextureDataType.MATERIAL_MAP, type, frame, null, true);
                 if (entry == null) {
                     entry = materialSpriteNameToEntry.get(spriteName);
                     if (entry != null) {
                         materialKeyToEntry.put(getTextureDataKey(key, type, frame), entry);
+                        if ((entry.spriteName != null) && !spriteName.isEmpty()) {
+                            mnsSpritePathSet.add(entry.spriteName);
+                        }
                     }
                 } else {
                     materialSpriteNameToEntry.put(spriteName, entry);
                 }
             }
-            if (loadNormal) {
+            if (isLoadNormal()) {
                 TextureEntry entry = getTextureDataWithAutoGen(key, TextureDataType.NORMAL_MAP, type, frame, null, true);
                 if (entry == null) {
                     entry = normalSpriteNameToEntry.get(spriteName);
@@ -1824,9 +1828,31 @@ public class TextureData {
                                  * cache of auto-generated normal maps.  However, once we have that sprite and have
                                  * made its texture entry, it's safe to just unload it to save memory.
                                  */
-                                entry = new TextureEntry(sprite, filePathForCache(key, type, frame), 1f, !autoGenOverride, true, true);
-                                if (!preloadAll) {
-                                    int texId = entry.sprite.getTextureId();
+                                final boolean forceLoad;
+                                switch (type) {
+                                    case SHIP ->
+                                        forceLoad = isAlwaysPreload(key, "ship");
+                                    case TURRET ->
+                                        forceLoad = isAlwaysPreload(key, "turret");
+                                    case TURRET_BARREL ->
+                                        forceLoad = isAlwaysPreload(key, "turretbarrel");
+                                    case TURRET_UNDER ->
+                                        forceLoad = isAlwaysPreload(key, "turretunder");
+                                    case HARDPOINT ->
+                                        forceLoad = isAlwaysPreload(key, "hardpoint");
+                                    case HARDPOINT_BARREL ->
+                                        forceLoad = isAlwaysPreload(key, "hardpointbarrel");
+                                    case HARDPOINT_UNDER ->
+                                        forceLoad = isAlwaysPreload(key, "hardpointunder");
+                                    case MISSILE ->
+                                        forceLoad = isAlwaysPreload(key, "missile");
+                                    default -> {
+                                        forceLoad = false;
+                                    }
+                                }
+                                entry = new TextureEntry(sprite, filePathForCache(key, type, frame), 1f, !autoGenOverride, true, true, forceLoad);
+                                if (!GraphicsLibSettings.preloadAllMaps()) {
+                                    final int texId = entry.sprite.getTextureId();
                                     Global.getSettings().unloadTexture(entry.spriteName);
                                     GL11.glDeleteTextures(texId);
                                     entry.sprite = null;
@@ -1834,28 +1860,137 @@ public class TextureData {
                                     vramUsageBytes -= entry.vramSize;
                                 }
                                 normalKeyToEntry.put(getTextureDataKey(key, type, frame), entry);
+                                if ((entry.spriteName != null) && !spriteName.isEmpty()) {
+                                    mnsSpritePathSet.add(entry.spriteName);
+                                }
                                 normalSpriteNameToEntry.put(spriteName, entry);
                             }
                         }
                     } else {
                         normalKeyToEntry.put(getTextureDataKey(key, type, frame), entry);
+                        if ((entry.spriteName != null) && !spriteName.isEmpty()) {
+                            mnsSpritePathSet.add(entry.spriteName);
+                        }
                     }
                 } else {
                     normalSpriteNameToEntry.put(spriteName, entry);
                 }
             }
-            if (loadSurface) {
+            if (isLoadSurface()) {
                 TextureEntry entry = getTextureDataWithAutoGen(key, TextureDataType.SURFACE_MAP, type, frame, null, true);
                 if (entry == null) {
                     entry = surfaceSpriteNameToEntry.get(spriteName);
                     if (entry != null) {
                         surfaceKeyToEntry.put(getTextureDataKey(key, type, frame), entry);
+                        if ((entry.spriteName != null) && !spriteName.isEmpty()) {
+                            mnsSpritePathSet.add(entry.spriteName);
+                        }
                     }
                 } else {
                     surfaceSpriteNameToEntry.put(spriteName, entry);
                 }
             }
         }
+    }
+
+    private static void alertInefficientSprite(String spritePath, ObjectType type) {
+        if (consideredSprites.contains(spritePath)) {
+            return;
+        }
+
+        final SpriteAPI sprite = Global.getSettings().getSprite(spritePath);
+        if ((sprite == null) || (sprite.getHeight() < 1)) {
+            return;
+        }
+
+        final int prevBoundTex = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+        sprite.bindTexture();
+        final int texWidth = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+        final int texHeight = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+        final int texSize = texWidth * texHeight * 4;
+        final ByteBuffer texBuffer = ByteBuffer.allocateDirect(texSize);
+        GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, texBuffer);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, prevBoundTex);
+
+        final int trueWidth = Math.round(texWidth * sprite.getTextureWidth());
+        final int trueHeight = Math.round(texHeight * sprite.getTextureHeight());
+        final int yDiff = texHeight - trueHeight;
+        final byte pixel[] = new byte[4];
+        int leftMargin = trueWidth - 1;
+        int rightMargin = 0;
+        int bottomMargin = trueHeight - 1;
+        int topMargin = 0;
+        for (int y = (texHeight - 1); y >= 0; y--) {
+            for (int x = 0; x < texWidth; x++) {
+                pixel[0] = texBuffer.get();
+                pixel[1] = texBuffer.get();
+                pixel[2] = texBuffer.get();
+                pixel[3] = texBuffer.get();
+                if (x >= trueWidth) {
+                    continue;
+                }
+                if (y < yDiff) {
+                    continue;
+                }
+
+                final double alpha = ((pixel[3] < 0) ? (pixel[3] + 256) : pixel[3]) / 255.0;
+                if (alpha > 0.0) {
+                    leftMargin = Math.min(leftMargin, x);
+                    rightMargin = Math.max(rightMargin, x);
+                    bottomMargin = Math.min(bottomMargin, y - yDiff);
+                    topMargin = Math.max(topMargin, y - yDiff);
+                }
+            }
+        }
+
+        leftMargin = Math.max(leftMargin - 1, 0);
+        rightMargin = Math.min(rightMargin + 1, trueWidth - 1);
+        bottomMargin = Math.max(bottomMargin - 1, 0);
+        topMargin = Math.min(topMargin + 1, trueHeight - 1);
+        if ((type == ObjectType.TURRET) || (type == ObjectType.TURRET_BARREL) || (type == ObjectType.TURRET_UNDER)) {
+            int leftLoss = leftMargin;
+            int rightLoss = (trueWidth - 1) - rightMargin;
+            int bottomLoss = bottomMargin;
+            int topLoss = (trueHeight - 1) - topMargin;
+            leftLoss = rightLoss = Math.abs(Math.min(leftLoss, rightLoss));
+            bottomLoss = topLoss = Math.abs(Math.min(bottomLoss, topLoss));
+            leftMargin = leftLoss;
+            rightMargin = (trueWidth - 1) - rightLoss;
+            bottomMargin = bottomLoss;
+            topMargin = (trueHeight - 1) - topLoss;
+        }
+        if ((type == ObjectType.HARDPOINT) || (type == ObjectType.HARDPOINT_BARREL) || (type == ObjectType.HARDPOINT_UNDER)) {
+            int leftLoss = leftMargin;
+            int rightLoss = (trueWidth - 1) - rightMargin;
+            int bottomLoss = bottomMargin;
+            int topLoss = (trueHeight - 1) - topMargin;
+            leftLoss = rightLoss = Math.abs(Math.min(leftLoss, rightLoss));
+            bottomLoss = Math.abs(Math.min(bottomLoss, topLoss / 3));
+            topLoss = bottomLoss * 3;
+            leftMargin = leftLoss;
+            rightMargin = (trueWidth - 1) - rightLoss;
+            bottomMargin = bottomLoss;
+            topMargin = (trueHeight - 1) - topLoss;
+        }
+
+        int possibleTexWidth = Math.max(rightMargin - leftMargin, 1);
+        int possibleTexHeight = Math.max(topMargin - bottomMargin, 1);
+        int possibleTexWidthNPO2 = 1;
+        int possibleTexHeightNPO2 = 1;
+        while (possibleTexWidthNPO2 < possibleTexWidth) {
+            possibleTexWidthNPO2 *= 2;
+        }
+        while (possibleTexHeightNPO2 < possibleTexHeight) {
+            possibleTexHeightNPO2 *= 2;
+        }
+        int wastedBytes = Math.round(((texWidth * texHeight) - (possibleTexWidthNPO2 * possibleTexHeightNPO2)) * 16f / 3f);
+        float wastePct = (100f * ((texWidth * texHeight) - (possibleTexWidthNPO2 * possibleTexHeightNPO2))) / (texWidth * texHeight);
+        if (wastePct > 0.1f) {
+            Global.getLogger(TextureData.class).log(Level.INFO, "\"" + spritePath + "\" is " + wastePct + "% wasted");
+        }
+
+        wastedBytesTotal += wastedBytes;
+        consideredSprites.add(spritePath);
     }
 
     private static String filePathForCache(String key, ObjectType type, int frame) {
@@ -1886,7 +2021,7 @@ public class TextureData {
      * @since 1.11.0
      */
     public static SpriteAPI autoGenNormalMap(String spritePath, String key, ObjectType type, int frame) {
-        if (!loadNormal || !useAutoGen) {
+        if (!isLoadNormal() || !GraphicsLibSettings.autoGenNormals()) {
             return null;
         }
 
@@ -2098,7 +2233,7 @@ public class TextureData {
 
         normalSprite = Global.getSettings().getSprite(filePath);
         if ((normalSprite != null) && (normalSprite.getHeight() >= 1)) {
-            int texId = normalSprite.getTextureId();
+            final int texId = normalSprite.getTextureId();
             vramUsageBytes -= Math.round((double) (16 * (Math.round(normalSprite.getWidth() / normalSprite.getTextureWidth())
                     * Math.round(normalSprite.getHeight() / normalSprite.getTextureHeight()))) / 3.0);
             Global.getSettings().unloadTexture(filePath);
@@ -2132,7 +2267,7 @@ public class TextureData {
      * @since 1.10.0
      */
     public static boolean isLoadMaterial() {
-        return loadMaterial;
+        return GraphicsLibSettings.loadMaterial();
     }
 
     /**
@@ -2143,7 +2278,7 @@ public class TextureData {
      * @since 1.10.0
      */
     public static boolean isLoadNormal() {
-        return loadNormal;
+        return GraphicsLibSettings.enableNormal();
     }
 
     /**
@@ -2154,38 +2289,7 @@ public class TextureData {
      * @since 1.10.0
      */
     public static boolean isLoadSurface() {
-        return loadSurface;
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        final boolean enableShaders = settings.getBoolean("enableShaders");
-        if (!enableShaders) {
-            loadMaterial = false;
-            loadNormal = false;
-            loadSurface = false;
-            useAutoGen = false;
-            return;
-        }
-
-        final boolean enabled = settings.getBoolean("enableLights");
-        if (enabled) {
-            loadMaterial = settings.getBoolean("loadMaterial");
-            loadNormal = settings.getBoolean("enableNormal");
-            if (loadNormal) {
-                loadSurface = settings.getBoolean("loadSurface");
-                useAutoGen = settings.getBoolean("autoGenNormals");
-            } else {
-                loadSurface = false;
-            }
-            preloadAll = settings.getBoolean("preloadAllMaps");
-        } else {
-            loadMaterial = false;
-            loadNormal = false;
-            loadSurface = false;
-            useAutoGen = false;
-        }
+        return GraphicsLibSettings.loadSurface();
     }
 
     private static String getAnimNameForFrame(String frame0, int frame) {

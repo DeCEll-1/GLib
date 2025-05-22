@@ -13,17 +13,14 @@ import com.fs.starfarer.api.combat.ShipSystemAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.Misc;
 import java.awt.Color;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Level;
 import org.dark.shaders.light.LightShader;
 import org.dark.shaders.light.StandardLight;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -33,22 +30,7 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
 
     private static final String DATA_KEY = "GLib_LightInjector";
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-
     private static final Vector2f ZERO = new Vector2f();
-
-    private static boolean hyperEnabled;
-    private static boolean sunEnabled;
-
-    static {
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(ShipDestructionEffects.class).log(Level.ERROR, "Failed to load settings: " + e.getMessage());
-            sunEnabled = false;
-            hyperEnabled = false;
-        }
-    }
 
     private static float effectiveRadius(ShipAPI ship) {
         if (ship.getSpriteAPI() == null || ship.isPiece()) {
@@ -72,13 +54,6 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             }
         }
         return result;
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        sunEnabled = settings.getBoolean("enableSunLight");
-        hyperEnabled = settings.getBoolean("enableHyperLight");
     }
 
     private CombatEngineAPI engine;
@@ -549,14 +524,16 @@ public class LightInjector extends BaseEveryFrameCombatPlugin {
             if (engine.getCustomData().containsKey("noSunPlugin")) {
                 return;
             }
-            if (hyperEnabled) {
+            if (GraphicsLibSettings.enableHyperLight()) {
                 if (engine.isInCampaign()) {
                     if (Global.getSector().getHyperspace() == Global.getSector().getPlayerFleet().getContainingLocation()) {
-                        engine.addPlugin(new HyperPlugin());
+                        if (Misc.getAbyssalDepthOfPlayer() < 1f) {
+                            engine.addPlugin(new HyperPlugin());
+                        }
                     }
                 }
             }
-            if (sunEnabled) {
+            if (GraphicsLibSettings.enableSunLight()) {
                 if (engine.isInCampaign()) {
                     List<NearbyPlanetData> stars = getNearbyStars(Global.getSector().getPlayerFleet());
                     for (NearbyPlanetData data : stars) {

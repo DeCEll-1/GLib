@@ -38,6 +38,7 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.dark.graphics.util.Tessellate;
 import org.dark.shaders.ShaderModPlugin;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.MapObjectAPI;
 import org.dark.shaders.util.ShaderAPI;
 import org.dark.shaders.util.ShaderLib;
@@ -45,8 +46,6 @@ import org.dark.shaders.util.TextureData;
 import org.dark.shaders.util.TextureData.ObjectType;
 import org.dark.shaders.util.TextureData.TextureDataType;
 import org.dark.shaders.util.TextureEntry;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.BufferUtils;
@@ -91,9 +90,6 @@ public class LightShader implements ShaderAPI {
     };
 
     private static final int MAX_LIGHTS = 372;
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-    static float FIGHTER_LIGHT_MULTIPLIER = 1f;
-    static float STANDARD_HEIGHT = 100f;
 
     private static final Vector2f ZERO = new Vector2f();
 
@@ -152,17 +148,11 @@ public class LightShader implements ShaderAPI {
     }
 
     private boolean bloomEnabled = false;
-    private float bloomIntensity = 2f;
-    private int bloomMips = 3;
-    private int bloomQuality = 3;
-    private float bloomScale = 0.5f;
 
     private final FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(4096);
     private final FloatBuffer dataBufferPre = BufferUtils.createFloatBuffer(4096);
 
     private boolean enabled = false;
-    private float flashHeight = 150f;
-    private float flatness = 0f;
     private int hdrBuffer2Id = 0;
     private int hdrBuffer3Id = 0;
     private int hdrBufferId = 0;
@@ -178,23 +168,15 @@ public class LightShader implements ShaderAPI {
     private float lastFlatness;
     private float lastFlipHorizontal;
     private float lastFlipVertical;
-    private float lightDepth = 0.2f;
-    private float lightMultiplier = 1f;
-    private float lightSizeMultiplier = 1f;
     private int lightTex = 0;
-    private int maxLights = 372;
-    private int maxLineLights = 372;
     private int normalBufferId = 0;
     private boolean normalEnabled = false;
-    private boolean optimizeNormal = false;
     private int normalTex = 0;
     private int program = 0;
     private int programAux = 0;
     private int programBloom1 = 0;
     private int programBloom2 = 0;
     private int programBloom3 = 0;
-    private float specularHardness = 0.4f;
-    private float specularMultiplier = 5f;
     private boolean validated = false;
     private boolean validatedAux = false;
     private boolean validatedBloom1 = false;
@@ -211,13 +193,9 @@ public class LightShader implements ShaderAPI {
         Global.getLogger(LightShader.class).setLevel(Level.INFO);
         Global.getLogger(LightShader.class).log(Level.INFO, "Instantiating Light Shader");
 
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(LightShader.class).log(Level.ERROR, "Failed to load shader settings: " + e.getMessage());
-            enabled = false;
-            return;
-        }
+        enabled = GraphicsLibSettings.enableLights();
+        normalEnabled = GraphicsLibSettings.enableNormal();
+        bloomEnabled = GraphicsLibSettings.enableBloom();
 
         String vendor = GL11.glGetString(GL11.GL_VENDOR);
         if (!GLContext.getCapabilities().OpenGL30 || vendor.contains("Intel")) {
@@ -237,9 +215,7 @@ public class LightShader implements ShaderAPI {
                 vertShader = Global.getSettings().loadText("data/shaders/lights/2dtangent.vert");
                 fragShader = Global.getSettings().loadText("data/shaders/lights/2dtangent.frag");
             } catch (IOException ex) {
-                Global.getLogger(LightShader.class).log(Level.ERROR,
-                        "Normal transform shader loading error!  Normals disabled!"
-                        + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Normal transform shader loading error!  Normals disabled!" + ex.getMessage());
                 normalEnabled = false;
             }
         }
@@ -252,8 +228,7 @@ public class LightShader implements ShaderAPI {
             programAux = ShaderLib.loadShader(vertShader, fragShader);
 
             if (programAux == 0) {
-                Global.getLogger(LightShader.class).log(Level.ERROR,
-                        "Normal transform shader compile error!  Normals disabled!");
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Normal transform shader compile error!  Normals disabled!");
                 normalEnabled = false;
             }
         }
@@ -267,8 +242,7 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/lights/lights.frag");
             }
         } catch (IOException ex) {
-            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!"
-                    + ex.getMessage());
+            Global.getLogger(LightShader.class).log(Level.ERROR, "Lighting shader loading error!  Lighting disabled!" + ex.getMessage());
             enabled = false;
             if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
                 GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
@@ -290,7 +264,7 @@ public class LightShader implements ShaderAPI {
         if (bloomEnabled) {
             try {
                 vertShader = Global.getSettings().loadText("data/shaders/bloom/bloom1.vert");
-                switch (bloomQuality) {
+                switch (GraphicsLibSettings.bloomQuality()) {
                     case 1 ->
                         fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom1-5.frag");
                     case 2 ->
@@ -306,8 +280,7 @@ public class LightShader implements ShaderAPI {
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!"
-                        + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 1 loading error!  Bloom disabled!" + ex.getMessage());
             }
 
             programBloom1 = ShaderLib.loadShader(vertShader, fragShader);
@@ -319,7 +292,7 @@ public class LightShader implements ShaderAPI {
 
             try {
                 vertShader = Global.getSettings().loadText("data/shaders/bloom/bloom2.vert");
-                switch (bloomQuality) {
+                switch (GraphicsLibSettings.bloomQuality()) {
                     case 1 ->
                         fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom2-5.frag");
                     case 2 ->
@@ -335,8 +308,7 @@ public class LightShader implements ShaderAPI {
                 }
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!"
-                        + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 2 loading error!  Bloom disabled!" + ex.getMessage());
             }
 
             programBloom2 = ShaderLib.loadShader(vertShader, fragShader);
@@ -351,8 +323,7 @@ public class LightShader implements ShaderAPI {
                 fragShader = Global.getSettings().loadText("data/shaders/bloom/bloom3.frag");
             } catch (IOException ex) {
                 bloomEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!"
-                        + ex.getMessage());
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Bloom shader 3 loading error!  Bloom disabled!" + ex.getMessage());
             }
 
             programBloom3 = ShaderLib.loadShader(vertShader, fragShader);
@@ -366,19 +337,16 @@ public class LightShader implements ShaderAPI {
         lightTex = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, lightTex);
         if (ShaderLib.useBufferCore()) {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
-                    (ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT, (ByteBuffer) null);
         } else {
-            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT,
-                    (ByteBuffer) null);
+            GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, ARBTextureRg.GL_R32F, 4096, 0, GL11.GL_RED, GL11.GL_FLOAT, (ByteBuffer) null);
         }
 
         if (normalEnabled) {
             normalTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalTex);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, ShaderLib.getInternalWidth(),
-                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
-                    GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -393,22 +361,18 @@ public class LightShader implements ShaderAPI {
 
             if (ShaderLib.useBufferCore()) {
                 normalBufferId = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, normalTex,
-                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                        0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else if (ShaderLib.useBufferARB()) {
                 normalBufferId = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, normalTex,
-                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                        0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             } else {
                 normalBufferId = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, normalTex,
-                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(),
-                        0);
+                        ShaderLib.getInternalWidth(), ShaderLib.getInternalHeight(), 0);
             }
 
             if (normalBufferId == 0) {
                 normalEnabled = false;
-                Global.getLogger(LightShader.class).log(Level.ERROR,
-                        "Normals framebuffer object error!  Normals disabled!");
+                Global.getLogger(LightShader.class).log(Level.ERROR, "Normals framebuffer object error!  Normals disabled!");
             }
         }
 
@@ -416,8 +380,7 @@ public class LightShader implements ShaderAPI {
             hdrTex = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB16, ShaderLib.getInternalWidth(),
-                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB,
-                    GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
+                    ShaderLib.getInternalHeight(), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_SHORT, (ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -444,9 +407,9 @@ public class LightShader implements ShaderAPI {
             hdrTex2 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex2);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
-                    ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                    ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
-                    GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+                    ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                    ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                    0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -461,27 +424,24 @@ public class LightShader implements ShaderAPI {
 
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex2,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex2,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             } else {
                 hdrBuffer2Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex2,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             }
 
             hdrTex3 = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrTex3);
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8,
-                    ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                    ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1), 0, GL11.GL_RGB,
-                    GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+                    ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                    ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                    0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
             if (ShaderLib.useBufferCore()) {
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
             } else if (ShaderLib.useBufferARB()) {
@@ -496,19 +456,16 @@ public class LightShader implements ShaderAPI {
 
             if (ShaderLib.useBufferCore()) {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(GL30.GL_COLOR_ATTACHMENT0, hdrTex3,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             } else if (ShaderLib.useBufferARB()) {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(ARBFramebufferObject.GL_COLOR_ATTACHMENT0, hdrTex3,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             } else {
                 hdrBuffer3Id = ShaderLib.makeFramebuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, hdrTex3,
-                        ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1),
-                        ShaderLib.getInternalHeight()
-                        / (int) Math.pow(2, bloomMips - 1), 0);
+                        ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1),
+                        ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), 0);
             }
 
             if (hdrBufferId == 0 || hdrBuffer2Id == 0 || hdrBuffer3Id == 0) {
@@ -542,11 +499,11 @@ public class LightShader implements ShaderAPI {
         } else {
             GL20.glUniform1f(index[8], 1f);
         }
-        GL20.glUniform1f(index[9], specularMultiplier);
+        GL20.glUniform1f(index[9], GraphicsLibSettings.specularIntensity());
         if (normalEnabled) {
             GL20.glUniform1i(index[10], 3);
             GL20.glUniform1i(index[11], 4);
-            GL20.glUniform1f(index[12], specularHardness);
+            GL20.glUniform1f(index[12], GraphicsLibSettings.specularHardness());
         }
         GL20.glUseProgram(0);
 
@@ -557,10 +514,9 @@ public class LightShader implements ShaderAPI {
             indexBloom1[2] = GL20.glGetUniformLocation(programBloom1, "hdr");
             indexBloom1[3] = GL20.glGetUniformLocation(programBloom1, "scale");
             GL20.glUniform1i(indexBloom1[0], 0);
-            GL20.glUniform2f(indexBloom1[1], (ShaderLib.getInternalWidth() / (int) Math.pow(2, bloomMips - 1)),
-                    ShaderLib.getVisibleU());
+            GL20.glUniform2f(indexBloom1[1], (ShaderLib.getInternalWidth() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1)), ShaderLib.getVisibleU());
             GL20.glUniform1f(indexBloom1[2], 16f);
-            GL20.glUniform1f(indexBloom1[3], bloomScale);
+            GL20.glUniform1f(indexBloom1[3], GraphicsLibSettings.bloomScale());
             GL20.glUseProgram(0);
 
             GL20.glUseProgram(programBloom2);
@@ -569,10 +525,9 @@ public class LightShader implements ShaderAPI {
             indexBloom2[2] = GL20.glGetUniformLocation(programBloom2, "intensity");
             indexBloom2[3] = GL20.glGetUniformLocation(programBloom2, "scale");
             GL20.glUniform1i(indexBloom2[0], 0);
-            GL20.glUniform2f(indexBloom2[1], ShaderLib.getInternalHeight() / (int) Math.pow(2, bloomMips - 1),
-                    ShaderLib.getVisibleV());
-            GL20.glUniform1f(indexBloom2[2], bloomIntensity);
-            GL20.glUniform1f(indexBloom2[3], bloomScale);
+            GL20.glUniform2f(indexBloom2[1], ShaderLib.getInternalHeight() / (int) Math.pow(2, GraphicsLibSettings.bloomMips() - 1), ShaderLib.getVisibleV());
+            GL20.glUniform1f(indexBloom2[2], GraphicsLibSettings.bloomIntensity());
+            GL20.glUniform1f(indexBloom2[3], GraphicsLibSettings.bloomScale());
             GL20.glUseProgram(0);
 
             GL20.glUseProgram(programBloom3);
@@ -642,6 +597,7 @@ public class LightShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(program);
+            program = 0;
         }
         if (programAux != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -653,6 +609,7 @@ public class LightShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programAux);
+            programAux = 0;
         }
         if (programBloom1 != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -664,6 +621,7 @@ public class LightShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programBloom1);
+            programBloom1 = 0;
         }
         if (programBloom2 != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -675,6 +633,7 @@ public class LightShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programBloom2);
+            programBloom2 = 0;
         }
         if (programBloom3 != 0) {
             ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -686,21 +645,27 @@ public class LightShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programBloom3);
+            programBloom3 = 0;
         }
         if (lightTex != 0) {
             GL11.glDeleteTextures(lightTex);
+            lightTex = 0;
         }
         if (hdrTex != 0) {
             GL11.glDeleteTextures(hdrTex);
+            hdrTex = 0;
         }
         if (hdrTex2 != 0) {
             GL11.glDeleteTextures(hdrTex2);
+            hdrTex2 = 0;
         }
         if (hdrTex3 != 0) {
             GL11.glDeleteTextures(hdrTex3);
+            hdrTex3 = 0;
         }
         if (normalTex != 0) {
             GL11.glDeleteTextures(normalTex);
+            normalTex = 0;
         }
         if (hdrBufferId != 0) {
             if (ShaderLib.useBufferCore()) {
@@ -710,6 +675,7 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glDeleteFramebuffersEXT(hdrBufferId);
             }
+            hdrBufferId = 0;
         }
         if (hdrBuffer2Id != 0) {
             if (ShaderLib.useBufferCore()) {
@@ -719,6 +685,7 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glDeleteFramebuffersEXT(hdrBuffer2Id);
             }
+            hdrBuffer2Id = 0;
         }
         if (hdrBuffer3Id != 0) {
             if (ShaderLib.useBufferCore()) {
@@ -728,6 +695,7 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glDeleteFramebuffersEXT(hdrBuffer3Id);
             }
+            hdrBuffer3Id = 0;
         }
         if (normalBufferId != 0) {
             if (ShaderLib.useBufferCore()) {
@@ -737,6 +705,7 @@ public class LightShader implements ShaderAPI {
             } else {
                 EXTFramebufferObject.glDeleteFramebuffersEXT(normalBufferId);
             }
+            normalBufferId = 0;
         }
 
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
@@ -788,6 +757,9 @@ public class LightShader implements ShaderAPI {
         final Map<DamagingProjectileAPI, Boolean> projectiles = localData.projectiles;
 
         // Add lights to new projectiles
+        final float fighterBrightnessScale = GraphicsLibSettings.fighterBrightnessScale();
+        final float weaponLightHeight = GraphicsLibSettings.weaponLightHeight();
+        final float weaponFlashHeight = GraphicsLibSettings.weaponFlashHeight();
         for (DamagingProjectileAPI proj : engine.getProjectiles()) {
             if (proj.didDamage() || (proj.getElapsed() > 0.1f)) {
                 continue;
@@ -808,15 +780,15 @@ public class LightShader implements ShaderAPI {
                     if ((float) Math.random() <= data.chance) {
                         final StandardLight light;
                         if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
-                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity * FIGHTER_LIGHT_MULTIPLIER,
-                                    data.standardSize * FIGHTER_LIGHT_MULTIPLIER);
+                            light = new StandardLight(ZERO, ZERO, ZERO, proj, data.standardIntensity * fighterBrightnessScale,
+                                    data.standardSize * fighterBrightnessScale);
                         } else {
                             light = new StandardLight(ZERO, ZERO, new Vector2f(-data.standardOffset, 0f), proj,
                                     data.standardIntensity, data.standardSize);
                         }
                         light.setColor(data.standardColor);
                         light.setAutoFadeOutTime(data.standardFadeout);
-                        light.setHeight(STANDARD_HEIGHT);
+                        light.setHeight(weaponLightHeight);
                         lights.add(light);
                     }
                 }
@@ -839,15 +811,15 @@ public class LightShader implements ShaderAPI {
                             light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
                         }
                         if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
-                            light.setIntensity(data.flashIntensity * FIGHTER_LIGHT_MULTIPLIER);
-                            light.setSize(data.flashSize * FIGHTER_LIGHT_MULTIPLIER);
+                            light.setIntensity(data.flashIntensity * fighterBrightnessScale);
+                            light.setSize(data.flashSize * fighterBrightnessScale);
                         } else {
                             light.setIntensity(data.flashIntensity);
                             light.setSize(data.flashSize);
                         }
                         light.setColor(data.flashColor);
                         light.fadeOut(data.flashFadeout);
-                        light.setHeight(flashHeight);
+                        light.setHeight(weaponFlashHeight);
                         lights.add(light);
                     }
                 }
@@ -958,15 +930,15 @@ public class LightShader implements ShaderAPI {
                         if ((((float) Math.random() <= data.chance) || hadAttachment) && ((proj.getDamageTarget() != null) || isMine)) {
                             final StandardLight light = new StandardLight(proj.getLocation(), ZERO, ZERO, null);
                             if ((proj.getSource() != null) && (proj.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
-                                light.setIntensity(data.hitIntensity * FIGHTER_LIGHT_MULTIPLIER * currentFactor);
-                                light.setSize(data.hitSize * FIGHTER_LIGHT_MULTIPLIER * currentFactor);
+                                light.setIntensity(data.hitIntensity * fighterBrightnessScale * currentFactor);
+                                light.setSize(data.hitSize * fighterBrightnessScale * currentFactor);
                             } else {
                                 light.setIntensity(data.hitIntensity * currentFactor);
                                 light.setSize(data.hitSize * currentFactor);
                             }
                             light.setColor(data.hitColor);
                             light.fadeOut(data.hitFadeout * currentFactor);
-                            light.setHeight(STANDARD_HEIGHT);
+                            light.setHeight(weaponLightHeight);
                             lights.add(light);
                         }
                     }
@@ -1008,8 +980,8 @@ public class LightShader implements ShaderAPI {
                         sizeScale *= 1.5f;
                     }
                     if (beam.getSource() != null && beam.getSource().getHullSize() == HullSize.FIGHTER && data.fighterDim) {
-                        intensityScale *= FIGHTER_LIGHT_MULTIPLIER;
-                        sizeScale *= FIGHTER_LIGHT_MULTIPLIER;
+                        intensityScale *= fighterBrightnessScale;
+                        sizeScale *= fighterBrightnessScale;
                     }
 
                     // Attached light
@@ -1018,7 +990,7 @@ public class LightShader implements ShaderAPI {
                         light.setIntensity(data.standardIntensity * intensityScale);
                         light.setSize(data.standardSize * sizeScale);
                         light.setColor(data.standardColor);
-                        light.setHeight(STANDARD_HEIGHT);
+                        light.setHeight(weaponLightHeight);
                         light.makePermanent();
                         lights.add(light);
                     }
@@ -1029,7 +1001,7 @@ public class LightShader implements ShaderAPI {
                         light.setIntensity(data.flashIntensity * intensityScale);
                         light.setSize(data.flashSize * sizeScale);
                         light.setColor(data.flashColor);
-                        light.setHeight(flashHeight);
+                        light.setHeight(weaponFlashHeight);
                         light.makePermanent();
                         lights.add(light);
                     }
@@ -1040,7 +1012,7 @@ public class LightShader implements ShaderAPI {
                         light.setIntensity(data.hitIntensity * intensityScale);
                         light.setSize(data.hitSize * sizeScale);
                         light.setColor(data.hitColor);
-                        light.setHeight(STANDARD_HEIGHT);
+                        light.setHeight(weaponLightHeight);
                         light.makePermanent();
                         lights.add(light);
                     }
@@ -1144,11 +1116,16 @@ public class LightShader implements ShaderAPI {
         int lightCount = 0;
         int lineLightCount = 0;
         final float[] bufferPut = new float[11];
+        final float sizeScale = GraphicsLibSettings.sizeScale();
+        final int maximumLineLights = GraphicsLibSettings.maximumLineLights();
+        final float lightDepth = GraphicsLibSettings.lightDepth();
+        final float intensityScale = GraphicsLibSettings.intensityScale();
+        final int maximumLights = GraphicsLibSettings.maximumLights();
         for (LightAPI light : lights) {
-            float size = Math.max(light.getSize() * lightSizeMultiplier, 0f);
+            float size = Math.max(light.getSize() * sizeScale, 0f);
             final int type = light.getType();
 
-            if (lineLightCount >= maxLineLights && type == 1) {
+            if ((lineLightCount >= maximumLineLights) && (type == 1)) {
                 continue;
             }
 
@@ -1167,8 +1144,8 @@ public class LightShader implements ShaderAPI {
                     final Vector2f coords = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation()));
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-                    final float specularIntensity = Math.max(light.getSpecularMult() * light.getIntensity() * lightMultiplier, 0f);
+                    final float intensity = Math.max(light.getIntensity() * intensityScale, 0f);
+                    final float specularIntensity = Math.max(light.getSpecularMult() * light.getIntensity() * intensityScale, 0f);
                     if (maxCoords == null || minCoords == null) {
                         maxCoords = new Vector2f(coords);
                         minCoords = new Vector2f(coords);
@@ -1224,7 +1201,7 @@ public class LightShader implements ShaderAPI {
                     final Vector2f coords2 = ShaderLib.transformScreenToUV(ShaderLib.transformWorldToScreen(light.getLocation2()));
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    final float intensity = Math.max(light.getIntensity() * intensityScale, 0f);
                     if (maxCoords == null || minCoords == null) {
                         maxCoords = new Vector2f(coords);
                         minCoords = new Vector2f(coords);
@@ -1286,7 +1263,7 @@ public class LightShader implements ShaderAPI {
                     final float anglesy = (float) Math.toRadians(light.getArcEnd());
                     size = ShaderLib.unitsToUV(size);
                     final float height = ShaderLib.unitsToUV(Math.max(light.getHeight(), light.getSize() * lightDepth));
-                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
+                    final float intensity = Math.max(light.getIntensity() * intensityScale, 0f);
                     if (maxCoords == null || minCoords == null) {
                         maxCoords = new Vector2f(coords);
                         minCoords = new Vector2f(coords);
@@ -1347,8 +1324,8 @@ public class LightShader implements ShaderAPI {
                     final float directionx = light.getDirection().x;
                     final float directiony = light.getDirection().y;
                     final float directionz = light.getDirection().z;
-                    final float intensity = Math.max(light.getIntensity() * lightMultiplier, 0f);
-                    final float specularIntensity = Math.max(light.getSpecularIntensity() * lightMultiplier, 0f);
+                    final float intensity = Math.max(light.getIntensity() * intensityScale, 0f);
+                    final float specularIntensity = Math.max(light.getSpecularIntensity() * intensityScale, 0f);
                     if (maxCoords == null || minCoords == null) {
                         maxCoords = new Vector2f(directionx, directiony);
                         minCoords = new Vector2f(directionx, directiony);
@@ -1400,7 +1377,7 @@ public class LightShader implements ShaderAPI {
                 lineLightCount++;
             }
             lightCount++;
-            if (lightCount >= Math.min(maxLights, MAX_LIGHTS)) {
+            if (lightCount >= Math.min(maximumLights, MAX_LIGHTS)) {
                 break;
             }
         }
@@ -1574,7 +1551,7 @@ public class LightShader implements ShaderAPI {
             }
 
             GL11.glDisable(GL11.GL_BLEND);
-            ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, bloomMips - 1));
+            ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, GraphicsLibSettings.bloomMips() - 1));
 
             ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
@@ -1622,7 +1599,7 @@ public class LightShader implements ShaderAPI {
             }
 
             GL11.glDisable(GL11.GL_BLEND);
-            ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, bloomMips - 1));
+            ShaderLib.drawScreenQuad(1f / (float) Math.pow(2, GraphicsLibSettings.bloomMips() - 1));
 
             ShaderLib.exitDraw(ShaderLib.getScreenTexture(), GL13.GL_TEXTURE0);
 
@@ -1713,6 +1690,7 @@ public class LightShader implements ShaderAPI {
         GL11.glColorMask(true, true, true, true);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+        final float normalFlatness = GraphicsLibSettings.normalFlatness();
         for (CombatEntityAPI asteroid : Global.getCombatEngine().getAsteroids()) {
             if (asteroid.getCustomData().containsKey(LightShader.DO_NOT_RENDER)) {
                 continue;
@@ -1741,6 +1719,10 @@ public class LightShader implements ShaderAPI {
                 sprite.setSize(asteroidSprite.getWidth(), asteroidSprite.getHeight());
                 sprite.setCenter(asteroidSprite.getCenterX(), asteroidSprite.getCenterY());
                 sprite.setAlphaMult(asteroidSprite.getAlphaMult());
+                sprite.setTexX(asteroidSprite.getTexX());
+                sprite.setTexY(asteroidSprite.getTexY());
+                sprite.setTexWidth(asteroidSprite.getTexWidth());
+                sprite.setTexHeight(asteroidSprite.getTexHeight());
                 depth = entry.magnitude;
                 hasNormal = true;
             } else {
@@ -1749,7 +1731,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final float uniformAngle = asteroidSprite.getAngle();
-            final float uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+            final float uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
             final float uniformFlipHorizontal = (asteroidSprite.getWidth() < 0f) ? -1f : 1f;
             final float uniformFlipVertical = (asteroidSprite.getHeight() < 0f) ? -1f : 1f;
             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -1798,8 +1780,9 @@ public class LightShader implements ShaderAPI {
 
         final List<ShipAPI> ships = Global.getCombatEngine().getShips();
         Collections.sort(ships, ShaderLib.SHIP_DRAW_ORDER);
+        final boolean optimizeNormals = GraphicsLibSettings.optimizeNormals();
         for (ShipAPI ship : ships) {
-            if ((optimizeNormal && ship.isHulk()) || ship.getCustomData().containsKey(DO_NOT_RENDER) || ship.isDoNotRender()) {
+            if ((optimizeNormals && ship.isHulk()) || ship.getCustomData().containsKey(DO_NOT_RENDER) || ship.isDoNotRender()) {
                 continue;
             }
             Vector2f shipLocation = ship.getLocation();
@@ -1827,6 +1810,10 @@ public class LightShader implements ShaderAPI {
                     sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                     sprite.setAlphaMult(ship.getCombinedAlphaMult());
+                    sprite.setTexX(originalSprite.getTexX());
+                    sprite.setTexY(originalSprite.getTexY());
+                    sprite.setTexWidth(originalSprite.getTexWidth());
+                    sprite.setTexHeight(originalSprite.getTexHeight());
                     depth = entry.magnitude;
                     hasNormal = true;
                 } else {
@@ -1835,7 +1822,7 @@ public class LightShader implements ShaderAPI {
                 }
 
                 uniformAngle = originalSprite.getAngle();
-                uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                 uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                 uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                 if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -1974,6 +1961,10 @@ public class LightShader implements ShaderAPI {
                             sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                             sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                             sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            sprite.setTexX(originalSprite.getTexX());
+                            sprite.setTexY(originalSprite.getTexY());
+                            sprite.setTexWidth(originalSprite.getTexWidth());
+                            sprite.setTexHeight(originalSprite.getTexHeight());
                             depth = entry.magnitude;
                             hasNormal = true;
                         } else {
@@ -1983,7 +1974,7 @@ public class LightShader implements ShaderAPI {
                         }
 
                         uniformAngle = slot.getAngle() + ship.getFacing() - 90f;
-                        uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                        uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                         uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                         uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                         if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2019,6 +2010,10 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                                 depth = entry.magnitude;
                                 hasNormal = true;
                             } else {
@@ -2027,7 +2022,7 @@ public class LightShader implements ShaderAPI {
                             }
 
                             uniformAngle = originalSprite.getAngle();
-                            uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                            uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                             uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                             uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2060,7 +2055,7 @@ public class LightShader implements ShaderAPI {
                             }
 
                             uniformAngle = originalSprite.getAngle();
-                            uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                            uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                             uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                             uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2095,6 +2090,10 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                                 depth = entry.magnitude;
                                 hasNormal = true;
                             } else {
@@ -2103,7 +2102,7 @@ public class LightShader implements ShaderAPI {
                             }
 
                             uniformAngle = originalSprite.getAngle();
-                            uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                            uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                             uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                             uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2136,7 +2135,7 @@ public class LightShader implements ShaderAPI {
                             }
 
                             uniformAngle = originalSprite.getAngle();
-                            uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                            uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                             uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                             uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2167,6 +2166,10 @@ public class LightShader implements ShaderAPI {
                                     sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                     sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
+                                    sprite.setTexX(originalSprite.getTexX());
+                                    sprite.setTexY(originalSprite.getTexY());
+                                    sprite.setTexWidth(originalSprite.getTexWidth());
+                                    sprite.setTexHeight(originalSprite.getTexHeight());
                                     depth = entry.magnitude;
                                     hasNormal = true;
                                 } else {
@@ -2175,7 +2178,7 @@ public class LightShader implements ShaderAPI {
                                 }
 
                                 uniformAngle = msl.getMissileFacing() - 90f;
-                                uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+                                uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
                                 uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
                                 uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
                                 if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2203,7 +2206,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final float uniformAngle = mapObject.getNormalAngle();
-            final float uniformFlatness = mapObject.hasNormal() ? 1f - ((1f - flatness) * mapObject.getNormalMagnitude()) : 2f;
+            final float uniformFlatness = mapObject.hasNormal() ? 1f - ((1f - normalFlatness) * mapObject.getNormalMagnitude()) : 2f;
             final float uniformFlipHorizontal = mapObject.getNormalFlipHorizontal() ? -1f : 1f;
             final float uniformFlipVertical = mapObject.getNormalFlipVertical() ? -1f : 1f;
             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2280,6 +2283,10 @@ public class LightShader implements ShaderAPI {
                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                 sprite.setAlphaMult(originalSprite.getAlphaMult());
+                sprite.setTexX(originalSprite.getTexX());
+                sprite.setTexY(originalSprite.getTexY());
+                sprite.setTexWidth(originalSprite.getTexWidth());
+                sprite.setTexHeight(originalSprite.getTexHeight());
                 depth = entry.magnitude;
                 hasNormal = true;
             } else {
@@ -2288,7 +2295,7 @@ public class LightShader implements ShaderAPI {
             }
 
             final float uniformAngle = originalSprite.getAngle();
-            final float uniformFlatness = hasNormal ? 1f - ((1f - flatness) * depth) : 2f;
+            final float uniformFlatness = hasNormal ? 1f - ((1f - normalFlatness) * depth) : 2f;
             final float uniformFlipHorizontal = (originalSprite.getWidth() < 0f) ? -1f : 1f;
             final float uniformFlipVertical = (originalSprite.getHeight() < 0f) ? -1f : 1f;
             if ((uniformAngle != lastAngle) || (uniformFlatness != lastFlatness) || (uniformFlipHorizontal != lastFlipHorizontal) || (uniformFlipVertical != lastFlipVertical)) {
@@ -2411,6 +2418,10 @@ public class LightShader implements ShaderAPI {
                 sprite.setSize(asteroidSprite.getWidth(), asteroidSprite.getHeight());
                 sprite.setCenter(asteroidSprite.getCenterX(), asteroidSprite.getCenterY());
                 sprite.setAlphaMult(asteroidSprite.getAlphaMult());
+                sprite.setTexX(asteroidSprite.getTexX());
+                sprite.setTexY(asteroidSprite.getTexY());
+                sprite.setTexWidth(asteroidSprite.getTexWidth());
+                sprite.setTexHeight(asteroidSprite.getTexHeight());
                 sprite.renderAtCenter(asteroidLocation.x, asteroidLocation.y);
             } else {
                 sprite = asteroidSprite;
@@ -2425,8 +2436,9 @@ public class LightShader implements ShaderAPI {
 
         final List<ShipAPI> ships = Global.getCombatEngine().getShips();
         Collections.sort(ships, ShaderLib.SHIP_DRAW_ORDER);
+        final boolean optimizeNormals = GraphicsLibSettings.optimizeNormals();
         for (ShipAPI ship : ships) {
-            if ((optimizeNormal && ship.isHulk()) || ship.getCustomData().containsKey(DO_NOT_RENDER) || ship.isDoNotRender()) {
+            if ((optimizeNormals && ship.isHulk()) || ship.getCustomData().containsKey(DO_NOT_RENDER) || ship.isDoNotRender()) {
                 continue;
             }
             final Vector2f shipLocation = ship.getLocation();
@@ -2452,6 +2464,10 @@ public class LightShader implements ShaderAPI {
                     sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                     sprite.setAlphaMult(ship.getCombinedAlphaMult());
+                    sprite.setTexX(originalSprite.getTexX());
+                    sprite.setTexY(originalSprite.getTexY());
+                    sprite.setTexWidth(originalSprite.getTexWidth());
+                    sprite.setTexHeight(originalSprite.getTexHeight());
                 } else {
                     sprite = originalSprite;
                     originalColor = sprite.getColor();
@@ -2559,6 +2575,10 @@ public class LightShader implements ShaderAPI {
                             sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                             sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                             sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                            sprite.setTexX(originalSprite.getTexX());
+                            sprite.setTexY(originalSprite.getTexY());
+                            sprite.setTexWidth(originalSprite.getTexWidth());
+                            sprite.setTexHeight(originalSprite.getTexHeight());
                             sprite.renderAtCenter(slotLocation.x, slotLocation.y);
                         } else {
                             sprite = originalSprite;
@@ -2594,6 +2614,10 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                                 sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
                             } else {
                                 sprite = originalSprite;
@@ -2652,6 +2676,10 @@ public class LightShader implements ShaderAPI {
                                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                                 sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()));
+                                sprite.setTexX(originalSprite.getTexX());
+                                sprite.setTexY(originalSprite.getTexY());
+                                sprite.setTexWidth(originalSprite.getTexWidth());
+                                sprite.setTexHeight(originalSprite.getTexHeight());
                                 sprite.renderAtCenter(weaponLocation.x, weaponLocation.y);
                             } else {
                                 sprite = originalSprite;
@@ -2705,18 +2733,18 @@ public class LightShader implements ShaderAPI {
                                     sprite.setAngle(msl.getMissileFacing() - 90f);
                                     sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                                     sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
-                                    sprite.setAlphaMult(
-                                            Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult())
-                                            * msl.getBrightness());
-                                    sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                            missileLocation.y + renderOffset.y);
+                                    sprite.setAlphaMult(Math.min(ship.getCombinedAlphaMult(), originalSprite.getAlphaMult()) * msl.getBrightness());
+                                    sprite.setTexX(originalSprite.getTexX());
+                                    sprite.setTexY(originalSprite.getTexY());
+                                    sprite.setTexWidth(originalSprite.getTexWidth());
+                                    sprite.setTexHeight(originalSprite.getTexHeight());
+                                    sprite.renderAtCenter(missileLocation.x + renderOffset.x, missileLocation.y + renderOffset.y);
                                 } else {
                                     sprite = originalSprite;
                                     originalColor = sprite.getColor();
 
                                     sprite.setColor(new Color(0, 0, 0, sprite.getColor().getAlpha()));
-                                    sprite.renderAtCenter(missileLocation.x + renderOffset.x,
-                                            missileLocation.y + renderOffset.y);
+                                    sprite.renderAtCenter(missileLocation.x + renderOffset.x, missileLocation.y + renderOffset.y);
 
                                     sprite.setColor(originalColor);
                                 }
@@ -2767,6 +2795,10 @@ public class LightShader implements ShaderAPI {
                 sprite.setSize(originalSprite.getWidth(), originalSprite.getHeight());
                 sprite.setCenter(originalSprite.getCenterX(), originalSprite.getCenterY());
                 sprite.setAlphaMult(originalSprite.getAlphaMult());
+                sprite.setTexX(originalSprite.getTexX());
+                sprite.setTexY(originalSprite.getTexY());
+                sprite.setTexWidth(originalSprite.getTexWidth());
+                sprite.setTexHeight(originalSprite.getTexHeight());
                 sprite.renderAtCenter(missileLocation.x, missileLocation.y);
             } else {
                 sprite = originalSprite;
@@ -2793,30 +2825,6 @@ public class LightShader implements ShaderAPI {
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
         }
         GL11.glPopAttrib();
-    }
-
-    private void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableLights");
-        maxLights = settings.getInt("maximumLights");
-        maxLineLights = settings.getInt("maximumLineLights");
-        lightMultiplier = (float) settings.getDouble("intensityScale");
-        lightSizeMultiplier = (float) settings.getDouble("sizeScale");
-        FIGHTER_LIGHT_MULTIPLIER = (float) settings.getDouble("fighterBrightnessScale");
-        bloomEnabled = settings.getBoolean("enableBloom");
-        bloomQuality = Math.max(Math.min(settings.getInt("bloomQuality"), 5), 1);
-        bloomMips = Math.max(Math.min(settings.getInt("bloomMips"), 5), 1);
-        bloomScale = (float) settings.getDouble("bloomScale");
-        bloomIntensity = (float) settings.getDouble("bloomIntensity");
-        normalEnabled = settings.getBoolean("enableNormal");
-        optimizeNormal = settings.getBoolean("optimizeNormals");
-        specularMultiplier = (float) settings.getDouble("specularIntensity");
-        specularHardness = (float) settings.getDouble("specularHardness");
-        flatness = (float) settings.getDouble("normalFlatness");
-        lightDepth = (float) settings.getDouble("lightDepth");
-        flashHeight = (float) settings.getDouble("weaponFlashHeight");
-        STANDARD_HEIGHT = (float) settings.getDouble("weaponLightHeight");
     }
 
     @Override

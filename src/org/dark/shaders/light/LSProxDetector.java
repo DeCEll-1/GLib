@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Level;
 import org.dark.shaders.light.LightShader.LocalData;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.lwjgl.util.vector.Vector2f;
 
 /* God have mercy on my soul */
@@ -79,15 +80,15 @@ public class LSProxDetector implements ProximityExplosionEffect {
                     if (((float) Math.random() <= data.chance) || hadAttachment) {
                         final StandardLight light = new StandardLight(originalProjectile.getLocation(), ZERO, ZERO, null);
                         if ((originalProjectile.getSource() != null) && (originalProjectile.getSource().getHullSize() == HullSize.FIGHTER) && data.fighterDim) {
-                            light.setIntensity(data.hitIntensity * LightShader.FIGHTER_LIGHT_MULTIPLIER);
-                            light.setSize(data.hitSize * LightShader.FIGHTER_LIGHT_MULTIPLIER);
+                            light.setIntensity(data.hitIntensity * GraphicsLibSettings.fighterBrightnessScale());
+                            light.setSize(data.hitSize * GraphicsLibSettings.fighterBrightnessScale());
                         } else {
                             light.setIntensity(data.hitIntensity);
                             light.setSize(data.hitSize);
                         }
                         light.setColor(data.hitColor);
                         light.fadeOut(data.hitFadeout);
-                        light.setHeight(LightShader.STANDARD_HEIGHT);
+                        light.setHeight(GraphicsLibSettings.weaponLightHeight());
                         lights.add(light);
                     }
                 }

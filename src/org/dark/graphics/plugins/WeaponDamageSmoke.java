@@ -1,6 +1,5 @@
 package org.dark.graphics.plugins;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -9,16 +8,12 @@ import com.fs.starfarer.api.combat.WeaponAPI.WeaponSize;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import java.awt.Color;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Level;
 import org.dark.graphics.util.ShipColors;
-import static org.dark.graphics.util.ShipColors.SMOKE_COLORS;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderLib;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -30,13 +25,8 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
     private static final float OFFSCREEN_GRACE_CONSTANT = 500f;
     private static final float OFFSCREEN_GRACE_FACTOR = 2f;
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
-
     private static final Color SMOKE1_MOD = new Color(0, 0, 0, 0);
     private static final Color SMOKE2_MOD = new Color(70, 70, 70, 0);
-
-    private static boolean enabled = true;
-    private static boolean offscreen = false;
 
     static {
         MAGNITUDE.put(WeaponSize.SMALL, 1f);
@@ -44,29 +34,12 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
         MAGNITUDE.put(WeaponSize.LARGE, 2.5f);
     }
 
-    static {
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(WeaponDamageSmoke.class).log(Level.ERROR, "Failed to load performance settings: "
-                    + e.getMessage());
-            enabled = false;
-        }
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableWeaponSmoke");
-        offscreen = settings.getBoolean("drawOffscreenParticles");
-    }
-
     private CombatEngineAPI engine;
     private final IntervalUtil interval = new IntervalUtil(0.1f, 0.1f);
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
-        if (engine == null || !enabled) {
+        if ((engine == null) || !GraphicsLibSettings.enableWeaponSmoke()) {
             return;
         }
 
@@ -87,12 +60,12 @@ public class WeaponDamageSmoke extends BaseEveryFrameCombatPlugin {
                     continue;
                 }
 
-                if (offscreen || ShaderLib.isOnScreen(ship.getLocation(), (ship.getCollisionRadius() + 20f)
-                        * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
+                if (GraphicsLibSettings.drawOffscreenParticles()
+                        || ShaderLib.isOnScreen(ship.getLocation(), (ship.getCollisionRadius() + 20f) * OFFSCREEN_GRACE_FACTOR + OFFSCREEN_GRACE_CONSTANT)) {
                     String style = ship.getHullStyleId();
-                    Color smokeColor = SMOKE_COLORS.get(style);
+                    Color smokeColor = ShipColors.SMOKE_COLORS.get(style);
                     if (smokeColor == null) {
-                        smokeColor = SMOKE_COLORS.get("MIDLINE");
+                        smokeColor = ShipColors.SMOKE_COLORS.get("MIDLINE");
                     }
                     List<WeaponAPI> weapons = ship.getAllWeapons();
                     int weaponsSize = weapons.size();

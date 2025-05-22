@@ -1,3 +1,11 @@
+Version 1.12.0 (May 22, 2025)
+- Added LunaLib support for in-game settings changes
+  * Game restarts are NOT required to change settings
+- Fixed support for sprite sheets for weapons/ships/etc
+- Fixed a number of edge cases with texture loading that may have wasted unnecessary VRAM
+- Now capable of finding/preloading MIRV'd missile textures
+- No longer creates a hyperspace light in the Abyss
+
 Version 1.11.0 (May 14, 2025)
 - GraphicsLib will now automatically generate basic normal maps for ships, weapons, etc. which lack them
   * The resulting normal maps are cached on disk in the GraphicsLib/cache folder

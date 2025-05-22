@@ -16,10 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import org.apache.log4j.Level;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderAPI;
 import org.dark.shaders.util.ShaderLib;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -53,8 +52,6 @@ public class DistortionShader implements ShaderAPI {
             return 0;
         }
     };
-
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
 
     /**
      * Adds a distortion object to the rendering list. This function will do nothing if the distortion shader is not
@@ -111,7 +108,6 @@ public class DistortionShader implements ShaderAPI {
     private boolean enabled = false;
     private final int[] index = new int[4];
     private final int[] indexAux = new int[7];
-    private int maxDistortions = 100;
     private int program = 0;
     private int programAux = 0;
     private boolean validated = false;
@@ -131,15 +127,7 @@ public class DistortionShader implements ShaderAPI {
 
         Global.getLogger(DistortionShader.class).setLevel(Level.INFO);
 
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(DistortionShader.class).log(Level.ERROR, "Failed to load shader settings: "
-                    + e.getMessage());
-            enabled = false;
-            return;
-        }
-
+        enabled = GraphicsLibSettings.enableDistortion();
         if (!enabled) {
             return;
         }
@@ -247,6 +235,7 @@ public class DistortionShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(program);
+            program = 0;
         }
         if (programAux != 0) {
             final ByteBuffer countbb = ByteBuffer.allocateDirect(4);
@@ -258,6 +247,7 @@ public class DistortionShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(programAux);
+            programAux = 0;
         }
 
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
@@ -346,6 +336,7 @@ public class DistortionShader implements ShaderAPI {
         float minScale = 0;
         int distortionCount = 0;
         ListIterator<DistortionAPI> iter = distortions.listIterator();
+        final int maximumDistortions = GraphicsLibSettings.maximumDistortions();
         while (iter.hasNext()) {
             final DistortionAPI distortion = iter.next();
             float scale = ShaderLib.unitsToUV(distortion.getIntensity());
@@ -358,7 +349,7 @@ public class DistortionShader implements ShaderAPI {
             }
 
             distortionCount++;
-            if (distortionCount >= maxDistortions) {
+            if (distortionCount >= maximumDistortions) {
                 break;
             }
         }
@@ -406,7 +397,7 @@ public class DistortionShader implements ShaderAPI {
             sprite.renderAtCenter(location.x, location.y);
 
             distortionCount++;
-            if (distortionCount >= maxDistortions) {
+            if (distortionCount >= maximumDistortions) {
                 break;
             }
         }
@@ -460,13 +451,6 @@ public class DistortionShader implements ShaderAPI {
         if (ShaderLib.DEBUG_CALLBACK_NO_VANILLA) {
             GL11.glDisable(GL43.GL_DEBUG_OUTPUT);
         }
-    }
-
-    private void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        enabled = settings.getBoolean("enableDistortion");
-        maxDistortions = settings.getInt("maximumDistortions");
     }
 
     @Override

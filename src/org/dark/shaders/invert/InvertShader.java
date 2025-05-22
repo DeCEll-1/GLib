@@ -91,6 +91,7 @@ public class InvertShader implements ShaderAPI {
                 GL20.glDeleteShader(shaders.get());
             }
             GL20.glDeleteProgram(program);
+            program = 0;
         }
     }
 

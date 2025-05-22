@@ -24,10 +24,10 @@ import org.dark.shaders.distortion.DistortionAPI;
 import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.distortion.RippleDistortion;
 import org.dark.shaders.distortion.WaveDistortion;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.dark.shaders.util.ShaderLib;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -39,14 +39,9 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
 
     private static final String DATA_KEY = "GLib_Distortions";
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
     private static final String SETTINGS_SPREADSHEET = "data/config/glib/no_shield_ripple.csv";
 
     private static final Vector2f ZERO = new Vector2f();
-
-    private static boolean enabled = true;
-    private static boolean mjolnirEnabled = true;
-    private static boolean shieldEnabled = true;
 
     static {
         try {
@@ -54,7 +49,6 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
         } catch (Exception e) {
             Global.getLogger(DistortionsPlugin.class).log(Level.ERROR, "Failed to load performance settings: "
                     + e.getMessage());
-            enabled = false;
         }
     }
 
@@ -72,19 +66,14 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
                 EXCLUDED_PROJECTILES.add(id);
             }
         }
-
-        JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        shieldEnabled = settings.getBoolean("enableShieldRipples");
-        mjolnirEnabled = settings.getBoolean("enableMjolnirRipples");
-        enabled = shieldEnabled || mjolnirEnabled;
     }
 
     private CombatEngineAPI engine;
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
-        if (engine == null || !enabled) {
+        boolean enabled = GraphicsLibSettings.enableShieldRipples() || GraphicsLibSettings.enableMjolnirRipples();
+        if ((engine == null) || !enabled) {
             return;
         }
 
@@ -108,14 +97,14 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             }
 
             if (!projectiles.containsKey(projectile)) {
-                if ((projectile.getProjectileSpecId() != null) && projectile.getProjectileSpecId().contentEquals("mjolnir_shot") && mjolnirEnabled) {
+                if (GraphicsLibSettings.enableMjolnirRipples() && (projectile.getProjectileSpecId() != null) && projectile.getProjectileSpecId().contentEquals("mjolnir_shot")) {
                     WaveDistortion wave = new WaveDistortion(projectile.getLocation(), ZERO);
                     wave.setIntensity(5f);
                     wave.setSize(50f);
                     wave.flip(true);
                     DistortionShader.addDistortion(wave);
                     projectiles.put(projectile, new ProjectileInfo(wave, projectile.getDamageAmount()));
-                } else if (shieldEnabled && ((projectile.getProjectileSpecId() == null) || !EXCLUDED_PROJECTILES.contains(projectile.getProjectileSpecId()))) {
+                } else if (GraphicsLibSettings.enableShieldRipples() && ((projectile.getProjectileSpecId() == null) || !EXCLUDED_PROJECTILES.contains(projectile.getProjectileSpecId()))) {
                     projectiles.put(projectile, new ProjectileInfo(projectile.getDamageAmount()));
                 }
             }
@@ -133,8 +122,7 @@ public class DistortionsPlugin extends BaseEveryFrameCombatPlugin {
             if (projectile.didDamage()) {
                 CombatEntityAPI target = projectile.getDamageTarget();
 
-                if (target instanceof ShipAPI && shieldEnabled) {
-                    ShipAPI ship = (ShipAPI) target;
+                if (GraphicsLibSettings.enableShieldRipples() && (target instanceof ShipAPI ship)) {
                     float distanceFromShieldBorder = 0f;
                     if (ship.getShield() != null) {
                         distanceFromShieldBorder = Math.abs((MathUtils.getDistance(projectile.getLocation(),

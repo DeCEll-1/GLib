@@ -2,10 +2,7 @@ package org.dark.shaders.distortion;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import java.io.IOException;
-import org.apache.log4j.Level;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.dark.shaders.util.GraphicsLibSettings;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -22,31 +19,14 @@ public class RippleDistortion implements DistortionAPI {
 
     public static final int FRAMES = 60;
 
-    private static final String SETTINGS_FILE = "GRAPHICS_OPTIONS.ini";
     protected static final SpriteAPI[] animation = new SpriteAPI[60];
     protected static boolean useLargeRipple = false;
 
     static boolean pathsSet = false;
 
-    static {
-        Global.getLogger(RippleDistortion.class).setLevel(Level.INFO);
-
-        try {
-            loadSettings();
-        } catch (Exception e) {
-            Global.getLogger(RippleDistortion.class).log(Level.ERROR, "Failed to load shader settings: "
-                    + e.getMessage());
-        }
-    }
-
-    private static void loadSettings() throws IOException, JSONException {
-        final JSONObject settings = Global.getSettings().loadJSON(SETTINGS_FILE);
-
-        useLargeRipple = settings.getBoolean("useLargeRipple");
-    }
-
     private static void setPaths() {
         String path;
+        useLargeRipple = GraphicsLibSettings.useLargeRipple();
         for (int i = 1; i <= FRAMES; i++) {
             if (!useLargeRipple) {
                 if (i < 10) {

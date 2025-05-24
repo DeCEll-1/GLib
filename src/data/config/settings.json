@@ -19,7 +19,8 @@
     "graphics":{
         "icons":{
             "glib_insignia":"graphics/glib/icons/insignia/glib_insignaSheet.png",
-            "glib_icon":"graphics/glib/icons/graphicsLibIcon.png"
+            "glib_icon":"graphics/glib/icons/graphicsLibIcon.png",
+            "glib_aa_warning":"graphics/glib/icons/aa_warning.png"
         }
     }
 }

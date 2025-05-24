@@ -90,7 +90,8 @@ public final class ShaderModPlugin extends BaseModPlugin {
 
         if (ShaderLib.areShadersAllowed()) {
             if ((Global.getSettings().getAASamples() > 1) && !ShaderLib.isAACompatMode()) {
-                throw new RuntimeException("""
+                if (!Global.getSettings().getModManager().isModEnabled("lunalib")) {
+                    throw new RuntimeException("""
 GraphicsLib shaders are not fully compatible with antialiasing! You have three options...
 
 A) Set Antialiasing to "Off" in the launcher options.
@@ -99,6 +100,7 @@ B) Use partial antialiasing by setting "aaCompatMode" to "true" in GRAPHICS_OPTI
 
 C) Disable shaders by setting "enableShaders" to "false" in GRAPHICS_OPTIONS.ini.
                                            """);
+                }
             }
         }
 

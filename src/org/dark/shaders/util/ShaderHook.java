@@ -13,6 +13,7 @@ import com.fs.starfarer.api.combat.DeployedFleetMemberAPI;
 import com.fs.starfarer.api.combat.EveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Internal every frame hook that runs each shader in turn. Do not modify.
@@ -283,6 +286,44 @@ public final class ShaderHook implements EveryFrameCombatPlugin {
                 if (shader.isCombat() && (shader.getCombatLayer().equals(layer))) {
                     shader.renderInWorldCoords(viewport);
                 }
+            }
+
+            if ((Global.getSettings().getAASamples() > 1) && !ShaderLib.isAACompatMode() && (layer == CombatEngineLayers.JUST_BELOW_WIDGETS)) {
+                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+                GL11.glViewport(0, 0, (int) (Global.getSettings().getScreenWidthPixels() * Display.getPixelScaleFactor()),
+                        (int) (Global.getSettings().getScreenHeightPixels() * Display.getPixelScaleFactor()));
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPushMatrix();
+                GL11.glLoadIdentity();
+                GL11.glOrtho(0, Global.getSettings().getScreenWidthPixels(), 0, Global.getSettings().getScreenHeightPixels(), -1, 1);
+                GL11.glMatrixMode(GL11.GL_TEXTURE);
+                GL11.glPushMatrix();
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glPushMatrix();
+                GL11.glLoadIdentity();
+
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GL11.glColor4ub((byte) 0, (byte) 0, (byte) 0, (byte) 200);
+
+                GL11.glBegin(GL11.GL_QUADS);
+                GL11.glVertex2d(0.0, Global.getSettings().getScreenHeightPixels());
+                GL11.glVertex2d(Global.getSettings().getScreenWidthPixels(), Global.getSettings().getScreenHeightPixels());
+                GL11.glVertex2d(Global.getSettings().getScreenWidthPixels(), 0.0);
+                GL11.glVertex2d(0.0, 0.0);
+                GL11.glEnd();
+
+                final SpriteAPI warningSprite = Global.getSettings().getSprite("icons", "glib_aa_warning");
+                warningSprite.renderAtCenter((Global.getSettings().getScreenWidthPixels() / 2f) - 155, (Global.getSettings().getScreenHeightPixels() / 2f) + 55);
+
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glPopMatrix();
+                GL11.glMatrixMode(GL11.GL_TEXTURE);
+                GL11.glPopMatrix();
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPopMatrix();
+                GL11.glPopAttrib();
             }
         }
     }

@@ -1,3 +1,6 @@
+Version 1.12.11 (July 4, 2025)
+- Switched to github
+
 Version 1.12.1 (May 23, 2025)
 - Enhanced AA Compatibility Mode when LunaLib is enabled
 

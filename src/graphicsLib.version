@@ -1,9 +1,9 @@
 {
-    "masterVersionFile": "https://github.com/DeCEll-1/GLib/blob/master/src/graphicsLib.version",
+    "masterVersionFile": "https://raw.githubusercontent.com/DeCEll-1/GLib/refs/heads/master/src/graphicsLib.version",
     "modName": "GraphicsLib",
     "modThreadId": 10982,
     "directDownloadURL": "https://github.com/DeCEll-1/GLib/releases/download/exampleTag/GraphicsLib.rar",
-    "changelogURL": "https://github.com/DeCEll-1/GLib/blob/master/src/changelog.txt",
+    "changelogURL": "https://raw.githubusercontent.com/DeCEll-1/GLib/refs/heads/master/src/changelog.txt",
     "modVersion": {
         "major": 1,
         "minor": 12,

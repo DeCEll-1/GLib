@@ -1,13 +1,12 @@
 {
-    "masterVersionFile":"https://bitbucket.org/DarkRevenant/graphicslib/downloads/graphicsLib.version",
-    "modName":"GraphicsLib",
-    "modThreadId":10982,
-    "directDownloadURL": "https://bitbucket.org/DarkRevenant/graphicslib/downloads/GraphicsLib_1.12.1.7z",
-    "changelogURL":"https://bitbucket.org/DarkRevenant/graphicslib/downloads/changelog.txt",
-    "modVersion":
-    {
-        "major":1,
-        "minor":12,
-        "patch":1
-    },
+    "masterVersionFile": "https://github.com/DeCEll-1/GLib/blob/master/src/graphicsLib.version",
+    "modName": "GraphicsLib",
+    "modThreadId": 10982,
+    "directDownloadURL": "https://github.com/DeCEll-1/GLib/releases/download/exampleTag/GraphicsLib.rar",
+    "changelogURL": "https://github.com/DeCEll-1/GLib/blob/master/src/changelog.txt",
+    "modVersion": {
+        "major": 1,
+        "minor": 12,
+        "patch": 1
+    }
 }
